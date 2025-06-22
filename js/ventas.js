@@ -1,8 +1,3 @@
-// ventas.js adaptado para usar el nuevo db.js
-// No necesitas definir 'db', 'DB_NAME', 'DB_VERSION' ni las funciones CRUD básicas aquí.
-// Esas ahora vienen de tu archivo db.js.
-
-// Arrays globales para almacenar los datos en memoria después de cargarlos de IndexedDB
 let clientes = [];
 let ventas = [];
 let productos = [];
@@ -904,6 +899,8 @@ async function abrirModalAbono(ventaId) {
 
     document.getElementById("montoAbono").value = venta.montoPendiente.toFixed(2); // Valor por defecto
     document.getElementById("modalAbono").style.display = "flex";
+
+    document.getElementById("modalAbono").scrollIntoView({ behavior: 'smooth', block: 'center' }); 
 
     // Cargar y mostrar abonos previos de esta venta
     await mostrarAbonosPrevios(ventaId);
