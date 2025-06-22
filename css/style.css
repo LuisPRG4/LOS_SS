@@ -1,0 +1,1261 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* FUENTE */
+/* Se mueve al inicio ya que las fuentes son fundamentales para el diseño */
+@font-face {
+    font-family: 'Handlee';
+    src: url('/fonts/Handlee-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* General */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fdfdfd;
+    color: #333;
+    padding: 20px;
+}
+
+header {
+    margin-bottom: 10px;
+}
+
+/* Estilos para el header moderno */
+.header-elegante {
+    background-color: #fffaf0;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(91, 45, 144, 0.15);
+    margin: 1rem;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    /* Consolidado: antes tenías .header-container y .logo/.header h1/.logo */
+    justify-content: flex-start;
+    max-width: 800px; /* Asegura un ancho máximo si es necesario */
+    margin: 0 0 20px 0; /* Un margen inferior para separarlo de la navegación */
+}
+
+.logo-libre { /* Usado en header-elegante */
+    width: 100px;
+    height: auto;
+    border: none;
+    box-shadow: none;
+    object-fit: contain;
+    background: none;
+    animation: flotar 4s ease-in-out infinite;
+    transition: transform 0.2s ease;
+}
+
+.logo-libre:hover {
+    animation: vibrar 0.3s linear infinite;
+}
+
+.texto-header {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.titulo-header {
+    font-family: 'Handlee', cursive;
+    font-size: 2rem;
+    color: #4b3500;
+    margin: 0 0 6px 0;
+    animation: entradaTitulo 0.8s ease;
+}
+
+.descripcion-header {
+    font-size: 0.95rem;
+    color: #4b3500;
+    font-style: italic;
+    margin: 0;
+    animation: desvanecer 1.2s ease;
+}
+
+
+/* Navegación (Consolidado) */
+nav {
+    background-color: #fffaf0;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 30px;
+    text-align: center;
+    border: 1px solid #d4af37; /* Tomado de la segunda declaración de nav */
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 1rem; /* Usando 1rem, más moderno que 15px, estaba en la segunda declaración */
+    flex-wrap: wrap; /* Para responsividad */
+    margin: 0;
+    padding: 0;
+}
+
+nav a {
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 8px;
+    background-color: #ffffff; /* Este es el color de fondo del "botón" de navegación */
+    border: 1px solid #d5bfff; /* Borde morado claro */
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s; /* Asegura transiciones suaves */
+
+    /* --- ESTILOS PARA EL TEXTO CON DEGRADADO Y BRILLO ANIMADO --- */
+    /* Definimos un degradado que va de un marrón-dorado oscuro a un dorado brillante y vuelve */
+    background-image: linear-gradient(90deg, #4b3500 0%, #a58b36 25%, #FFD700 50%, #a58b36 75%, #4b3500 100%);
+    background-size: 400% auto; /* Hacemos el fondo mucho más ancho para el efecto de desplazamiento */
+    -webkit-background-clip: text; /* Para navegadores basados en Webkit (Chrome, Safari) */
+    background-clip: text;         /* Recorta el fondo a la forma del texto */
+    -webkit-text-fill-color: transparent; /* Hace el texto transparente para mostrar el fondo */
+    color: transparent; /* Fallback para navegadores que no soporten text-fill-color */
+
+    /* Aplicamos la animación de brillo */
+    animation: shimmer-effect 6s linear infinite; /* 6 segundos para un barrido completo, 'linear' para velocidad constante, 'infinite' para que se repita */
+}
+
+nav a:hover {
+    background-color: #a58b36; /* Tu color dorado para el fondo del botón al hacer hover */
+    /* Cuando el usuario hace hover, el texto será un color sólido y legible */
+    background-image: none; /* Desactivar el degradado del texto */
+    -webkit-text-fill-color: #4b3500; /* ¡NUEVO COLOR SUGERIDO: Marrón Oscuro para el texto! */
+    color: #4b3500; /* Fallback para color de texto */
+    animation: none; /* Detener la animación de brillo al hacer hover */
+}
+
+/* Y para el estado activo (página actual), también queremos un color sólido legible */
+nav a.active {
+    background-color: #a58b36; /* Tu color de fondo activo actual */
+    border-color: #d4af37;
+
+    background-image: none; /* Desactivar el degradado del texto para la página activa */
+    -webkit-text-fill-color: #4b3500; /* ¡NUEVO COLOR SUGERIDO: Marrón Oscuro para el texto activo! */
+    color: #4b3500; /* Fallback para color de texto */
+    animation: none; /* Detener la animación de brillo para la página activa */
+}
+
+
+/* Puedes mantener el mismo color al pasar el ratón sobre un enlace activo */
+nav a.active:hover {
+    background-color: #a58b36; /* Se mantiene el color activo al hacer hover */
+    color: white;
+}
+
+/* ANIMACIÓN DE BRILLO DESPLAZABLE PARA EL TEXTO */
+@keyframes shimmer-effect {
+  0% {
+    background-position: -200% 0; /* Inicia el degradado (y su brillo) fuera de la pantalla a la izquierda */
+  }
+  100% {
+    background-position: 200% 0; /* Mueve el degradado (y su brillo) fuera de la pantalla a la derecha */
+  }
+}
+
+
+
+
+/* Menú Hamburguesa */
+.menu-toggle {
+    display: none; /* Oculto por defecto en desktop */
+    font-size: 1.5rem;
+    cursor: pointer;
+    background: linear-gradient(145deg, #f7e1b8, #c6a663);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 90px; /* Circular */
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Secciones */
+main section {
+    background-color: #fffaf0;
+    border: 1px solid #d4af37;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+h2 {
+    color: #4b3500;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Formularios */
+input, select, textarea { /* Separados de button para controlar width */
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+button { /* Estilos generales para botones */
+    display: block; /* Para que ocupen su propia línea por defecto */
+    width: 100%;
+    max-width: 400px;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 6px; /* Reducido ligeramente de 8px */
+    border: none; /* Removido el borde de 1px solid #ccc */
+    background-color: #d4af37;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease;
+    padding: 10px 18px; /* Mantener padding original si es necesario */
+}
+
+button:hover {
+    background-color: #a18937;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Listas Generales */
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul li {
+    background-color: #f9f9f9;
+    margin: 10px auto;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #d4af37;
+    max-width: 500px;
+    position: relative;
+}
+
+/* Botones dentro de LI (Eliminar) */
+ul li button {
+    width: auto; /* Anula el 100% de la regla general de button */
+    margin-top: 10px;
+    background-color: #e74c3c;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+ul li button:hover {
+    background-color: #c0392b;
+}
+
+/* Estilo CSS para los toasts */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.toast {
+    background-color: #5b2d90;
+    color: #fff;
+    padding: 12px 18px;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.4s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Responsividad General */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    header h1 { /* Ajuste para header h1 en móvil */
+        font-size: 1.3rem; /* Ajustado de 2rem para ser más pequeño */
+    }
+
+    .header-container { /* Ajuste para header .header-content */
+        justify-content: flex-start;
+        max-width: 100%;
+        padding: 0 10px;
+    }
+
+    .logo-libre { /* Ajuste para header .logo */
+        width: 90px; /* Ajustado de 100px */
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    nav a {
+        width: 100%;
+        text-align: center;
+    }
+
+    main section {
+        padding: 15px;
+    }
+
+    input, select, textarea, button { /* Aplica a todos si no hay form-buttons */
+        max-width: 100%;
+    }
+
+    ul li {
+        max-width: 100%;
+        padding: 12px;
+    }
+
+    .toast-container {
+        top: 10px;
+        right: 10px;
+    }
+}
+
+/* Responsividad para Menú Hamburguesa */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block; /* Muestra el botón hamburguesa */
+        margin-bottom: auto; /* Ajuste para espaciado */
+    }
+
+    nav ul {
+        flex-direction: column;
+        display: none; /* Oculta el menú por defecto en móvil */
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    nav ul.open {
+        display: flex; /* Muestra el menú cuando tiene la clase 'open' */
+    }
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    color: #745819;
+    margin-bottom: 6px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    font-size: 1rem;
+}
+
+.sugerencias {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 95%; /* Asegura que no desborde en contenedores responsivos */
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.sugerencias li {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+.sugerencias li:hover {
+    background-color: #f0f0f0;
+}
+
+/* MEJORAS DE DISEÑO PARA LAS LISTAS (PEDIDOS, CLIENTES, VENTAS, INVENTARIO, PROVEEDORES) */
+
+/* PEDIDOS */
+.pedido-card {
+    background-color: #f9f7fc;
+    border: 1px solid #ddd;
+    border-left: 5px solid #5b2d90;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 8px rgba(91, 45, 144, 0.1);
+    transition: transform 0.2s;
+}
+
+.pedido-card:hover {
+    transform: translateY(-2px);
+}
+
+.pedido-card strong {
+    font-size: 1.1em;
+    color: #5b2d90;
+}
+
+.estado-select {
+    margin-top: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+}
+
+.boton-eliminar { /* Usado en pedidos y posiblemente otros */
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    margin-top: 6px;
+    margin-left: 10px; /* Para separar del select */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.boton-eliminar:hover {
+    background-color: #c0392b;
+}
+
+/* CLIENTES */
+#listaClientes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.cliente-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(91, 45, 144, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.cliente-card:hover {
+    transform: scale(1.02);
+}
+
+.cliente-card h3 {
+    margin-top: 0;
+    color: #5b2d90;
+    font-size: 1.2rem;
+}
+
+.cliente-card p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+}
+
+.btn-eliminar { /* Duplicado, mantener el más específico o consolidar */
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-eliminar:hover {
+    background-color: #c0392b;
+}
+
+/* INVENTARIO */
+#listaProductos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0;
+}
+
+.producto-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(91, 45, 144, 0.1);
+    transition: transform 0.2s ease;
+    text-align: justify;
+}
+
+.producto-card:hover {
+    transform: scale(1.02);
+}
+
+.producto-card h3 {
+    margin-top: 10px;
+    color: #5b2d90;
+    font-size: 1.1rem;
+}
+
+.producto-card p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+}
+
+.producto-imagen {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.botones-producto {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-editar {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background-color: #d4af37;
+    color: white;
+}
+
+.btn-editar:hover {
+    background-color: #4a237a; /* Mantiene el color morado oscuro para editar */
+}
+
+
+/* FINANZAS */
+.movimiento-item {
+    background: #f5f3fa;
+    border: 1.5px solid #8b6fc1;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(91, 45, 144, 0.15);
+    transition: box-shadow 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.movimiento-item:hover {
+    box-shadow: 0 6px 12px rgba(91, 45, 144, 0.35);
+}
+
+.movimiento-item strong {
+    color: #5b2d90;
+    font-size: 1.15rem;
+}
+
+.movimiento-item em {
+    color: #4a4a4a;
+    font-style: italic;
+    display: block;
+    margin: 6px 0 8px;
+}
+
+.movimiento-item small {
+    color: #7a7a7a;
+    font-size: 0.85rem;
+}
+
+.movimiento-item button { /* Botones dentro de .movimiento-item */
+    background-color: #d4af37;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    margin-right: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    font-size: 0.9rem;
+    /* Ajustes específicos para botones dentro de movimiento-item */
+    display: inline-block; /* Para que se alineen horizontalmente */
+    width: auto; /* Anula el 100% de la regla general de button */
+    max-width: none; /* Anula el max-width de la regla general de button */
+    margin: 0; /* Anula el margin auto de la regla general de button */
+}
+
+.movimiento-item button.btn-eliminar {
+    background-color: #e53e3e;
+}
+
+.movimiento-item button:hover {
+    background-color: #9b8439;
+}
+
+.movimiento-item button.btn-eliminar:hover {
+    background-color: #b2302b;
+}
+
+.button-sesion button {
+    display: block;
+    width: 100%;
+    max-width: 200px; /* Ajuste un poco el max-width */
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc; /* Mantener borde si es un botón de sesión específico */
+    font-size: 1rem;
+    position: relative;
+    background-color: #d4af37; /* Asumiendo que quieres el botón de sesión con el color primario */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.button-sesion button:hover {
+    background-color: #a18937;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón Cancelar (general) */
+.btn-cancelar {
+    background-color: #e53e3e;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    /* Asegura que no se aplique el display:block y max-width si se usa en form-buttons */
+}
+
+.btn-cancelar:hover {
+    background-color: #c53030;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 600px) {
+    .btn-cancelar {
+        /* width: auto; */
+    }
+}
+
+/* Animaciones */
+@keyframes entradaTitulo {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes desvanecer {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes vibrar {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+
+@media (max-width: 600px) {
+    .header-container {
+        flex-wrap: nowrap;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .logo-libre {
+        width: 90px;
+    }
+
+    .titulo-header {
+        font-size: 1.3rem;
+    }
+
+    .descripcion-header {
+        font-size: 0.85rem;
+    }
+}
+
+/* ESTILOS PARA LOS REPORTES*/
+.reporte-lista {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.reporte-lista li {
+    background: #f9f9ff;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+section button {
+    /* margin-right: 0.5rem; */
+    margin-bottom: 0.5rem;
+}
+
+/*MÁS ESTILOS PARA LA LISTA */
+#listaEspecial {
+    padding: 10px;
+    list-style: none;
+}
+
+.item-especial {
+    background: #f5f0ff;
+    border: 1px solid #dcd2f7;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.item-especial:hover {
+    background: #ece0ff;
+    transform: scale(1.01);
+}
+
+.btn-agregar {
+    background-color: #d4af37;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-agregar:hover {
+    background-color: #927c33;
+}
+
+/*ESTILOS PARA EL BOTÓN DE REPORTES ESPECIALES*/
+.boton-reporte {
+    background-color: #d4af37;
+    color: white;
+    padding: 8px 14px;
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease;
+}
+.boton-reporte:hover {
+    background-color: #9b8230;
+}
+
+/*BOTÓN CANCELAR EDICIÓN PEDIDOS */
+.btn-cancelar-edicion {
+    display: none; /* Controlado por JS */
+    background-color: #e53e3e;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-cancelar-edicion:hover {
+    background-color: #c53030;
+}
+
+/* PARA EL BOTÓN CANCELAR EN CLIENTES y GLOBALMENTE HASTA PROVEEDORES:  */
+/* Combina .btn-primario y .btn-cancelar con estilos comunes */
+.btn-primario,
+.btn-cancelar {
+    border: none; /* Asegura que no tengan el borde de la regla global de button */
+    padding: 12px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+    display: block;
+    margin: 10px auto;
+}
+
+.btn-primario {
+    background-color: #d4af37;
+    color: white;
+}
+
+.btn-primario:hover {
+    background-color: #a88e39;
+}
+
+.btn-cancelar {
+    background-color: #e74c3c;
+    color: white; /* Asegura el color blanco para el texto */
+}
+
+.btn-cancelar:hover {
+    background-color: #c0392b;
+}
+
+/* Botón de ayuda flotante elegante con dorado */
+.btn-ayuda {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(145deg, #f7e1b8, #c6a663);
+    color: #4b3500;
+    border: none;
+    padding: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.btn-ayuda:hover {
+    transform: scale(1.08);
+    background: linear-gradient(145deg, #fff0cc, #d9b66e);
+}
+
+/* Para el botón de agregar en clientes (filtrado) */
+.btn-agregar-filtrado {
+    background-color: #d4af37;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-agregar-filtrado:hover {
+    background-color: #a88e39;
+}
+
+#btnAgregarDesdeBusqueda:hover {
+    background-color: #a88e39 !important;
+}
+
+/* NUEVO: Contenedor para agrupar botones de formulario */
+.form-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px auto;
+    max-width: 400px;
+    flex-wrap: wrap;
+}
+
+/* SOBRESCRITURA: Para botones dentro de .form-buttons, anula la regla global de 'button' */
+.form-buttons button {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    /* Asegúrate de que no haya 'display: block;' aquí; flexbox lo maneja como un flex-item */
+    display: inline-block; /* Reafirmar para asegurar que no se aplique el display:block global */
+}
+
+/* ESTILOS PARA EL NUEVO MÓDULO CUENTAS POR COBRAR */
+/* --- ESTILOS ESPECÍFICOS PARA CUENTAS POR COBRAR --- */
+
+/* Estilos para la sección de filtros */
+.filtro-seccion .filtros-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Ajustado ligeramente el gap */
+    align-items: flex-end;
+}
+
+.filtro-seccion .form-group {
+    flex: 1;
+    min-width: 180px; /* Ajuste mínimo para los campos de filtro */
+}
+
+.filtro-seccion .form-group label {
+    font-size: 0.9em;
+    color: #745819; /* Mismo color que tus labels generales */
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.filtro-seccion .form-control {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+    box-sizing: border-box;
+    max-width: none; /* Anula el max-width global de input/select */
+    margin: 0; /* Anula el margin global de input/select */
+}
+
+.filtro-seccion .form-group-buttons {
+    display: flex;
+    gap: 10px;
+    /* max-width: 400px; /* Si quieres que los botones de filtro tengan un max-width */
+    width: auto; /* Permite que los botones se ajusten al contenido */
+    flex-wrap: wrap; /* Para envolver en pantallas pequeñas */
+}
+
+/* Ajustes para botones dentro de filtro-seccion para que no tomen todo el ancho */
+.filtro-seccion .form-group-buttons .btn-primary,
+.filtro-seccion .form-group-buttons .btn-secondary {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 8px 15px; /* Padding ligeramente menor para botones de filtro */
+}
+
+
+/* --- KPIS (INDICADORES DE CUENTAS POR COBRAR) --- */
+.kpi-box .kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Espacio entre los KPIS */
+    justify-content: space-around;
+}
+
+.kpi-box .kpi {
+    background-color: #fcf9f2; /* Fondo más claro y coherente con tu theme */
+    border: 1px solid #d4af37; /* Borde dorado */
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    flex: 1;
+    min-width: 160px; /* Ancho mínimo para cada KPI */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.kpi-box .kpi strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #4b3500; /* Color del texto del título del KPI */
+    font-size: 0.95em;
+}
+
+.kpi-box .kpi span {
+    font-size: 1.8em; /* Tamaño grande para el valor */
+    font-weight: bold;
+    color: #5b2d90; /* Tu color morado para los valores */
+    display: block;
+    margin-top: 5px;
+}
+
+/* Colores específicos para los valores de KPI si deseas diferenciarlos */
+#totalCredito { color: #2980b9; } /* Azul para Total Crédito */
+#montoPendienteGlobal { color: #c0392b; } /* Rojo para Monto Pendiente Global */
+#ventasVencidasProximas { color: #e67e22; } /* Naranja para Vencidas/Próximas */
+
+
+/* --- LISTADO DE TARJETAS DE VENTA A CRÉDITO --- */
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px; /* Espacio entre las tarjetas */
+}
+
+.mensaje-lista {
+    text-align: center;
+    color: #999;
+    font-size: 1.1em;
+    padding: 30px 0;
+    grid-column: 1 / -1; /* Ocupa todo el ancho en el grid */
+}
+
+.venta-credito-card {
+    background-color: #ffffff;
+    border: 1px solid #eee; /* Borde general ligero */
+    border-left: 8px solid; /* Espacio para el borde de estado, el color se define por la clase de estado */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.venta-credito-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinea los ítems arriba */
+    margin-bottom: 10px;
+}
+
+.card-title {
+    font-size: 1.35em;
+    font-weight: bold;
+    margin: 0;
+    color: #4b3500; /* Color predeterminado para el título del cliente */
+}
+
+.card-date {
+    font-size: 0.85em;
+    color: #777;
+    white-space: nowrap; /* Evita que la fecha se rompa */
+}
+
+.card-text {
+    font-size: 0.95em;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    color: #444;
+}
+
+.card-text strong {
+    color: #333;
+}
+
+.text-amount-danger { /* Usado para el monto pendiente */
+    color: #e74c3c; /* Rojo fuerte */
+    font-weight: bold;
+    font-size: 1.15em;
+}
+
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* Alinea los botones a la derecha */
+}
+
+/* Sobrescribir estilos de botón para los botones dentro de .card-actions */
+.card-actions button {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 8px 15px; /* Ajustar padding */
+    font-size: 0.9em; /* Ajustar tamaño de fuente */
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra suave */
+}
+
+/* CLASES DE ESTADO DE TARJETA (PARA BORDES IZQUIERDOS) */
+.card-status-info { border-left-color: #3498db; } /* Azul claro - Pendiente no vencida */
+.card-status-success { border-left-color: #27ae60; } /* Verde - Pagada Total */
+.card-status-danger { border-left-color: #e74c3c; } /* Rojo - Vencida */
+.card-status-warning { border-left-color: #f39c12; } /* Naranja - Próxima a vencer */
+.card-status-primary { border-left-color: #d4af37; } /* Tu color principal dorado - Pagado Parcial */
+
+
+/* CLASES DE COLOR DE TEXTO (PARA TÍTULOS DE CLIENTE EN TARJETA) */
+/* Usamos tus colores existentes o los más cercanos a tus tonos */
+.text-info { color: #3498db; } /* Azul claro */
+.text-success { color: #27ae60; } /* Verde */
+.text-danger { color: #e74c3c; } /* Rojo */
+.text-warning { color: #f39c12; } /* Naranja */
+.text-primary { color: #4b3500; } /* Marrón oscuro (tu color de título) para pagado parcial */
+
+
+/* ESTILOS PARA LOS TAGS DE ESTADO (Vencida, Próxima a Vencer, etc.) */
+.tag-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.75em; /* Más pequeño para ser un tag */
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-left: 5px;
+    letter-spacing: 0.5px;
+}
+
+.tag-success { background-color: #e6ffe6; color: #1e8449; border: 1px solid #27ae60; }
+.tag-danger { background-color: #ffe6e6; color: #c0392b; border: 1px solid #e74c3c; }
+.tag-warning { background-color: #fff9e6; color: #d68910; border: 1px solid #f39c12; }
+.tag-primary { background-color: #fff0e0; color: #a58b36; border: 1px solid #d4af37; }
+.tag-info { background-color: #e6f7ff; color: #2874a6; border: 1px solid #3498db; }
+
+
+/* --- MODAL (Adaptado a tus .modal-overlay y .modal-content) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1500; /* Asegurar que esté por encima de todo */
+}
+
+.modal-content {
+    background-color: #fffaf0; /* Fondo del modal acorde a tu header */
+    padding: 30px;
+    border-radius: 16px; /* Borde redondeado grande */
+    box-shadow: 0 8px 25px rgba(91, 45, 144, 0.3); /* Sombra elegante */
+    width: 90%;
+    max-width: 550px; /* Un poco más ancho para el modal */
+    animation: fadeInScale 0.3s ease-out;
+    border: 2px solid #d4af37; /* Borde dorado */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #d4af37; /* Línea dorada */
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.8em;
+    color: #4b3500; /* Color de tu título */
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.close-button {
+    font-size: 2.5em;
+    color: #888;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.detalle-venta-modal p {
+    margin-bottom: 8px;
+    font-size: 0.95em;
+    color: #555;
+}
+
+.detalle-venta-modal strong {
+    color: #333;
+}
+
+/* LISTA DE ABONOS PREVIOS DENTRO DEL MODAL */
+.lista-abonos-modal {
+    max-height: 160px; /* Altura máxima para scrollear */
+    overflow-y: auto;
+    background-color: #fcf9f2; /* Fondo claro para la lista */
+    border: 1px solid #d4af37; /* Borde dorado */
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.abonos-list {
+    list-style: none; /* Sin viñetas */
+    padding: 0;
+    margin: 0;
+}
+
+.abono-item {
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e0e0; /* Línea discontinua suave */
+    font-size: 0.9em;
+    color: #666;
+}
+
+.abono-item:last-child {
+    border-bottom: none;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #d4af37; /* Línea dorada */
+}
+
+/* Asegurar que los botones del modal sigan tu estilo */
+.modal-footer .btn-primary,
+.modal-footer .btn-secondary {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 10px 20px;
+}
+
+/* Responsividad para Cuentas por Cobrar */
+@media (max-width: 768px) {
+    .filtro-seccion .filtros-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filtro-seccion .form-group {
+        min-width: unset;
+        width: 100%;
+    }
+    .filtro-seccion .form-group-buttons {
+        flex-direction: column;
+    }
+    .kpi-box .kpis {
+        flex-direction: column;
+    }
+    .kpi-box .kpi {
+        width: 100%;
+        min-width: unset;
+    }
+    .grid-layout {
+        grid-template-columns: 1fr;
+    }
+    .venta-credito-card {
+        margin: 0 auto;
+        max-width: 400px;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    .modal-header h2 {
+        font-size: 1.5em;
+    }
+}

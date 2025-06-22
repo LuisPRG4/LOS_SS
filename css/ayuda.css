@@ -1,0 +1,51 @@
+/* Contenedor de ayuda desplegable */
+#ayuda {
+  margin: 1rem auto;
+  background-color: #fffaf0;
+  border-left: 5px solid #d4af37;
+  border-radius: 10px;
+  padding: 16px;
+  max-width: 800px;
+  font-size: 0.95rem;
+  color: #4b3500;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none;
+  scroll-margin-top: 80px;
+  animation: fadeIn 0.4s ease;
+}
+
+#ayuda.visible {
+  display: block;
+}
+
+/* Botón para cerrar */
+#cerrarAyuda {
+  background-color: #d4af37;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin-top: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+#cerrarAyuda:hover {
+  background-color: #b9972d;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.parrafito p{
+  text-align: justify;
+  margin-top: 1.5px;
+}
+
+.h2title h2{
+  color: #4b3500;
+  text-align: center;
+}

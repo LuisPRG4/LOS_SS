@@ -1,0 +1,401 @@
+/* Estilos específicos para la página de Novedades */
+
+.novedades-container {
+    max-width: 800px; /* Ancho máximo para el contenido de las novedades */
+    margin: 20px auto; /* Centrar y añadir espacio */
+    padding: 20px;
+    background-color: #f8f8f8; /* Un fondo ligeramente distinto para la sección */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.novedades-container h2 {
+    color: #5b2d90; /* Color principal de tu aplicación */
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+.novedad-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px; /* Espacio entre cada tarjeta de novedad */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+.novedad-card:hover {
+    transform: translateY(-3px); /* Pequeño efecto al pasar el ratón */
+}
+
+.novedad-version {
+    color: #5b2d90; /* Título de la versión */
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eee; /* Línea separadora */
+    padding-bottom: 10px;
+}
+
+.novedad-lista {
+    list-style: disc; /* Viñetas */
+    padding-left: 20px;
+    margin: 0;
+    line-height: 1.6; /* Espaciado de línea para mejor lectura */
+    color: #333;
+}
+
+.novedad-lista li {
+    margin-bottom: 8px; /* Espacio entre elementos de la lista */
+    /* **AJUSTE SUGERIDO:** Anular o simplificar estilos heredados del ul li general */
+    background-color: transparent; /* Hace el fondo transparente para ver el fondo de la tarjeta */
+    border: none; /* Elimina el borde de cada item de la lista */
+    border-radius: 0; /* Elimina el border-radius de cada item de la lista */
+    max-width: none; /* Permite que ocupe el ancho completo de la tarjeta de novedad */
+    margin-left: 0; /* Asegurar que no haya margen automático extra */
+    margin-right: 0;
+    padding: 2px 0; /* Un padding vertical más pequeño para los items de la lista */
+}
+
+/* Puedes añadir más estilos si quieres diferenciar tipos de cambios (Ej: .novedad-funcionalidad, .novedad-correccion) */
+.novedad-lista li strong {
+    color: #4a4a4a; /* Color para el tipo de cambio (Novedad, Mejora, etc.) */
+}
+
+/* Media Queries para responsividad (opcional, pero buena práctica) */
+@media (max-width: 768px) {
+    .novedades-container {
+        margin: 15px;
+        padding: 15px;
+    }
+    .novedad-version {
+        font-size: 1.3em;
+    }
+}
+
+/* Botón de ayuda flotante elegante con dorado */
+.btn-ayuda {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(145deg, #f7e1b8, #c6a663);
+  color: #4b3500;
+  border: none;
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.btn-ayuda:hover {
+  transform: scale(1.08);
+  background: linear-gradient(145deg, #fff0cc, #d9b66e);
+}
+
+/* FUENTE */
+@font-face {
+  font-family: 'Handlee';
+  src: url('/fonts/Handlee-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Contenedor de ayuda desplegable */
+#ayuda {
+    margin: 1rem auto;
+    background-color: #fffaf0;
+    border-left: 5px solid #d4af37; /* Borde izquierdo distintivo */
+    border-radius: 10px;
+    padding: 16px;
+    max-width: 800px;
+    font-size: 0.95rem;
+    color: #4b3500;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: none; /* Oculto por defecto */
+    scroll-margin-top: 80px; /* Espacio superior al hacer scrollIntoView */
+    animation: fadeIn 0.4s ease; /* Animación de entrada */
+}
+
+#ayuda.visible {
+    display: block; /* Visible cuando se añade la clase */
+}
+
+/* Animación de entrada para el módulo de ayuda */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos para el párrafo dentro de .parrafito */
+.parrafito p {
+    text-align: justify; /* Texto justificado */
+    margin-top: 1.5px;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: none;
+}
+
+/* Estilos para el h2 dentro de .h2title (Título principal de la ayuda) */
+.h2title h2 {
+    color: #4b3500;
+    text-align: center;
+    font-size: 2em; /* Tamaño de fuente más grande para el título del módulo */
+    margin-bottom: 10px; /* Margen inferior para separarlo del contenido siguiente */
+}
+
+/* Estilos para los títulos h3 dentro de la sección de ayuda (ej. "¿Cómo usar este módulo?") */
+#ayuda h3 {
+    color: #5b2d90; /* Un color morado, igual que en tu screenshot */
+    font-size: 1.5em; /* Un poco más pequeño que el h2 principal */
+    margin-top: 15px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Estilos para las listas ul dentro de la sección de ayuda */
+#ayuda ul {
+    list-style: none; /* Remueve las viñetas por defecto */
+    padding-left: 0; /* Remueve el padding por defecto */
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+/* Estilos para los elementos de lista li dentro de la sección de ayuda */
+#ayuda ul li {
+    background-color: transparent; /* Fondo transparente */
+    border: none; /* Sin borde */
+    border-radius: 0; /* Sin border-radius */
+    padding: 5px 0; /* Pequeño padding vertical */
+    margin: 0 0 8px 0; /* Espacio entre los elementos de la lista */
+    color: #444; /* Color de texto más oscuro */
+    font-size: 1em; /* Tamaño de fuente estándar */
+    position: relative; /* Necesario para posicionar la viñeta personalizada */
+    padding-left: 25px; /* Espacio para la viñeta personalizada */
+    max-width: none; /* Asegura que ocupe el ancho completo de su contenedor */
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Viñetas personalizadas para los elementos de lista */
+#ayuda ul li::before {
+    content: "🔹"; /* Carácter de viñeta (el diamante azul que usas) */
+    color: #d4af37; /* Color dorado/ámbar para la viñeta */
+    position: absolute;
+    left: 0;
+    top: 50%; /* Centrar verticalmente la viñeta */
+    transform: translateY(-50%);
+    font-size: 1.2em; /* Tamaño de la viñeta */
+}
+
+/* Estilos para el botón de cerrar ayuda */
+#cerrarAyuda {
+    background-color: #d4af37; /* Tu color dorado/ámbar */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin-top: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 200px; /* Limitar el ancho del botón */
+}
+
+#cerrarAyuda:hover {
+    background-color: #b9972d; /* Tono más oscuro al pasar el ratón */
+}
+
+/* Media Queries para responsividad (ajustes en pantallas más pequeñas) */
+@media (max-width: 768px) {
+    #ayuda {
+        padding: 15px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    #ayuda .h2title h2 {
+        font-size: 1.8em;
+    }
+    #ayuda h3 {
+        font-size: 1.3em;
+    }
+    #ayuda ul li {
+        font-size: 0.95em;
+        padding-left: 20px;
+    }
+    #ayuda ul li::before {
+        font-size: 1em;
+    }
+}
+
+/* --- ESTILOS PARA LA NOVEDAD DESTACADA (AGREGA ESTO AL FINAL DE TU NOVEDADES.CSS) --- */
+.novedad-destacada {
+    border: 2px solid #d4af37; /* Borde más prominente dorado */
+    background-color: #fff8e1; /* Un fondo amarillo muy claro/crema para destacarlo */
+    box-shadow: 0 6px 12px rgba(212, 175, 55, 0.2); /* Sombra con un toque dorado */
+    transform: translateY(-5px); /* Un ligero "levantamiento" inicial */
+    position: relative; /* Para el posible banner "Nuevo" */
+    overflow: hidden; /* Asegura que cualquier elemento desbordante se recorte */
+}
+
+/* Opcional: Un pequeño banner de "Nuevo" en la esquina */
+.novedad-destacada::before {
+    content: '¡NUEVO!';
+    background-color: #e74c3c; /* Rojo vibrante */
+    color: white;
+    font-weight: bold;
+    padding: 5px 20px;
+    position: absolute;
+    top: 15px;
+    right: -30px; /* Posiciona fuera de la tarjeta */
+    transform: rotate(45deg); /* Gira el banner */
+    transform-origin: 0% 100%; /* Punto de pivote para la rotación */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 10;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+/* Animación sutil para la novedad destacada */
+@keyframes pulse-border {
+    0% { border-color: #d4af37; }
+    50% { border-color: #ffd700; } /* Dorado más brillante */
+    100% { border-color: #d4af37; }
+}
+
+.novedad-destacada {
+    animation: pulse-border 2s infinite alternate ease-in-out; /* Animación de borde sutil */
+}
+
+/* --- Opcional: Mejora de los bullets de lista para todas las novedades --- */
+/* Reemplaza tus reglas .novedad-lista y .novedad-lista li si quieres este estilo */
+.novedad-lista {
+    list-style: none; /* Quita los puntos de lista por defecto */
+    padding: 0;
+}
+
+.novedad-lista li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #333333; /* Texto casi negro */
+    position: relative;
+    padding-left: 25px; /* Espacio para el bullet personalizado */
+}
+
+/* Bullet personalizado para la lista de novedades */
+.novedad-lista li::before {
+    content: '🔹'; /* Un pequeño diamante o círculo, puedes cambiarlo */
+    color: #5b2d90; /* Morado para el bullet */
+    font-size: 1.1em;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* --- ESTILOS PARA LA NOVEDAD ESTÉTICA ESPECIAL --- */
+.novedad-estetica-especial {
+    background-color: #fcfcfc; /* Un fondo muy claro, casi blanco */
+    border: 3px solid #d5bfff; /* Un borde ligeramente más grueso, usando el morado claro */
+    border-radius: 12px; /* Esquinas un poco más redondeadas */
+    padding: 25px; /* Más padding interno */
+    margin-bottom: 40px; /* Más espacio debajo de esta sección */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Una sombra más pronunciada */
+    position: relative;
+    overflow: hidden;
+    /* Animación sutil para llamar la atención (puedes ajustar o quitar) */
+    animation: bounceIn 0.8s ease-out;
+}
+
+/* Animación para la entrada de la tarjeta especial */
+@keyframes bounceIn {
+    0%, 20%, 40%, 60%, 80%, 100% {
+        transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    }
+    0% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+    20% {
+        transform: scale3d(1.1, 1.1, 1.1);
+    }
+    40% {
+        transform: scale3d(.9, .9, .9);
+    }
+    60% {
+        opacity: 1;
+        transform: scale3d(1.03, 1.03, 1.03);
+    }
+    80% {
+        transform: scale3d(.97, .97, .97);
+    }
+    100% {
+        opacity: 1;
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+.novedad-estetica-especial .novedad-version {
+    color: #5b2d90; /* Usamos el morado principal para este título de versión */
+    font-size: 1.8em; /* Un tamaño de título ligeramente más grande */
+    border-bottom: 2px solid #a58b36; /* Un borde inferior dorado para el título */
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    text-align: center; /* Centramos el título */
+}
+
+/* Opcional: Un ícono sutil de fondo para un toque artístico */
+.novedad-estetica-especial::after {
+    content: '🎨'; /* Un ícono de paleta de pintor */
+    font-size: 5em;
+    color: rgba(212, 175, 55, 0.1); /* Muy transparente para que no distraiga */
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    z-index: 0; /* Asegura que esté detrás del contenido de texto */
+    transform: rotate(-20deg); /* Ligeramente rotado */
+    pointer-events: none; /* Asegura que no interfiera con interacciones */
+}
+
+/* Ajustes de responsividad para la nueva sección */
+@media (max-width: 768px) {
+    .novedad-estetica-especial {
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    .novedad-estetica-especial .novedad-version {
+        font-size: 1.6em;
+    }
+    .novedad-estetica-especial::after {
+        font-size: 4em;
+        bottom: 0px;
+        right: 0px;
+    }
+}
+
+@media (max-width: 480px) {
+    .novedad-estetica-especial {
+        padding: 15px;
+        margin-bottom: 25px;
+    }
+    .novedad-estetica-especial .novedad-version {
+        font-size: 1.4em;
+    }
+    .novedad-estetica-especial::after {
+        font-size: 3em;
+        bottom: 5px;
+        right: 5px;
+    }
+}
