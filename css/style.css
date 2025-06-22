@@ -9,7 +9,7 @@
 /* Se mueve al inicio ya que las fuentes son fundamentales para el diseño */
 @font-face {
     font-family: 'Handlee';
-    src: url('/fonts/Handlee-Regular.ttf') format('truetype');
+    src: url('fonts/Handlee-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
