@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Los SS - Finanzas</title>
+  <link rel="icon" type="image/png" href="fav/los ss.png">
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/ayuda.css" />
+
+  <style>
+    /* Estilos nuevos para el gráfico */
+    .grafico-container {
+      width: 400px;
+      height: 400px;
+      max-width: 100%;
+      margin: 0 auto 2rem auto;
+      position: relative;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(107, 70, 193, 0.3);
+      background: #fafafa;
+    }
+
+    #graficoFinanzas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background-color: #6b46c1;
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      font-weight: 600;
+      min-width: 180px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      background-color: #38a169;
+    }
+    .toast.error {
+      background-color: #e53e3e;
+    }
+    .toast.info {
+      background-color: #3182ce;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <header class="header-elegante">
+  <div class="header-container">
+    <img src="logo/LOS SS.png" alt="Logo" class="logo-libre" />
+    <div class="texto-header">
+      <h1 class="titulo-header">💰 Finanzas</h1>
+      <p class="descripcion-header">Visualiza y administra tus ingresos y gastos. Mantén un control financiero claro, con balances y reportes actualizados al instante.</p>
+    </div>
+  </div>
+</header>
+
+  <nav>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+      <li><a href="index.html">🏠 Inicio</a></li>
+      <li><a href="inventario.html">🧃 Inventario</a></li>
+      <li><a href="mermas.html">📉 Mermas</a></li>
+      <li><a href="ventas.html">🧾 Ventas</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="proveedores.html">🚚 Proveedores</a></li>
+      <li class="active"> <a href="cuentas-por-cobrar.html">💸 Cuentas por Cobrar</a></li>
+      <li><a href="reportesGraficos.html">📊 Reportes</a></li>
+      <li><a href="finanzas.html">💰 Finanzas</a></li>
+      <li><a href="novedades.html"> Novedades</a></li>
+      <li><a href="pedidos.html">📦 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section>
+      <h2>➕ Nuevo Movimiento</h2>
+      <label for="tipoMovimiento">Tipo de movimiento:</label>
+      <select id="tipoMovimiento">
+        <option value="Ingreso">Ingreso</option>
+        <option value="Gasto">Gasto</option>
+      </select>
+
+      <label for="monto">Monto ($):</label>
+      <input type="number" id="monto" placeholder="Monto" />
+
+      <label for="descripcion">Descripción:</label>
+      <input type="text" id="descripcion" placeholder="Descripción" />
+
+      <button onclick="agregarMovimiento()">Guardar Movimiento</button>
+      <button onclick="reiniciarMovimientos()" style="background:#e53e3e; color:white; margin-left:auto;">Reiniciar todo</button>
+    </section>
+
+    <section>
+      <h2>📊 Balance</h2>
+      <p id="balanceTotal">Balance total: $0.00</p>
+    </section>
+
+    <section id="resumenFinanciero" class="mt-4 p-4 rounded-lg border border-purple-300 bg-purple-50 shadow-sm">
+      <h2>📊 Resumen Financiero</h2>
+
+      <div class="bg-purple-100 rounded-xl p-4 mt-4 text-purple-900 shadow-sm space-y-2">
+        <p><strong>Total Ingresos:</strong> $<span id="totalIngresos">0.00</span></p>
+        <p><strong>Total Gastos:</strong> $<span id="totalGastos">0.00</span></p>
+        <p id="gastoExtraExplicacion" class="text-sm text-gray-500 mt-1"></p>
+        <p><strong>📈 Ganancia Total:</strong> $<span id="gananciaTotal">0.00</span></p>
+        <p><strong>💰 Ganancia Potencial Inventario:</strong> $<span id="gananciaPotencial">0.00</span></p>
+        <p id="balanceTotal" class="font-semibold mt-2"></p>
+      </div>
+
+      <p><strong>Movimiento más alto:</strong> <span id="movimientoMayor">-</span></p>
+    </section>
+
+    <section>
+      <h2>📉 Resumen Visual</h2>
+      <div class="grafico-container">
+        <canvas id="graficoFinanzas"></canvas>
+      </div>
+    </section>
+
+    <section>
+      <h2>📅 Filtrar por Fecha</h2>
+      <label>Desde: <input type="date" id="fechaDesde"></label>
+      <label>Hasta: <input type="date" id="fechaHasta"></label>
+      <button onclick="filtrarPorFecha()">Aplicar Filtro</button>
+      <button onclick="limpiarFiltroFecha()">Limpiar</button>
+    </section>
+
+    <section>
+      <h2>🔍 Buscar Movimientos</h2>
+      <input type="text" id="buscadorMovimientos" placeholder="Buscar por descripción o tipo..." oninput="buscarMovimientos()" />
+    </section>
+
+    <section>
+      <h2>📋 Historial de Movimientos</h2>
+      <ul id="listaMovimientos"></ul>
+    </section>
+
+    <button onclick="exportarExcel()">📤 Exportar a Excel</button>
+
+    <!-- Ayuda contextual para Finanzas -->
+    <section id="ayuda">
+      <div class="h2title"> 
+        <h2>💰 Módulo Finanzas</h2> 
+      </div> 
+      <h3>📝 ¿Cómo usar este módulo?</h3>
+      <div class="parrafito">
+        <p>
+          Este módulo te permite llevar el control total de tus ingresos y gastos, registrar movimientos 
+          manuales o automáticos generados por las ventas, y visualizar en todo momento el estado financiero
+          de tu negocio.
+        </p>
+      </div>
+
+      <ul>
+        <li>➕ Usa el formulario para agregar un nuevo movimiento manual, seleccionando si es un <strong>Ingreso</strong> o un <strong>Gasto</strong>.</li>
+        <li>📦 Las <strong>ventas</strong> registradas automáticamente aparecen como ingresos y gastos según sus montos.</li>
+        <li>💾 El botón <strong>"Guardar Movimiento"</strong> almacena la información en tu sistema.</li>
+        <li>🧹 El botón <strong>"Reiniciar todo"</strong> borra todo el historial financiero actual (solo si confirmas).</li>
+        <li>📅 Puedes filtrar movimientos por fecha para enfocarte en un rango específico.</li>
+        <li>🔍 Usa el buscador para encontrar movimientos por tipo o descripción.</li>
+        <li>📊 El gráfico te muestra de forma visual tus ingresos frente a tus gastos.</li>
+        <li>📤 Exporta todos los datos a Excel para mantener una copia externa.</li>
+        <li>✏️ También puedes <strong>editar</strong> o <strong>eliminar</strong> movimientos desde la lista.</li>
+      </ul>
+
+      <button id="cerrarAyuda">Cerrar Ayuda</button>
+    </section>
+
+    <!-- Botón flotante de ayuda -->
+    <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+
+  </main>
+
+  <script src="js/db.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/finanzas.js"></script>
+  <script src="js/nav-highlighter.js" defer></script>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById("navMenu").classList.toggle("open");
+    }
+
+    if (sessionStorage.getItem("sesionIniciada") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <script>
+    function mostrarAyuda() {
+      const ayuda = document.getElementById("ayuda");
+      ayuda.classList.add("visible");
+      ayuda.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    document.getElementById("cerrarAyuda").addEventListener("click", () => {
+      document.getElementById("ayuda").classList.remove("visible");
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Fallo el registro del Service Worker:', error);
+          });
+      });
+    }
+  </script>
+
+</body>
+</html>

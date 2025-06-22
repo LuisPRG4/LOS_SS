@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Los SS - Clientes</title>
+  <link rel="icon" type="image/png" href="fav/los ss.png">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/ayuda.css">
+
+</head>
+<body>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <header class="header-elegante">
+  <div class="header-container">
+    <img src="logo/LOS SS.png" alt="Logo" class="logo-libre" />
+    <div class="texto-header">
+      <h1 class="titulo-header">👥 Clientes</h1>
+      <p class="descripcion-header">Lleva un registro detallado de tus clientes para mejorar tu atención y crear relaciones más duraderas y confiables.</p>
+    </div>
+  </div>
+</header>
+
+<nav>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+      <li><a href="index.html">🏠 Inicio</a></li>
+      <li><a href="inventario.html">🧃 Inventario</a></li>
+      <li><a href="mermas.html">📉 Mermas</a></li>
+      <li><a href="ventas.html">🧾 Ventas</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="proveedores.html">🚚 Proveedores</a></li>
+      <li class="active"><a href="cuentas-por-cobrar.html">💸 Cuentas por Cobrar</a></li>
+      <li><a href="reportesGraficos.html">📊 Reportes</a></li>
+      <li><a href="finanzas.html">💰 Finanzas</a></li>
+      <li><a href="novedades.html"> Novedades</a></li>
+      <li><a href="pedidos.html">📦 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section>
+      <h2>➕ Agregar Cliente</h2>
+        <label>Ingresa el nombre del cliente:</label>
+      <input type="text" id="nombreCliente" placeholder="Nombre completo" />
+        <label>Ingresa la dirección del cliente:</label>
+      <input type="text" id="direccion" placeholder="Dirección" />
+        <label>Número de contacto del cliente:</label>
+      <input type="number" id="telefono" placeholder="Teléfono" />
+        <label>Correo electrónico del cliente:</label>
+      <input type="email" id="email" placeholder="Correo electrónico" />
+      
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <button id="btnGuardarCliente" class="btn-primario">Guardar Cliente</button>
+        <button onclick="cancelarEdicionCliente()" id="btnCancelarEdicionCliente" class="btn-cancelar" style="display:none;">Cancelar</button>
+      </div>
+
+    </section>
+
+    <section>
+  <h2>📋 Lista de Clientes</h2>
+
+  <!-- Campo de búsqueda -->
+  <input type="text" id="buscadorClientes" placeholder="Buscar clientes..." oninput="filtrarClientes()" />
+
+  <!-- Botón para agregar cliente si no existe -->
+  <div id="contenedorBotonAgregar" style="display: none; margin-top: 10px;">
+    <button id="btnAgregarDesdeBusqueda" onclick="agregarDesdeBusqueda()" style="
+      background-color: #d4af37;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;">
+      ➕ Agregar nuevo cliente
+    </button>
+  </div>
+
+  <!-- Lista de clientes -->
+  <ul id="listaClientes"></ul>
+</section>
+
+    <!-- Ayuda contextual para Clientes -->
+  <section id="ayuda">
+    <div class="h2title"> 
+      <h2>👥 Módulo Clientes</h2> 
+    </div> 
+      <h3>📝 ¿Cómo usar este módulo?</h3>
+    <div class="parrafito">
+      <p>
+        Aquí puedes registrar a cada uno de tus clientes agregando su nombre, dirección, contacto y correo.
+        Esto te ayudará a tener control sobre tus ventas y darles seguimiento personalizado. Puedes buscar, editar
+        o eliminar clientes cuando lo necesites.
+      </p>
+    </div>
+    <ul>
+      <li>🔹 Completa el formulario y guarda para registrar un cliente nuevo.</li>
+      <li>🔹 Usa el botón ✏️ para editar un cliente existente.</li>
+      <li>🔹 El botón 🗑️ elimina al cliente seleccionado.</li>
+      <li>🔹 Usa el buscador para filtrar por nombre, dirección o contacto.</li>
+    </ul>
+    <button id="cerrarAyuda">Cerrar Ayuda</button>
+  </section>
+
+    <!-- Botón flotante de ayuda -->
+  <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+
+</main>
+
+  <script src="js/db.js"></script>
+  <script src="js/clientes.js"></script>
+  <script src="js/nav-highlighter.js" defer></script>
+
+    <script>
+      function toggleMenu() {
+      document.getElementById("navMenu").classList.toggle("open");
+    }
+    </script>
+
+    <script>
+  if (sessionStorage.getItem("sesionIniciada") !== "true") {
+    window.location.href = "login.html";
+  }
+</script>
+
+<!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
+<script>
+  function mostrarAyuda() {
+    const ayuda = document.getElementById("ayuda");
+    ayuda.classList.add("visible");
+    ayuda.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("cerrarAyuda").addEventListener("click", () => {
+    document.getElementById("ayuda").classList.remove("visible");
+  });
+</script>
+
+<!-- SERVICE WORKER-->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Fallo el registro del Service Worker:', error);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>

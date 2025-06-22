@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Los SS - Pedidos</title>
+  <link rel="icon" type="image/png" href="fav/los ss.png">
+
+  <link rel="stylesheet" href="css/tailwind.min.css"> <!--TAILWIND CSS-->
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/ayuda.css">
+
+</head>
+<body>
+
+  <div id="toastContainer" class="toast-container"></div>
+  
+  <header class="header-elegante">
+  <div class="header-container">
+    <img src="logo/LOS SS.png" alt="Logo" class="logo-libre" />
+    <div class="texto-header">
+      <h1 class="titulo-header">📦 Pedidos</h1>
+      <p class="descripcion-header">Registra y gestiona los pedidos de tus clientes con facilidad. Controla el estado de cada pedido y asegura una entrega eficiente.</p>
+    </div>
+  </div>
+</header>
+
+<nav>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+      <li><a href="index.html">🏠 Inicio</a></li>
+      <li><a href="inventario.html">🧃 Inventario</a></li>
+      <li><a href="mermas.html">📉 Mermas</a></li>
+      <li><a href="ventas.html">🧾 Ventas</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="proveedores.html">🚚 Proveedores</a></li>
+      <li class="active"><a href="cuentas-por-cobrar.html">💸 Cuentas por Cobrar</a></li>
+      <li><a href="reportesGraficos.html">📊 Reportes</a></li>
+      <li><a href="finanzas.html">💰 Finanzas</a></li>
+      <li><a href="novedades.html"> Novedades</a></li>
+       <li><a href="pedidos.html">📦 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section>
+  <h2>➕ Nuevo Pedido</h2>
+  
+  <label>Selecciona el cliente:</label>
+  <input type="text" id="cliente" list="clientesList" placeholder="Selecciona o escribe el nombre..." autocomplete="off">
+  <datalist id="clientesList"></datalist>
+
+  <label>Selecciona el producto:</label>
+  <select id="producto"></select>
+
+  <label>Ingresa la cantidad:</label>
+  <input type="number" id="cantidad" placeholder="Cantidad">
+
+  <label>Ingresa el precio por unidad:</label>
+  <input type="number" id="precioUnitario" placeholder="Precio Unitario" readonly>
+
+  <div class="form-buttons"> 
+    <button id="btnAgregarPedido" class="btn-agregar" onclick="agregarPedido()">Agregar Pedido</button>
+    <button id="btnCancelarEdicion" onclick="cancelarEdicion()" style="display: none;">Cancelar Edición</button>
+  </div>
+
+</section>
+
+    <section>
+      <h2>📋 Lista de Pedidos</h2>
+      <ul id="listaPedidos"></ul>
+    </section>
+
+    <div class="form-buttons"> 
+    <button id="btnLimpiarPedidos" class="btn-limpiar-pedidos">
+      Limpiar todos los pedidos
+    </button>
+  </div> 
+
+    <style>.btn-limpiar-pedidos {
+      background-color: #d4af37; /* Antes: background-color: #5b2d90; */
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 12px;
+      transition: background-color 0.3s ease;
+      }
+
+      .btn-limpiar-pedidos:hover {
+        background-color: #4a246f;
+      }
+    </style>
+
+    <!-- Ayuda contextual para Pedidos -->
+  <section id="ayuda">
+    <div class="h2title"> 
+      <h2>📦 Módulo Pedidos</h2>
+    </div>
+
+  <h3>📦 ¿Cómo usar este módulo?</h3>
+
+  <div class="parrafito">
+    <p>
+      En este módulo puedes gestionar los pedidos realizados por tus clientes. Cada pedido se asocia a un producto del 
+      inventario, se descuenta automáticamente el stock, y puedes indicar cuántas unidades fueron solicitadas.
+    </p>
+  </div>
+
+  <ul>
+    <li>👤 Selecciona el cliente (puedes escribir o elegir desde la lista desplegable).</li>
+    <li>🍶 Elige el producto que será solicitado por el cliente.</li>
+    <li>🔢 Ingresa la cantidad del producto que deseas vender. El sistema calculará el precio automáticamente.</li>
+    <li>✅ Haz clic en <strong>"Agregar Pedido"</strong> para guardarlo. El sistema actualizará el inventario restando el stock vendido.</li>
+    <li>🟢 Puedes cambiar el estado del pedido a <em>"Preparado"</em> o <em>"Entregado"</em> para llevar seguimiento.</li>
+    <li>✏️ Si cometes un error, presiona el botón <strong>"Editar"</strong> para subir el pedido al formulario y modificarlo.</li>
+    <li>🚫 Si ya no necesitas un pedido, puedes eliminarlo. Si aún no fue entregado, el stock se devolverá automáticamente.</li>
+  </ul>
+
+  <button id="cerrarAyuda">Cerrar Ayuda</button>
+  </section>
+
+<!-- Botón flotante de ayuda -->
+  <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+
+  </main>
+
+  <script src="js/db.js"></script>
+  <script src="js/pedidos.js"></script>
+  <script src="js/nav-highlighter.js" defer></script>
+
+    <script>
+      function toggleMenu() {
+      document.getElementById("navMenu").classList.toggle("open");
+    }
+    </script>
+
+    <!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
+<script>
+  function mostrarAyuda() {
+    const ayuda = document.getElementById("ayuda");
+    ayuda.classList.add("visible");
+    ayuda.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("cerrarAyuda").addEventListener("click", () => {
+    document.getElementById("ayuda").classList.remove("visible");
+  });
+</script>
+
+<!-- SERVICE WORKER-->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Fallo el registro del Service Worker:', error);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>

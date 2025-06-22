@@ -1,0 +1,15 @@
+{
+  "name": "Los SS - Sistema de Gestión",
+  "short_name": "Los SS",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background": "linear-gradient(135deg, #5b2d90, #a57d3c, #d4af37)",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "resources/ICONO BOLSITA.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

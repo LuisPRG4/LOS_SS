@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Sistema de Ventas</title>
+  <link rel="icon" href="fav/los ss.png" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    @font-face {
+      font-family: 'Handlee';
+      src: url('/fonts/Handlee-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Handlee', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #fff8e1, #fbeec1);
+      animation: brillo 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes brillo {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    main {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 30px rgba(218, 165, 32, 0.25);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #d4af37;
+    }
+
+    .titulo {
+      color: #d4af37;
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 0.2rem;
+    }
+
+    .subtitulo {
+      margin-top: 0;
+      color: #555;
+      font-weight: normal;
+      font-size: 1.1rem;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: #968039;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 0.75rem;
+      margin-top: 0.25rem;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+    }
+
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(90deg, #d4af37, #b98c1c);
+      color: white;
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #b98c1c, #d4af37);
+    }
+
+    #error {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 0.8rem;
+    }
+
+    @media (max-width: 500px) {
+      main {
+        margin: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 class="titulo">LOS SS</h1>
+    <h2 class="subtitulo">Bienvenido</h2>
+    
+    <label for="usuario">👤 Usuario</label>
+    <input type="text" id="usuario" placeholder="Ingresa tu usuario" />
+
+    <label for="contrasena">🔒 Contraseña</label>
+    <input type="password" id="contrasena" placeholder="Ingresa tu contraseña" />
+
+    <button onclick="iniciarSesion()">✨ Entrar</button>
+    
+    <p id="error"></p>
+  </main>
+
+  <script src="js/login.js"></script>
+
+  <!-- SERVICE WORKER-->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Fallo el registro del Service Worker:', error);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>

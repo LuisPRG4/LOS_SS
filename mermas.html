@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Los SS - Merma</title>
+  <link rel="icon" type="image/png" href="fav/los ss.png">
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/ayuda.css" />
+
+</head>
+<body>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <header class="header-elegante">
+    <div class="header-container">
+      <img src="logo/LOS SS.png" alt="Logo" class="logo-libre" />
+      <div class="texto-header">
+        <h1 class="titulo-header">📉 Merma</h1>
+        <p class="descripcion-header">Registra productos dañados, vencidos u otros descartes para mantener tu inventario limpio y actualizado.</p>
+      </div>
+    </div>
+  </header>
+
+  <nav>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+      <li><a href="index.html">🏠 Inicio</a></li>
+      <li><a href="inventario.html">🧃 Inventario</a></li>
+      <li><a href="mermas.html">📉 Mermas</a></li>
+      <li><a href="ventas.html">🧾 Ventas</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="proveedores.html">🚚 Proveedores</a></li>
+      <li class="active"><a href="cuentas-por-cobrar.html">💸 Cuentas por Cobrar</a></li>
+      <li><a href="reportesGraficos.html">📊 Reportes</a></li>
+      <li><a href="finanzas.html">💰 Finanzas</a></li>
+      <li><a href="novedades.html"> Novedades</a></li>
+      <li><a href="pedidos.html">📦 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="formularioMerma">
+      <h2>➕ Registrar Merma</h2>
+
+      <label>Producto:</label>
+      <select id="productoMerma">
+        <option value="">Selecciona un producto</option>
+      </select>
+
+      <label>Cantidad:</label>
+      <input type="number" id="cantidadMerma" placeholder="Cantidad perdida" min="1" />
+
+      <label>Motivo:</label>
+      <select id="motivoMerma" onchange="mostrarCampoOtroMotivo()">
+        <option value="">Selecciona un motivo</option>
+        <option value="Vencido">Vencido</option>
+        <option value="Dañado">Dañado</option>
+        <option value="Roto">Roto</option>
+        <option value="Otro">Otro (especificar)</option>
+      </select>
+
+      <input type="text" id="otroMotivoInput" placeholder="Escribe el motivo..." style="display:none; margin-top:10px;" />
+
+      <div class="form-buttons">
+        <button id="btnGuardarMerma">Guardar Merma</button>
+        <button id="btnCancelarEdicionMerma" onclick="cancelarEdicionMerma()" class="btn-cancelar" style="display:none;">Cancelar</button>
+      </div>
+      
+    </section>
+
+    <section>
+      <h2>📋 Historial de Mermas</h2>
+      <input type="text" id="buscadorMerma" placeholder="🔍 Buscar mermas..." oninput="filtrarMermas()" />
+
+      <div style="margin-top: 1rem;">
+  <button onclick="toggleOpcionesExport()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+    ⬇️ Exportar
+  </button>
+  <div id="opcionesExportMerma" style="display: none; margin-top: 0.5rem;">
+    <button onclick="exportarMermasExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2">📊 Exportar a Excel</button>
+    <button onclick="exportarMermasPDF()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md">📄 Exportar a PDF</button>
+  </div>
+</div>
+
+      <ul id="listaMermas" style="margin-top: 1rem;"></ul>
+    </section>
+
+    <!-- Ayuda contextual -->
+    <section id="ayuda">
+      <div class="h2title"><h2>📉 Módulo Merma</h2></div>
+      <h3>❓ ¿Cómo usar este módulo?</h3>
+      <div class="parrafito">
+        <p>Este módulo te permite registrar productos que fueron eliminados del inventario por causas distintas a la venta: vencimiento, daño, rotura, etc.</p>
+      </div>
+      <ul>
+        <li>📦 Elige un producto del inventario.</li>
+        <li>🔢 Indica cuántas unidades se perdieron.</li>
+        <li>📝 Selecciona un motivo o escribe uno personalizado.</li>
+        <li>📋 El registro se guarda y se descuenta del stock automáticamente.</li>
+        <li>⬇️ Puedes exportar el historial de mermas a Excel o PDF.</li>
+      </ul>
+      <button id="cerrarAyuda">Cerrar Ayuda</button>
+    </section>
+
+    <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+  </main>
+
+  <script src="js/db.js"></script>
+  <script src="js/mermas.js"></script>
+  <script src="js/nav-highlighter.js" defer></script>
+  
+  <script>
+    function toggleMenu() {
+      document.getElementById("navMenu").classList.toggle("open");
+    }
+
+    function mostrarAyuda() {
+      const ayuda = document.getElementById("ayuda");
+      ayuda.classList.add("visible");
+      ayuda.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function mostrarCampoOtroMotivo() {
+      const select = document.getElementById("motivoMerma");
+      const inputOtro = document.getElementById("otroMotivoInput");
+      inputOtro.style.display = select.value === "Otro" ? "block" : "none";
+    }
+
+    document.getElementById("cerrarAyuda").addEventListener("click", () => {
+      document.getElementById("ayuda").classList.remove("visible");
+    });
+
+    if (sessionStorage.getItem("sesionIniciada") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  
+  <!-- SERVICE WORKER-->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Fallo el registro del Service Worker:', error);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>

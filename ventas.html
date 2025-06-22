@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Los SS - Ventas</title>
+  <link rel="icon" type="image/png" href="fav/los ss.png">
+
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/ayuda.css">
+
+</head>
+<body>
+  <div id="toastContainer" class="toast-container"></div>
+  
+ <header class="header-elegante">
+  <div class="header-container">
+    <img src="logo/LOS SS.png" alt="Logo" class="logo-libre" />
+    <div class="texto-header">
+      <h1 class="titulo-header">🧾 Ventas</h1>
+      <p class="descripcion-header">Registra ventas de manera rápida y sencilla, ya sea al contado o a crédito, y haz seguimiento del rendimiento de tu negocio.</p>
+    </div>
+  </div>
+</header>
+
+  <nav>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul id="navMenu">
+      <li><a href="index.html">🏠 Inicio</a></li>
+      <li><a href="inventario.html">🧃 Inventario</a></li>
+      <li><a href="mermas.html">📉 Mermas</a></li>
+      <li><a href="ventas.html">🧾 Ventas</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="proveedores.html">🚚 Proveedores</a></li>
+      <li class="active"><a href="cuentas-por-cobrar.html">💸 Cuentas por Cobrar</a></li>
+      <li><a href="reportesGraficos.html">📊 Reportes</a></li>
+      <li><a href="finanzas.html">💰 Finanzas</a></li>
+      <li><a href="novedades.html"> Novedades</a></li>
+       <li><a href="pedidos.html">📦 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="formularioVenta">
+  <h2>➕ Registrar Venta Multiproducto</h2>
+
+  <label for="clienteVenta">Cliente:</label>
+    <input list="clientesLista" id="clienteVenta" name="clienteVenta" placeholder="Escribe o selecciona cliente..." autocomplete="off" />
+    <datalist id="clientesLista">
+    <!-- Se llenará dinámicamente -->
+  </datalist>
+
+
+  <label>Producto:</label>
+  <select id="productoVenta">
+    <option value="">Selecciona un producto</option>
+  </select>
+
+  <label>Cantidad:</label>
+  <input type="number" id="cantidadVenta" min="0" placeholder="Cantidad">
+
+  <button onclick="agregarProductoAVenta()">➕ Agregar Producto</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody id="tablaProductosVenta"></tbody>
+  </table>
+
+  <p><strong>Total:</strong> $<span id="totalVenta">0.00</span></p>
+
+  <label>Condición de Pago:</label>
+  <select id="tipoPago" onchange="mostrarOpcionesPago()">
+    <option value="">Condición</option>
+    <option value="contado">Contado</option>
+    <option value="credito">Crédito</option>
+  </select>
+
+  <!-- Contado -->
+  <div id="opcionesContado" style="display: none;">
+    <label>Método:</label>
+    <select id="metodoContado">
+      <option value="">Método de pago</option>
+      <option value="efectivo">Efectivo</option>
+      <option value="transferencia">Transferencia</option>
+      <option value="pago_movil">Pago móvil</option>
+    </select>
+  </div>
+
+  <!-- Crédito -->
+  <div id="opcionesCredito" style="display: none;">
+    <label>Fecha Vencimiento:</label>
+    <input type="date" id="fechaVencimiento" />
+  </div>
+
+  <button id="btnRegistrarVenta" onclick="registrarVenta()">🧾 Guardar Venta</button>
+
+</section>
+
+    <section>
+      <h2>📋 Historial de Ventas</h2>
+      <input type="text" id="buscadorVentas" placeholder="🔍 Buscar ventas..." oninput="filtrarVentas()" />
+
+      <div style="margin-top: 1rem;">
+        <button id="btnExportar" onclick="toggleExportOptions()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+          ⬇️ Exportar
+        </button>
+    <div id="opcionesExportacion" style="display: none; margin-top: 0.5rem;">
+        <button onclick="exportarExcel()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2">📊 Exportar a Excel</button>
+        <button onclick="exportarPDF()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md">📄 Exportar a PDF</button>
+      </div>
+    </div>
+
+      <div id="listaVentas" class="mt-4 space-y-4"></div>
+    </section>
+
+    <!-- Ayuda contextual para Ventas -->
+  <section id="ayuda">
+    <div class="h2title"> 
+      <h2>🧾 Módulo Ventas</h2> 
+    </div> 
+      <h3>📝 ¿Cómo usar este módulo?</h3>
+    
+      <div class="parrafito">
+    <p>
+      Aquí puedes registrar ventas de manera sencilla y profesional, eligiendo productos desde tu inventario y agregando varios por venta. Cada venta 
+      puede realizarse al contado o a crédito, con seguimiento automático.
+    </p>
+  </div>
+
+  <ul>
+    <li>👤 Selecciona al cliente al que deseas realizar la venta.</li>
+    <li>🛒 Agrega uno o varios productos con su cantidad. El precio se toma desde tu inventario automáticamente.</li>
+    <li>💰 Indica si el pago fue al contado o a crédito.</li>
+    <li>📅 Si es crédito, puedes especificar una <strong>fecha de vencimiento</strong> para el pago.</li>
+    <li>🧾 Al guardar la venta, esta se registrará en el historial y también se reflejará en finanzas automáticamente.</li>
+    <li>🔍 Usa el buscador para localizar ventas específicas.</li>
+    <li>⬇️ Puedes exportar tus ventas a <strong>Excel</strong> o <strong>PDF</strong> para tus reportes.</li>
+    <li>✏️ Puedes editar ventas existentes, y al hacerlo se actualiza el stock y los montos correctamente.</li>
+  </ul>
+
+    <button id="cerrarAyuda">Cerrar Ayuda</button>
+  </section>
+
+    <!-- Botón flotante de ayuda -->
+  <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+
+  </main>
+
+  <script src="js/db.js"></script>
+  <script src="js/ventas.js"></script>
+  <script src="js/nav-highlighter.js" defer></script>
+
+    <script>
+      function toggleMenu() {
+      document.getElementById("navMenu").classList.toggle("open");
+    }
+    </script>
+
+    <script>
+  if (sessionStorage.getItem("sesionIniciada") !== "true") {
+    window.location.href = "login.html";
+  }
+</script>
+
+  <!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
+<script>
+  function mostrarAyuda() {
+    const ayuda = document.getElementById("ayuda");
+    ayuda.classList.add("visible");
+    ayuda.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("cerrarAyuda").addEventListener("click", () => {
+    document.getElementById("ayuda").classList.remove("visible");
+  });
+</script>
+
+<!-- SERVICE WORKER-->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Fallo el registro del Service Worker:', error);
+        });
+    });
+  }
+</script>
+
+<div id="modalAbono" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50" style="display: none;">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+            <h2 class="text-2xl font-bold text-blue-700">💰 Registrar Abono</h2>
+            <button id="cerrarModalAbono" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
+        </div>
+
+        <div id="detalleVentaModal" class="mb-4 text-gray-800">
+            <p><strong>Cliente:</strong> [Nombre Cliente]</p>
+            <p><strong>Total Venta:</strong> $[Total Venta]</p>
+            <p><strong>Monto Pendiente:</strong> <span class="text-red-500 font-bold">$ [Monto Pendiente]</span></p>
+            <p><strong>Estado:</strong> [Estado Pago]</p>
+            <p><strong>Vencimiento:</strong> [Fecha Vencimiento]</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="montoAbono" class="block text-sm font-medium text-gray-700 mb-1">Monto del Abono:</label>
+            <input type="number" id="montoAbono" class="form-control w-full p-2 border border-gray-300 rounded-md" step="0.01" min="0" required>
+        </div>
+
+        <div class="mb-4">
+            <h3 class="text-md font-semibold text-gray-800 mb-2">Abonos Previos:</h3>
+            <div id="listaAbonosModal" class="max-h-32 overflow-y-auto bg-gray-50 p-2 rounded-md border border-gray-200">
+                </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <button id="btnRegistrarAbono" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition">Confirmar Abono</button>
+            <button type="button" onclick="cerrarModalAbono()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md transition">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50"></div>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Los SS - Novedades</title>
+
+    <link rel="icon" type="image/png" href="fav/los ss.png">
+
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/novedades.css" />
+</head>
+<body>
+    <div id="toastContainer" class="toast-container"> </div>
+
+    <header class="header-elegante">
+        <div class="header-container">
+            <img src="logo/LOS SS.png" alt="Logo" class="logo-libre" />
+            <div class="texto-header">
+                <h1 class="titulo-header">✨ Novedades</h1>
+                <p class="descripcion-header">Mantente al tanto de las últimas mejoras, características y cambios en el sistema.</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        <ul id="navMenu">
+            <li><a href="index.html">🏠 Inicio</a></li>
+            <li><a href="inventario.html">🧃 Inventario</a></li>
+            <li><a href="mermas.html">📉 Mermas</a></li>
+            <li><a href="ventas.html">🧾 Ventas</a></li>
+            <li><a href="clientes.html">👥 Clientes</a></li>
+            <li><a href="proveedores.html">🚚 Proveedores</a></li>
+            <li class="active"><a href="cuentas-por-cobrar.html">💸 Cuentas por Cobrar</a></li>
+            <li><a href="reportesGraficos.html">📊 Reportes</a></li>
+            <li><a href="finanzas.html">💰 Finanzas</a></li>
+            <li><a href="novedades.html"> Novedades</a></li>
+            <li><a href="pedidos.html">📦 Pedidos</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="novedades-container">
+            <h2>Novedades Estéticas y Experiencia de Usuario</h2>
+            <div class="novedad-card novedad-estetica-especial">
+                <h3 class="novedad-version">🎨 Interfaz Renovada - ¡Brillo y Usabilidad Mejorados!</h3>
+                <ul class="novedad-lista">
+                    <li>**Navegación Interactiva:** El texto de la barra de navegación ahora deslumbra con un **efecto de brillo y degradado animado**, aportando dinamismo y elegancia a cada enlace.</li>
+                    <li>**Resaltado Inteligente:** La página activa en la barra de navegación se **resalta automáticamente**, facilitando tu orientación y mejorando la fluidez de uso.</li>
+                    <li>**Iconografía Restaurada:** Se han reintegrado los íconos originales** en los enlaces de la barra de navegación, añadiendo claridad visual y un toque familiar.</li>
+                    <li>**Contraste Mejorado:** Se ha optimizado el color del texto al pasar el cursor sobre los botones de navegación para asegurar una **legibilidad impecable** en todo momento.</li>
+                </ul>
+            </div>
+            <h2>Historial de Actualizaciones</h2>
+
+            <div class="novedad-card novedad-destacada">
+                <h3 class="novedad-version">Versión 1.3.0 - 22 de Junio, 2025</h3>
+                <ul class="novedad-lista">
+                    <li>**Novedad Clave:** Se ha implementado el **sistema de abonos para las Cuentas por Cobrar**, permitiendo registrar pagos parciales de deudas de manera eficiente.</li>
+                    <li>**Mejora:** La sección de Cuentas por Cobrar ahora muestra las **actualizaciones de abonos y montos pendientes de forma dinámica y en tiempo real** dentro del modal, sin necesidad de recargar la página.</li>
+                    <li>**Mejora:** La lógica de cálculo del estado de pago de las ventas a crédito (`Pendiente`, `Pagado Parcial`, `Pagado Total`) ha sido **refinada y automatizada** con cada abono, asegurando precisión en los reportes.</li>
+                    <li>**Mejora:** La **persistencia de datos** en la base de datos IndexedDB ha sido robustecida, garantizando que todos los abonos y cambios de estado se guarden de forma segura y permanente.</li>
+                    <li>**Funcionalidad:** Se ha añadido un **sistema de notificaciones (Toasts)** que proporciona feedback visual y claro sobre las acciones realizadas (éxito, error, advertencia) en módulos como Cuentas por Cobrar.</li>
+                    <li>**Corrección:** Se han solucionado problemas relacionados con la **definición y disponibilidad global** de funciones utilitarias, mejorando la estabilidad del sistema.</li>
+                    <li>**Optimización:** Refuerzo en la obtención de datos frescos de la base de datos antes de cualquier operación de lectura o escritura, **minimizando inconsistencias**.</li>
+                </ul>
+            </div>
+
+            <div class="novedad-card">
+                <h3 class="novedad-version">Versión 1.2.0 - 20 de Junio, 2025</h3>
+                <ul class="novedad-lista">
+                    <li>**Funcionalidad:** Implementación completa de la base de datos con IndexedDB para todos los módulos (Inventario, Ventas, Finanzas, Clientes, Pedidos, Proveedores).</li>
+                    <li>**Mejora:** Mejoras de rendimiento significativas en la carga y guardado de datos.</li>
+                    <li>**Novedad:** Sección de "Novedades" agregada para mantener informados a los usuarios sobre los cambios.</li>
+                    <li>**Corrección:** Resuelto el problema de "ajuste" inesperado en Finanzas al registrar nuevas ventas.</li>
+                    <li>**Mejora:** Alertas de stock bajo en el Dashboard, ahora con umbral configurable.</li>
+                </ul>
+            </div>
+
+            <div class="novedad-card">
+                <h3 class="novedad-version">Versión 1.1.0 - 15 de Mayo, 2025</h3>
+                <ul class="novedad-lista">
+                    <li>**Novedad:** Introducción del módulo de Ventas.</li>
+                    <li>**Mejora:** Optimización de la gestión de clientes y productos.</li>
+                    <li>**Corrección:** Pequeños ajustes de interfaz de usuario.</li>
+                </ul>
+            </div>
+
+            <div class="novedad-card">
+                <h3 class="novedad-version">Versión 1.0.0 - 1 de Abril, 2025</h3>
+                <ul class="novedad-lista">
+                    <li>**Lanzamiento Inicial:** Sistema de gestión de tienda lanzado con módulos básicos de Inventario y Finanzas.</li>
+                    <li>**Funcionalidad:** Registro de productos, control de stock y movimientos financieros básicos.</li>
+                </ul>
+            </div>
+
+        </section>
+
+        <section id="ayuda">
+            <div class="h2title">      
+                <h2>✨ Módulo Novedades</h2>
+            </div>
+            <h3>📖 ¿Cómo usar este módulo?</h3>
+            <div class="parrafito">
+                <p>
+                    Aquí puedes encontrar un resumen de los cambios, nuevas funcionalidades y mejoras implementadas en el sistema. Mantente informado sobre las últimas versiones.
+                </p>
+            </div>
+            <ul>
+                <li>🔹 Cada sección representa una versión o una actualización importante.</li>
+                <li>🔹 Dentro de cada entrada, encontrarás una lista de los cambios específicos, mejoras y correcciones.</li>
+                <li>🔹 Revisa las versiones anteriores para ver cómo ha evolucionado el sistema.</li>
+            </ul>
+            <button id="cerrarAyuda" onclick="novedadesCerrarAyuda()">Cerrar Ayuda</button> 
+        </section>
+
+        <button class="btn-ayuda" onclick="novedadesMostrarAyuda()">❔</button> 
+
+    </main>
+
+    <script src="js/db.js"></script>
+    <script src="js/script.js"></script> 
+    <script src="js/novedades.js"></script>
+    <script src="js/nav-highlighter.js" defer></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem("sesionIniciada") !== "true") {
+                window.location.href = "login.html";
+            }
+        });
+
+        function cerrarSesion() {
+            sessionStorage.removeItem("sesionIniciada");
+            window.location.href = "login.html";
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Fallo el registro del Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+
+    <div id="button" class="button-sesion">
+        <button onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!-- offline.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sin conexión</title>
+  <style>
+
+    @font-face {
+      font-family: 'Handlee';
+      src: url('/fonts/Handlee-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Handlee', cursive;
+      background: linear-gradient(135deg, #fff8e1, #fbeec1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      animation: brillo 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes brillo {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .card {
+      background: white;
+      border: 2px solid #d4af37;
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      max-width: 350px;
+      animation: resplandor 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes resplandor {
+      0% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.3); }
+      100% { box-shadow: 0 0 35px rgba(212, 175, 55, 0.6); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #d4af37;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .emoji {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: saltar 1.5s ease-in-out infinite;
+    }
+
+    @keyframes saltar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="emoji">📡✨</div>
+    <h1>¡Estás sin conexión!</h1>
+    <p>Actualmente no hay conexión a Internet y este recurso no está disponible en
+       modo sin conexión. Por favor, verifica tu conexión y vuelve a intentarlo.
+    </p>
+  </div>
+</body>
+</html>
