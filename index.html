@@ -69,21 +69,23 @@
       document.getElementById("navMenu").classList.toggle("open");
     }
 
-    if (sessionStorage.getItem("sesionIniciada") !== "true") {
+    
+  </script>
+
+  <!-- <div id="button" class="button-sesion">
+
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
+
+  </div> >
+
+  if (sessionStorage.getItem("sesionIniciada") !== "true") {
       window.location.href = "login.html";
     }
 
     function cerrarSesion() {
       sessionStorage.removeItem("sesionIniciada");
       window.location.href = "login.html";
-    }
-  </script>
-
-  <div id="button" class="button-sesion">
-
-    <button onclick="cerrarSesion()">Cerrar sesión</button>
-
-  </div>
+    } >
 
   <!-- SERVICE WORKER-->
 <script>
