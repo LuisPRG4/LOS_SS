@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/ayuda.css"/>
+  <link rel="stylesheet" href="css/chatbot-ayuda.css" />
 
 </head>
 <body>
@@ -89,14 +90,32 @@
     <button id="cerrarAyuda">Cerrar Ayuda</button>
   </section>
 
-    <!-- Botón flotante de ayuda -->
-  <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+    <!-- Mini menú lateral con botón de flechita -->
+<div id="miniMenuLateral" class="expandido">
+  <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+  <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+  <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+</div>
+
+<div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Proveedores</h3>
+  <div id="chatbotContenido">
+    <button onclick="mostrarRespuesta('agregarProveedor')">¿Cómo agregar un proveedor?</button>
+    <button onclick="mostrarRespuesta('editarEliminarProveedor')">¿Cómo editar o eliminar un proveedor?</button>
+    <button onclick="mostrarRespuesta('buscarProveedor')">¿Cómo buscar un proveedor?</button>
+    <button onclick="mostrarRespuesta('productosProveedor')">¿Cómo registrar productos que suministra?</button>
+    <button onclick="mostrarRespuesta('telefonoFormato')">¿Formato correcto para el teléfono?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
 
   </main>
 
   <script src="js/db.js"></script>
   <script src="js/proveedores.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
+  <script src="js/chatbot-ayuda.js" defer></script>
 
     <script>
       function toggleMenu() {
