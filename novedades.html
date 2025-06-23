@@ -45,81 +45,97 @@
     </nav>
 
     <main>
-        <section class="novedades-container">
-            <h2>Novedades Estéticas y Experiencia de Usuario</h2>
-            <div class="novedad-card novedad-estetica-especial">
-                <h3 class="novedad-version">🎨 Interfaz Renovada - ¡Brillo y Usabilidad Mejorados!</h3>
-                <ul class="novedad-lista">
-                    <li>**Navegación Interactiva:** El texto de la barra de navegación ahora deslumbra con un **efecto de brillo y degradado animado**, aportando dinamismo y elegancia a cada enlace.</li>
-                    <li>**Resaltado Inteligente:** La página activa en la barra de navegación se **resalta automáticamente**, facilitando tu orientación y mejorando la fluidez de uso.</li>
-                    <li>**Iconografía Restaurada:** Se han reintegrado los íconos originales** en los enlaces de la barra de navegación, añadiendo claridad visual y un toque familiar.</li>
-                    <li>**Contraste Mejorado:** Se ha optimizado el color del texto al pasar el cursor sobre los botones de navegación para asegurar una **legibilidad impecable** en todo momento.</li>
-                </ul>
-            </div>
-            <h2>Historial de Actualizaciones</h2>
-
-            <div class="novedad-card novedad-destacada">
-                <h3 class="novedad-version">Versión 1.3.0 - 22 de Junio, 2025</h3>
-                <ul class="novedad-lista">
-                    <li>**Novedad Clave:** Se ha implementado el **sistema de abonos para las Cuentas por Cobrar**, permitiendo registrar pagos parciales de deudas de manera eficiente.</li>
-                    <li>**Mejora:** La sección de Cuentas por Cobrar ahora muestra las **actualizaciones de abonos y montos pendientes de forma dinámica y en tiempo real** dentro del modal, sin necesidad de recargar la página.</li>
-                    <li>**Mejora:** La lógica de cálculo del estado de pago de las ventas a crédito (`Pendiente`, `Pagado Parcial`, `Pagado Total`) ha sido **refinada y automatizada** con cada abono, asegurando precisión en los reportes.</li>
-                    <li>**Mejora:** La **persistencia de datos** en la base de datos IndexedDB ha sido robustecida, garantizando que todos los abonos y cambios de estado se guarden de forma segura y permanente.</li>
-                    <li>**Funcionalidad:** Se ha añadido un **sistema de notificaciones (Toasts)** que proporciona feedback visual y claro sobre las acciones realizadas (éxito, error, advertencia) en módulos como Cuentas por Cobrar.</li>
-                    <li>**Corrección:** Se han solucionado problemas relacionados con la **definición y disponibilidad global** de funciones utilitarias, mejorando la estabilidad del sistema.</li>
-                    <li>**Optimización:** Refuerzo en la obtención de datos frescos de la base de datos antes de cualquier operación de lectura o escritura, **minimizando inconsistencias**.</li>
-                </ul>
-            </div>
-
-            <div class="novedad-card">
-                <h3 class="novedad-version">Versión 1.2.0 - 20 de Junio, 2025</h3>
-                <ul class="novedad-lista">
-                    <li>**Funcionalidad:** Implementación completa de la base de datos con IndexedDB para todos los módulos (Inventario, Ventas, Finanzas, Clientes, Pedidos, Proveedores).</li>
-                    <li>**Mejora:** Mejoras de rendimiento significativas en la carga y guardado de datos.</li>
-                    <li>**Novedad:** Sección de "Novedades" agregada para mantener informados a los usuarios sobre los cambios.</li>
-                    <li>**Corrección:** Resuelto el problema de "ajuste" inesperado en Finanzas al registrar nuevas ventas.</li>
-                    <li>**Mejora:** Alertas de stock bajo en el Dashboard, ahora con umbral configurable.</li>
-                </ul>
-            </div>
-
-            <div class="novedad-card">
-                <h3 class="novedad-version">Versión 1.1.0 - 15 de Mayo, 2025</h3>
-                <ul class="novedad-lista">
-                    <li>**Novedad:** Introducción del módulo de Ventas.</li>
-                    <li>**Mejora:** Optimización de la gestión de clientes y productos.</li>
-                    <li>**Corrección:** Pequeños ajustes de interfaz de usuario.</li>
-                </ul>
-            </div>
-
-            <div class="novedad-card">
-                <h3 class="novedad-version">Versión 1.0.0 - 1 de Abril, 2025</h3>
-                <ul class="novedad-lista">
-                    <li>**Lanzamiento Inicial:** Sistema de gestión de tienda lanzado con módulos básicos de Inventario y Finanzas.</li>
-                    <li>**Funcionalidad:** Registro de productos, control de stock y movimientos financieros básicos.</li>
-                </ul>
-            </div>
-
-        </section>
-
-        <section id="ayuda">
-            <div class="h2title">      
-                <h2>✨ Módulo Novedades</h2>
-            </div>
-            <h3>📖 ¿Cómo funciona este módulo?</h3>
-            <div class="parrafito">
-                <p>
-                    Aquí puedes encontrar un resumen de los cambios, nuevas funcionalidades y mejoras implementadas en el sistema. Mantente informado sobre las últimas versiones.
-                </p>
-            </div>
-            <ul>
-                <li>🔹 Cada sección representa una versión o una actualización importante.</li>
-                <li>🔹 Dentro de cada entrada, encontrarás una lista de los cambios específicos, mejoras y correcciones.</li>
-                <li>🔹 Revisa las versiones anteriores para ver cómo ha evolucionado el sistema.</li>
+    <section class="novedades-container">
+        <h2>Novedades Estéticas y Experiencia de Usuario</h2>
+        <div class="novedad-card novedad-estetica-especial">
+            <h3 class="novedad-version">🎨 Interfaz Renovada - ¡Brillo y Usabilidad Mejorados!</h3>
+            <ul class="novedad-lista">
+                <li>**Navegación Interactiva:** El texto de la barra de navegación ahora deslumbra con un **efecto de brillo y degradado animado**, aportando dinamismo y elegancia a cada enlace.</li>
+                <li>**Resaltado Inteligente:** La página activa en la barra de navegación se **resalta automáticamente**, facilitando tu orientación y mejorando la fluidez de uso.</li>
+                <li>**Iconografía Restaurada:** Se han reintegrado los íconos originales** en los enlaces de la barra de navegación, añadiendo claridad visual y un toque familiar.</li>
+                <li>**Contraste Mejorado:** Se ha optimizado el color del texto al pasar el cursor sobre los botones de navegación para asegurar una **legibilidad impecable** en todo momento.</li>
             </ul>
-            <button id="cerrarAyuda" onclick="novedadesCerrarAyuda()">Cerrar Ayuda</button> 
-        </section>
+        </div>
 
-          <!-- Mini menú lateral con botón de flechita -->
+        <h2>Historial de Actualizaciones</h2>
+
+        <div class="novedad-card novedad-destacada">
+            <h3 class="novedad-version">Versión 1.4.0 - 23 de Junio, 2025</h3>
+            <ul class="novedad-lista">
+                <li>**Nueva Funcionalidad Mayor:** Se ha añadido una sección dedicada para **Exportar e Importar todos los Datos** de tu aplicación. Ahora puedes:
+                    <ul>
+                        <li>**Exportar** tu inventario, clientes, pedidos, ventas, movimientos, proveedores y abonos a formatos **Excel (XLSX)**, **CSV**, **JSON** y **PDF**.</li>
+                        <li>**Importar** todos tus datos previamente exportados desde un archivo **JSON**, permitiendo una restauración o migración completa de tu información.</li>
+                    </ul>
+                </li>
+                <li>**Mejora en Finanzas:** Se ha implementado un **totalizador general para las "Ventas a Crédito"**, permitiendo ver de un vistazo el monto total pendiente de cobro en esta categoría.</li>
+                <li>**Optimización:** El proceso de exportación a Excel (XLSX) ha sido robustecido para manejar casos donde no hay datos, mostrando un mensaje claro en lugar de un error.</li>
+                <li>**Experiencia de Usuario:** Se han añadido mensajes (Toasts) claros y visuales durante los procesos de exportación e importación, informando sobre el estado de la operación.</li>
+                <li>**Corrección:** Se han resuelto problemas de rutas de archivos para algunos iconos, mejorando la visualización general.</li>
+                <li>**Preparación para PWA:** Se ha mejorado la configuración del Service Worker y el manifest para una futura implementación como Aplicación Web Progresiva, aunque se recomienda ejecutar la aplicación en un servidor web para una funcionalidad completa.</li>
+            </ul>
+        </div>
+        <div class="novedad-card novedad-destacada">
+            <h3 class="novedad-version">Versión 1.3.0 - 22 de Junio, 2025</h3>
+            <ul class="novedad-lista">
+                <li>**Novedad Clave:** Se ha implementado el **sistema de abonos para las Cuentas por Cobrar**, permitiendo registrar pagos parciales de deudas de manera eficiente.</li>
+                <li>**Mejora:** La sección de Cuentas por Cobrar ahora muestra las **actualizaciones de abonos y montos pendientes de forma dinámica y en tiempo real** dentro del modal, sin necesidad de recargar la página.</li>
+                <li>**Mejora:** La lógica de cálculo del estado de pago de las ventas a crédito (`Pendiente`, `Pagado Parcial`, `Pagado Total`) ha sido **refinada y automatizada** con cada abono, asegurando precisión en los reportes.</li>
+                <li>**Mejora:** La **persistencia de datos** en la base de datos IndexedDB ha sido robustecida, garantizando que todos los abonos y cambios de estado se guarden de forma segura y permanente.</li>
+                <li>**Funcionalidad:** Se ha añadido un **sistema de notificaciones (Toasts)** que proporciona feedback visual y claro sobre las acciones realizadas (éxito, error, advertencia) en módulos como Cuentas por Cobrar.</li>
+                <li>**Corrección:** Se han solucionado problemas relacionados con la **definición y disponibilidad global** de funciones utilitarias, mejorando la estabilidad del sistema.</li>
+                <li>**Optimización:** Refuerzo en la obtención de datos frescos de la base de datos antes de cualquier operación de lectura o escritura, **minimizando inconsistencias**.</li>
+            </ul>
+        </div>
+
+        <div class="novedad-card">
+            <h3 class="novedad-version">Versión 1.2.0 - 20 de Junio, 2025</h3>
+            <ul class="novedad-lista">
+                <li>**Funcionalidad:** Implementación completa de la base de datos con IndexedDB para todos los módulos (Inventario, Ventas, Finanzas, Clientes, Pedidos, Proveedores).</li>
+                <li>**Mejora:** Mejoras de rendimiento significativas en la carga y guardado de datos.</li>
+                <li>**Novedad:** Sección de "Novedades" agregada para mantener informados a los usuarios sobre los cambios.</li>
+                <li>**Corrección:** Resuelto el problema de "ajuste" inesperado en Finanzas al registrar nuevas ventas.</li>
+                <li>**Mejora:** Alertas de stock bajo en el Dashboard, ahora con umbral configurable.</li>
+            </ul>
+        </div>
+
+        <div class="novedad-card">
+            <h3 class="novedad-version">Versión 1.1.0 - 15 de Mayo, 2025</h3>
+            <ul class="novedad-lista">
+                <li>**Novedad:** Introducción del módulo de Ventas.</li>
+                <li>**Mejora:** Optimización de la gestión de clientes y productos.</li>
+                <li>**Corrección:** Pequeños ajustes de interfaz de usuario.</li>
+            </ul>
+        </div>
+
+        <div class="novedad-card">
+            <h3 class="novedad-version">Versión 1.0.0 - 1 de Abril, 2025</h3>
+            <ul class="novedad-lista">
+                <li>**Lanzamiento Inicial:** Sistema de gestión de tienda lanzado con módulos básicos de Inventario y Finanzas.</li>
+                <li>**Funcionalidad:** Registro de productos, control de stock y movimientos financieros básicos.</li>
+            </ul>
+        </div>
+
+    </section>
+
+    <section id="ayuda">
+        <div class="h2title">      
+            <h2>✨ Módulo Novedades</h2>
+        </div>
+        <h3>📖 ¿Cómo funciona este módulo?</h3>
+        <div class="parrafito">
+            <p>
+                Aquí puedes encontrar un resumen de los cambios, nuevas funcionalidades y mejoras implementadas en el sistema. Mantente informado sobre las últimas versiones.
+            </p>
+        </div>
+        <ul>
+            <li>🔹 Cada sección representa una versión o una actualización importante.</li>
+            <li>🔹 Dentro de cada entrada, encontrarás una lista de los cambios específicos, mejoras y correcciones.</li>
+            <li>🔹 Revisa las versiones anteriores para ver cómo ha evolucionado el sistema.</li>
+        </ul>
+        <button id="cerrarAyuda" onclick="novedadesCerrarAyuda()">Cerrar Ayuda</button> 
+    </section>
+
     <div id="miniMenuLateral" class="expandido">
         <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
         <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
@@ -127,20 +143,19 @@
     </div>
 
     <div id="panelChatbot">
-  <button class="cerrarBtn" id="cerrarChatbot">×</button>
-  <h3>Chatbot - Novedades</h3>
-  <div id="chatbotContenido">
-    <button onclick="mostrarRespuesta('queEsNovedades')">¿Qué es el módulo Novedades?</button>
-    <button onclick="mostrarRespuesta('comoSeOrganiza')">¿Cómo se organiza la información?</button>
-    <button onclick="mostrarRespuesta('historialActualizaciones')">¿Dónde veo el historial de versiones?</button>
-    <button onclick="mostrarRespuesta('cambiosImportantes')">¿Cómo saber si hubo cambios importantes?</button>
-    <button onclick="mostrarRespuesta('ultimaVersion')">¿Cómo saber cuál es la última versión?</button>
-    <button onclick="mostrarRespuesta('versionesAnteriores')">¿Puedo ver qué había en versiones anteriores?</button>
-  </div>
-  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
-</div>
-
-    </main>
+        <button class="cerrarBtn" id="cerrarChatbot">×</button>
+        <h3>Chatbot - Novedades</h3>
+        <div id="chatbotContenido">
+            <button onclick="mostrarRespuesta('queEsNovedades')">¿Qué es el módulo Novedades?</button>
+            <button onclick="mostrarRespuesta('comoSeOrganiza')">¿Cómo se organiza la información?</button>
+            <button onclick="mostrarRespuesta('historialActualizaciones')">¿Dónde veo el historial de versiones?</button>
+            <button onclick="mostrarRespuesta('cambiosImportantes')">¿Cómo saber si hubo cambios importantes?</button>
+            <button onclick="mostrarRespuesta('ultimaVersion')">¿Cómo saber cuál es la última versión?</button>
+            <button onclick="mostrarRespuesta('versionesAnteriores')">¿Puedo ver qué había en versiones anteriores?</button>
+        </div>
+        <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+    </div>
+</main>
 
     <script src="js/db.js"></script>
     <script src="js/script.js"></script> 
