@@ -292,29 +292,59 @@ async function mostrarClientesRecurrentes() {
 }
 
 function renderizarListaEspecial(ventas, tipo) {
-  const lista = document.getElementById("listaEspecial");
+    const lista = document.getElementById("listaEspecial");
+    let totalMonto = 0; // <--- ¡NUEVA VARIABLE PARA EL TOTAL!
 
-  if (ventas.length === 0) {
-    lista.innerHTML = "<li>No hay resultados para mostrar.</li>";
-    return;
-  }
+    if (ventas.length === 0) {
+        lista.innerHTML = "<li>No hay resultados para mostrar.</li>";
+        // Si no hay ventas, asegurarse de que no haya total visible
+        const totalExistente = document.getElementById("totalReporteEspecial");
+        if (totalExistente) {
+            totalExistente.remove();
+        }
+        return;
+    }
 
-  lista.innerHTML = "";
-  ventas.forEach(v => {
-    const li = document.createElement("li");
-    li.classList.add("item-especial");
-    li.dataset.cliente = v.cliente.toLowerCase();
+    lista.innerHTML = ""; // Limpia la lista antes de añadir nuevos elementos
 
-    li.innerHTML = `
-      <strong>${v.cliente}</strong><br>
-      Fecha: ${v.fecha || v.fechaVenta}<br>
-      Productos: ${(v.productos || []).map(p => `${p.nombre} x${p.cantidad}`).join(", ")}<br>
-      Total: $${(v.ingreso || 0).toFixed(2)}<br>
-      ${v.detallePago?.fechaVencimiento ? `Vence: ${v.detallePago.fechaVencimiento}` : ""}
-    `;
+    ventas.forEach(v => {
+        const li = document.createElement("li");
+        li.classList.add("item-especial");
+        li.dataset.cliente = v.cliente.toLowerCase();
 
-    lista.appendChild(li);
-  });
+        // Asegurarse de que 'ingreso' sea un número antes de sumar
+        const montoVenta = parseFloat(v.ingreso || 0); 
+        totalMonto += montoVenta; // <--- ¡SUMA EL MONTO!
+
+        // Formato del monto para la lista individual
+        const montoFormateado = montoVenta.toFixed(2);
+
+        li.innerHTML = `
+            <strong>${v.cliente}</strong><br>
+            Fecha: ${v.fecha || v.fechaVenta}<br>
+            Productos: ${(v.productos || []).map(p => `${p.nombre} x${p.cantidad}`).join(", ")}<br>
+            Total: $${montoFormateado}<br>
+            ${v.detallePago?.fechaVencimiento ? `Vence: ${v.detallePago.fechaVencimiento}` : ""}
+        `;
+
+        lista.appendChild(li);
+    });
+
+    // --- ¡AQUÍ ES DONDE AÑADIMOS EL TOTAL AL FINAL! ---
+    // Eliminar un total previo si existe para evitar duplicados
+    const totalExistente = document.getElementById("totalReporteEspecial");
+    if (totalExistente) {
+        totalExistente.remove();
+    }
+
+    // Crear el elemento para mostrar el total
+    const divTotal = document.createElement("div");
+    divTotal.id = "totalReporteEspecial"; // ID para poder referenciarlo y eliminarlo
+    divTotal.classList.add("total-reporte-especial"); // Clase para estilos
+    divTotal.innerHTML = `<strong>Total General:</strong> $${totalMonto.toFixed(2)}`;
+    
+    document.getElementById("contenedorListaEspecial").appendChild(divTotal); // Añadirlo al nuevo contenedor
+
 }
 
 function filtrarListaEspecial() {
