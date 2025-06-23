@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Los SS - Reportes</title>
   <link rel="icon" type="image/png" href="fav/los ss.png" />
+
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/ayuda.css" />
+  <link rel="stylesheet" href="css/chatbot-ayuda.css" />
+
   <script src="js/chart.js"></script>
+
 </head>
 <body>
   <div id="toastContainer" class="toast-container"></div>
@@ -131,7 +135,12 @@
         />
       </div>
 
+    <div id="contenedorListaEspecial">
+      
       <ul id="listaEspecial"></ul>
+
+    </div>
+
     </section>
 
     <section>
@@ -183,18 +192,45 @@
       <button id="cerrarAyuda">Cerrar Ayuda</button>
     </section>
 
-    <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+      <!-- Mini menú lateral con botón de flechita -->
+    <div id="miniMenuLateral" class="expandido">
+        <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+        <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+        <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+    </div>
+
+    <div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Reportes</h3>
+  <div id="chatbotContenido">
+    <button onclick="mostrarRespuesta('tipoGrafico')">¿Qué tipos de gráficos puedo usar?</button>
+    <button onclick="mostrarRespuesta('filtrarFechas')">¿Cómo filtrar reportes por fecha?</button>
+    <button onclick="mostrarRespuesta('exportarExcel')">¿Cómo exportar los datos a Excel?</button>
+    <button onclick="mostrarRespuesta('agruparDatos')">¿Qué significa agrupar por semana o mes?</button>
+    <button onclick="mostrarRespuesta('reportesEspeciales')">¿Qué son los reportes especiales?</button>
+    <button onclick="mostrarRespuesta('buscarEnReportes')">¿Cómo usar el buscador en reportes especiales?</button>
+    <button onclick="mostrarRespuesta('productosMasVendidos')">¿Cómo ver los productos más vendidos?</button>
+    <button onclick="mostrarRespuesta('ventasPorCliente')">¿Cómo visualizar ventas por cliente?</button>
+    <button onclick="mostrarRespuesta('tipoPago')">¿Qué muestra el gráfico de tipo de pago?</button>
+    <button onclick="mostrarRespuesta('erroresComunes')">¿Qué hago si un reporte no carga?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
+
   </main>
 
   <script src="js/db.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script src="js/reportes.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
+  <script src="js/chatbot-ayuda.js" defer></script>
 
   <script>
     // Función para abrir y cerrar menú
     function toggleMenu() {
-      document.getElementById("navMenu").classList.toggle("open");
+        document.getElementById("navMenu").classList.toggle("open");
+        // Asegúrate de que este toggle también controle la clase 'menu-open' en el body
+        document.body.classList.toggle("menu-open", document.getElementById("navMenu").classList.contains("open"));
     }
 
     // Verificar sesión (igual que antes)
@@ -214,13 +250,59 @@
       document.getElementById("ayuda").classList.remove("visible");
     });
 
-    // Alternar botones reportes especiales
+    // Alternar botones reportes especiales (¡VERSION CORREGIDA!)
     function alternarBotonesReportes() {
-      const contenedor = document.getElementById("botonesReportesEspeciales");
-      contenedor.style.display =
-        contenedor.style.display === "none" || contenedor.style.display === ""
-          ? "block"
-          : "none";
+        const contenedorBotones = document.getElementById("botonesReportesEspeciales");
+        const contenedorLista = document.getElementById("contenedorListaEspecial"); // El nuevo contenedor que creamos
+        const listaEspecial = document.getElementById("listaEspecial");
+        const buscadorEspecial = document.getElementById("filtroEspecial"); // Referencia directa al input del buscador
+        const divBuscador = document.getElementById("buscadorEspecial"); // El div que contiene el input
+
+
+        // Si los botones están visibles y se van a ocultar
+        if (contenedorBotones.style.display === "block" || contenedorBotones.style.display === "") {
+            // Ocultar botones de tipo de reporte
+            contenedorBotones.style.display = "none";
+
+            // Limpiar y ocultar la lista de resultados
+            listaEspecial.innerHTML = ""; // Vacía el UL
+            
+            // Ocultar el contenedor de la lista (esto también ocultará el total si está dentro)
+            // No, mejor eliminamos el total directamente y ocultamos el div del buscador
+            // contenedorLista.style.display = "none"; // Esto podría ocultar todo el contenedor de golpe. Mejor controlamos elementos individuales.
+
+            // Eliminar el total general si existe
+            const totalExistente = document.getElementById("totalReporteEspecial");
+            if (totalExistente) {
+                totalExistente.remove();
+            }
+
+            // Ocultar y limpiar el buscador
+            divBuscador.style.display = "none";
+            buscadorEspecial.value = ""; // Limpiar el campo del buscador
+
+            // Resetear el tipo de lista actual en reportes.js
+            // Esto es crucial para que la próxima vez que se abra, no recuerde el reporte anterior.
+            if (typeof listaActual !== 'undefined') {
+                 listaActual = null;
+            }
+
+        } else {
+            // Si los botones están ocultos y se van a mostrar
+            contenedorBotones.style.display = "block";
+            // Cuando se muestra, aseguramos que la lista y el buscador estén limpios y ocultos
+            // porque el usuario aún no ha seleccionado un tipo de reporte
+            listaEspecial.innerHTML = "";
+            divBuscador.style.display = "none";
+            buscadorEspecial.value = "";
+            const totalExistente = document.getElementById("totalReporteEspecial");
+            if (totalExistente) {
+                totalExistente.remove();
+            }
+            if (typeof listaActual !== 'undefined') {
+                 listaActual = null;
+            }
+        }
     }
 
     // Aquí agregamos listeners que llaman tus funciones async en reportes.js
