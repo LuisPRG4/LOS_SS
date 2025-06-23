@@ -58,32 +58,48 @@
       <ul id="alertasStock"></ul>
     </section>
 
+    <!-- EXPORTAR LOS DATOS-->
     <section class="export-all-section">
-        <h2 class="export-all-title">🗄️ Exportar Todos los Datos 💎 </h2>
-        <p class="export-all-description">Elige el formato para descargar una copia completa de tu información.</p>
-        <div class="export-options">
+    <h2 class="export-all-title">🗄️ Exportar Todos los Datos 💎</h2>
+    <p class="export-all-description">Elige el formato para descargar una copia completa de tu información.</p>
+    <div class="export-options">
 
-            <button id="btnExportarExcel" class="btn-export">
-                <img src="icons/1.EXCEL.png" alt="Excel" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a Excel
-            </button>
-            <button id="btnExportarCSV" class="btn-export">
-                <img src="icons/2. CSV.png" alt="CSV" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a CSV
-            </button>
-            <button id="btnExportarJSON" class="btn-export">
-                <img src="icons/3. JSON.png" alt="JSON" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a JSON
-            </button>
+        <button id="btnExportarExcel" class="btn-export">
+            <img src="icons/1.EXCEL.png" alt="Excel" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a Excel
+        </button>
+        <button id="btnExportarCSV" class="btn-export">
+            <img src="icons/2. CSV.png" alt="CSV" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a CSV
+        </button>
+        <button id="btnExportarJSON" class="btn-export">
+            <img src="icons/3. JSON.png" alt="JSON" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a JSON
+        </button>
+        <button id="btnExportarPDF" class="btn-export">
+            <img src="icons/4. PDF.png" alt="PDF" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a PDF
+        </button>
 
-            <button id="btnExportarPDF" class="btn-export">
-              <img src="icons/4. PDF.png" alt="PDF" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a PDF
-            </button>
+        <button id="btnToggleImport" class="btn-export btn-import-toggle">
+            <img src="icons/5. SUBIR.png" alt="Importar" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Importar Datos
+        </button>
+    </div>
 
-        </div>
-    </section>
+    <div id="importOptionsContainer" class="import-options-container">
+    <h3>📂 Selecciona el archivo JSON para importar:</h3>
+    <p class="import-description">¡Cuidado! Esto reemplazará tus datos actuales. Asegúrate de tener una copia de seguridad.</p>
+    
+    <label for="jsonFileInput" class="custom-file-upload">
+        <input type="file" id="jsonFileInput" accept=".json" style="display: none;"> <span id="fileNameDisplay" class="file-name-display">Seleccionar archivo...</span>
+        <button type="button" class="btn-browse-file">Examinar</button>
+    </label>
+    <button id="btnImportarJSON" class="btn-import btn-primary">
+        <img src="icons/6. CARGAR Y REEMPLAZAR.png" alt="Importar" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Cargar y Reemplazar Datos
+    </button>
+</div>
+</section>
 
   </main>
 
   <script src="js/db.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   
