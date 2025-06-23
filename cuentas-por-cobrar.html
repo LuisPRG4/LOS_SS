@@ -10,6 +10,9 @@
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/ayuda.css" />
+    <link rel="stylesheet" href="css/chatbot-ayuda.css" />
+
 </head>
 <body>
     <div id="toastContainer" class="toast-container"> </div>
@@ -83,6 +86,56 @@
                 <p class="mensaje-lista">Cargando ventas a crédito...</p>
             </div>
         </section>
+
+
+         <!-- Ayuda contextual para Cuentas por Cobrar -->
+    <section id="ayuda">
+    <div class="h2title">
+        <h2>💰 Módulo Cuentas por Cobrar</h2>
+    </div>
+    <h3>📝 ¿Cómo usar este módulo?</h3>
+    <div class="parrafito">
+        <p>
+            Aquí puedes gestionar todas las ventas a crédito pendientes de pago, registrar abonos parciales y monitorear el estado de cada cuenta.
+            Esto te ayuda a mantener un control claro de tus ingresos y facilitar la cobranza con tus clientes.
+        </p>
+    </div>
+    <ul>
+        <li>🔹 Usa los filtros para buscar ventas por cliente, estado de pago o fecha de vencimiento.</li>
+        <li>🔹 Selecciona una venta para registrar abonos y actualizar el monto pendiente.</li>
+        <li>🔹 Revisa el resumen para ver totales activos, pendientes y vencidos.</li>
+        <li>🔹 Mantén actualizada la información para facilitar la gestión financiera de tu negocio.</li>
+    </ul>
+    <button id="cerrarAyuda">Cerrar Ayuda</button>
+    </section>
+
+        
+   <!-- Mini menú lateral con botón de flechita -->
+    <div id="miniMenuLateral" class="expandido">
+        <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+        <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+        <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+    </div>
+
+    <div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Cuentas por Cobrar</h3>
+  <div id="chatbotContenido">
+    <button onclick="mostrarRespuesta('queEsCuentaPorCobrar')">¿Qué es una cuenta por cobrar?</button>
+    <button onclick="mostrarRespuesta('registrarAbono')">¿Cómo registrar un abono a una cuenta?</button>
+    <button onclick="mostrarRespuesta('filtrarCuentas')">¿Cómo uso los filtros para buscar cuentas?</button>
+    <button onclick="mostrarRespuesta('estadoPago')">¿Qué significan los estados de pago?</button>
+    <button onclick="mostrarRespuesta('fechaVencimiento')">¿Para qué sirve la fecha de vencimiento?</button>
+    <button onclick="mostrarRespuesta('abonoParcial')">¿Puedo hacer abonos parciales?</button>
+    <button onclick="mostrarRespuesta('ventasVencidas')">¿Cómo identificar ventas vencidas o próximas?</button>
+    <button onclick="mostrarRespuesta('editarCuentas')">¿Puedo editar o eliminar una cuenta por cobrar?</button>
+    <button onclick="mostrarRespuesta('notificaciones')">¿Cómo recibir notificaciones de cuentas vencidas?</button>
+    <button onclick="mostrarRespuesta('exportarCuentas')">¿Puedo exportar el historial de cuentas por cobrar?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
+
+
     </main>
 
     <div id="modalAbono" class="modal-overlay" style="display: none;">
@@ -116,6 +169,8 @@
     <script src="js/db.js"></script>
     <script src="js/cuentas-por-cobrar.js"></script>
     <script src="js/nav-highlighter.js" defer></script>
+    <script src="js/chatbot-ayuda.js" defer></script>
+
     <script>
         // Función para abrir/cerrar el menú móvil
         function toggleMenu() {
