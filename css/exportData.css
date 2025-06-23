@@ -1,0 +1,73 @@
+/* --- Estilos para la sección de Exportar Todo --- */
+.export-all-section {
+    background-color: #f8f8dc; /* Un color beige claro como base */
+    border: 2px solid #daa520; /* Un borde dorado */
+    border-radius: 15px;
+    padding: 30px;
+    margin: 25px auto;
+    max-width: 850px; /* Aumentar un poco el ancho máximo */
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.export-all-title {
+    color: #b8860b; /* Un tono dorado más oscuro para el título */
+    font-size: 2em; /* Hacer el título un poco más grande */
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Un ligero resplandor */
+}
+
+.export-all-description {
+    color: var(--color-text-dark);
+    margin-bottom: 25px;
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+.export-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #ffd700, #b8860b); /* Degradado dorado */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    font-weight: bold; /* Hacer el texto del botón más fuerte */
+}
+
+.btn-export:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #f0e68c, #a0522d); /* Un ligero cambio al hover */
+}
+
+/* Responsividad básica para móviles */
+@media (max-width: 768px) {
+    .export-all-section {
+        padding: 20px;
+        margin: 15px;
+    }
+    .export-all-title {
+        font-size: 1.7em;
+    }
+    .btn-export {
+        font-size: 0.9em;
+        padding: 10px 20px;
+        gap: 10px;
+    }
+    .export-options {
+        flex-direction: column;
+        align-items: center;
+    }
+}
