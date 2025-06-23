@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/ayuda.css" />
+  <link rel="stylesheet" href="css/chatbot-ayuda.css" />
 
 </head>
 <body>
@@ -111,14 +112,36 @@
   <button id="cerrarAyuda">Cerrar Ayuda</button>
   </section>
 
-<!-- Botón flotante de ayuda -->
-  <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+  <!-- Panel Chatbot -->
+<div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Inventario</h3>
+  <div id="chatbotContenido">
+    <button onclick="mostrarRespuesta('errorStock')">Errores comunes con el stock</button>
+    <button onclick="mostrarRespuesta('imagenProducto')">Problemas con la imagen del producto</button>
+    <button onclick="mostrarRespuesta('recomendacionPrecios')">Recomendaciones para precios</button>
+    <button onclick="mostrarRespuesta('cancelarEdicion')">¿Cómo cancelar una edición?</button>
+    <button onclick="mostrarRespuesta('proveedorOpcional')">¿Por qué el proveedor es opcional?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
+
+
+<!-- Mini menú lateral con botón de flechita -->
+<div id="miniMenuLateral" class="expandido">
+  <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+  <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+  <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+</div>
+
 
   </main>
 
   <script src="js/db.js"></script>
   <script src="js/inventario.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
+  <script src="js/chatbot-ayuda.js"></script>
+
 
     <script>
       function toggleMenu() {
