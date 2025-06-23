@@ -1,3 +1,8 @@
+// ventas.js adaptado para usar el nuevo db.js
+// No necesitas definir 'db', 'DB_NAME', 'DB_VERSION' ni las funciones CRUD básicas aquí.
+// Esas ahora vienen de tu archivo db.js.
+
+// Arrays globales para almacenar los datos en memoria después de cargarlos de IndexedDB
 let clientes = [];
 let ventas = [];
 let productos = [];
