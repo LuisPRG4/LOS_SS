@@ -6,7 +6,7 @@ const DB_NAME = 'miTiendaDB';
 
 // --- ¡¡¡IMPORTANTE!!! INCREMENTA ESTE NÚMERO CADA VEZ QUE CAMBIES LA ESTRUCTURA DE LA DB ---
 // Tu código original decía 8. Para forzar la actualización ahora, debe ser al menos 9.
-const DB_VERSION = 9; // <--- ¡ASEGÚRATE DE QUE ESTE NÚMERO SEA MAYOR QUE EL ÚLTIMO QUE USÓ TU APP!
+const DB_VERSION = 10; // <--- ¡ASEGÚRATE DE QUE ESTE NÚMERO SEA MAYOR QUE EL ÚLTIMO QUE USÓ TU APP!
 
 
 // Nombres de los Object Stores y sus configuraciones
@@ -350,3 +350,68 @@ window.limpiarStore = limpiarStore;
 // Ejemplos: window.agregarProducto = agregarProducto; etc.
 // Asegúrate de que todas tus funciones específicas estén exportadas al final de db.js
 // como ya lo tienes.
+
+/**
+ * Reemplaza todos los datos existentes en la base de datos con los datos importados.
+ * Esto borra todas las tiendas de objetos y luego inserta los nuevos datos.
+ * @param {object} importedData - Objeto con los datos a importar, donde cada clave es el nombre de una tienda de objetos.
+ */
+/**
+ * Reemplaza todos los datos existentes en la base de datos con los datos importados.
+ * Esto borra todas las tiendas de objetos y luego inserta los nuevos datos.
+ * @param {object} importedData - Objeto con los datos a importar, donde cada clave es el nombre de una tienda de objetos.
+ */
+async function reemplazarTodosLosDatos(importedData) {
+    return new Promise((resolve, reject) => {
+        if (!db) {
+            console.error("La base de datos no está abierta. No se puede reemplazar datos.");
+            return reject("DB no abierta.");
+        }
+
+        const transaction = db.transaction(
+            ['productos', 'clientes', 'ventas', 'movimientos', 'pedidos', 'proveedores', 'abonos'], // ¡CORRECTO, AHORA ES 'movimientos'!
+            'readwrite'
+        );
+
+        // Almacenes de objetos (tablas) que esperamos importar
+        const objectStores = [
+            'productos', 'clientes', 'ventas', 'movimientos', // ¡CORRECTO, AHORA ES 'movimientos'!
+            'pedidos', 'proveedores', 'abonos'
+        ];
+
+        transaction.oncomplete = () => {
+            console.log("Transacción de importación completada.");
+            resolve();
+        };
+
+        transaction.onerror = (event) => {
+            console.error("Error en la transacción de importación:", event.target.error);
+            reject(event.target.error);
+        };
+
+        // Paso 1: Limpiar todas las tiendas de objetos
+        objectStores.forEach(storeName => {
+            try {
+                const store = transaction.objectStore(storeName);
+                store.clear(); // Elimina todos los registros
+                console.log(`Tienda '${storeName}' limpiada.`);
+            } catch (e) {
+                console.warn(`No se pudo limpiar la tienda '${storeName}', quizás no existe:`, e);
+            }
+        });
+
+        // Paso 2: Insertar los datos importados en sus respectivas tiendas
+        for (const storeName of objectStores) {
+            if (importedData[storeName] && Array.isArray(importedData[storeName])) {
+                const store = transaction.objectStore(storeName);
+                importedData[storeName].forEach(item => {
+                    const itemToStore = { ...item }; // Copia para no modificar el original
+                    // Usamos 'put' para que los IDs existentes se mantengan,
+                    // y los nuevos se añadan si el ID no existe (si es autoincremental).
+                    store.put(itemToStore); // ¡CORRECTO, USAMOS 'put'!
+                });
+                console.log(`Datos de '${storeName}' insertados: ${importedData[storeName].length} registros.`);
+            }
+        }
+    });
+}
