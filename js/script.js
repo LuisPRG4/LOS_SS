@@ -2,7 +2,7 @@
 
 // --- Configuración ---
 // Puedes ajustar este valor. Por ejemplo, 5 significa que si el stock es 5 o menos, se considera "bajo".
-const STOCK_BAJO_UMBRAL = 5;
+const STOCK_BAJO_UMBRAL = 0;
 
 // --- Funciones del Dashboard ---
 
