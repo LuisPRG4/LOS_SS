@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Los SS - Inicio</title>
 
-  <!-- Ícono para la pestaña en el navegador -->
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
-  <!-- Ícono para pantalla de inicio en Android -->
   <link rel="manifest" href="manifest.json">
 
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/exportData.css" />
   
 </head>
 <body>
   <div id="toastContainer" class="toast-container"> </div>
 
- <header class="header-elegante">
+  <header class="header-elegante">
   <div class="header-container">
     <img src="logo/LOS SS.png" alt="Logo" class="logo-libre" />
     <div class="texto-header">
@@ -58,9 +57,37 @@
       <h2>⚠️ Alertas de Stock Bajo</h2>
       <ul id="alertasStock"></ul>
     </section>
+
+    <section class="export-all-section">
+        <h2 class="export-all-title">✨ Exportar Todos los Datos</h2>
+        <p class="export-all-description">Elige el formato para descargar una copia completa de tu información.</p>
+        <div class="export-options">
+
+            <button id="btnExportarExcel" class="btn-export">
+                <img src="icons/1.EXCEL.png" alt="Excel" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a Excel
+            </button>
+            <button id="btnExportarCSV" class="btn-export">
+                <img src="icons/2. CSV.png" alt="CSV" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a CSV
+            </button>
+            <button id="btnExportarJSON" class="btn-export">
+                <img src="icons/3. JSON.png" alt="JSON" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a JSON
+            </button>
+
+            <button id="btnExportarPDF" class="btn-export">
+              <img src="icons/4. PDF.png" alt="PDF" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a PDF
+            </button>
+
+        </div>
+    </section>
+
   </main>
 
   <script src="js/db.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  
+  <script src="js/exportAll.js"></script>
   <script src="js/script.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
 
@@ -69,6 +96,7 @@
       document.getElementById("navMenu").classList.toggle("open");
     }
 
+    // Esta parte es importante si tu login.html y manejo de sesión están activos
     if (sessionStorage.getItem("sesionIniciada") !== "true") {
       window.location.href = "login.html";
     }
@@ -80,26 +108,22 @@
   </script>
 
   <div id="button" class="button-sesion">
-
     <button onclick="cerrarSesion()">Cerrar sesión</button>
-
   </div>
 
-  <!-- SERVICE WORKER-->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
-      navigator.serviceWorker.register('sw.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
-        })
-        .catch(error => {
-          console.error('Fallo el registro del Service Worker:', error);
-        });
-    });
-  }
-</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Fallo el registro del Service Worker:', error);
+          });
+      });
+    }
+  </script>
 
 </body>
 </html>
