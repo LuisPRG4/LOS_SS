@@ -10,6 +10,7 @@
 
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/ayuda.css">
+  <link rel="stylesheet" href="css/chatbot-ayuda.css">
 
 </head>
 <body>
@@ -123,14 +124,37 @@
   <button id="cerrarAyuda">Cerrar Ayuda</button>
   </section>
 
-<!-- Botón flotante de ayuda -->
-  <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+     <!-- Mini menú lateral con botón de flechita -->
+<div id="miniMenuLateral" class="expandido">
+  <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+  <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+  <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+</div>
+
+  <div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Pedidos</h3>
+  <div id="chatbotContenido">
+    <button onclick="mostrarRespuesta('agregarPedido')">¿Cómo agregar un pedido?</button>
+    <button onclick="mostrarRespuesta('precioAutomatico')">¿El precio se calcula solo?</button>
+    <button onclick="mostrarRespuesta('editarPedido')">¿Puedo editar un pedido ya creado?</button>
+    <button onclick="mostrarRespuesta('eliminarPedido')">¿Qué pasa si elimino un pedido?</button>
+    <button onclick="mostrarRespuesta('stockDescontado')">¿El stock se descuenta automáticamente?</button>
+    <button onclick="mostrarRespuesta('clienteNoAparece')">¿Qué hago si no aparece el cliente?</button>
+    <button onclick="mostrarRespuesta('limpiarTodos')">¿Qué hace el botón "Limpiar todos los pedidos"?</button>
+    <button onclick="mostrarRespuesta('cambiarEstado')">¿Cómo cambiar el estado de un pedido?</button>
+    <button onclick="mostrarRespuesta('pedidoCancelado')">¿Se recupera el stock si cancelo un pedido?</button>
+    <button onclick="mostrarRespuesta('multiplesPedidos')">¿Puedo registrar múltiples pedidos seguidos?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
 
   </main>
 
   <script src="js/db.js"></script>
   <script src="js/pedidos.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
+  <script src="js/chatbot-ayuda.js" defer></script>
 
     <script>
       function toggleMenu() {
