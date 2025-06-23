@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/ayuda.css" />
+  <link rel="stylesheet" href="css/chatbot-ayuda.css">
 
 </head>
 <body>
@@ -104,12 +105,36 @@
       <button id="cerrarAyuda">Cerrar Ayuda</button>
     </section>
 
-    <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+    <!-- Mini menú lateral con botón de flechita -->
+<div id="miniMenuLateral" class="expandido">
+  <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+  <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+  <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+</div>
+
+<!-- Panel del chatbot para Mermas -->
+<div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Mermas</h3>
+  <div id="chatbotContenido">
+    <!-- Estos botones los puedes ajustar en js/chatbot-ayuda.js según el módulo -->
+    <button onclick="mostrarRespuesta('motivosMerma')">¿Qué motivo debo elegir?</button>
+    <button onclick="mostrarRespuesta('productoNoAparece')">¿Qué hacer si el producto no aparece?</button>
+    <button onclick="mostrarRespuesta('editarMerma')">¿Puedo editar una merma registrada?</button>
+    <button onclick="mostrarRespuesta('afectaInventario')">¿Esto afecta al inventario?</button>
+    <button onclick="mostrarRespuesta('motivoOtro')">¿Qué pasa si selecciono “Otro”?</button>
+    <button onclick="mostrarRespuesta('exportarMerma')">¿Cómo exportar el historial?</button>
+    <button onclick="mostrarRespuesta('errorCantidad')">¿Qué hago si me equivoqué en la cantidad?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
+
   </main>
 
   <script src="js/db.js"></script>
   <script src="js/mermas.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
+  <script src="js/chatbot-ayuda.js" defer></script>
   
   <script>
     function toggleMenu() {
