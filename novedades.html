@@ -11,6 +11,8 @@
 
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/novedades.css" />
+    <link rel="stylesheet" href="css/chatbot-ayuda.css" />
+
 </head>
 <body>
     <div id="toastContainer" class="toast-container"> </div>
@@ -103,7 +105,7 @@
             <div class="h2title">      
                 <h2>✨ Módulo Novedades</h2>
             </div>
-            <h3>📖 ¿Cómo usar este módulo?</h3>
+            <h3>📖 ¿Cómo funciona este módulo?</h3>
             <div class="parrafito">
                 <p>
                     Aquí puedes encontrar un resumen de los cambios, nuevas funcionalidades y mejoras implementadas en el sistema. Mantente informado sobre las últimas versiones.
@@ -117,7 +119,26 @@
             <button id="cerrarAyuda" onclick="novedadesCerrarAyuda()">Cerrar Ayuda</button> 
         </section>
 
-        <button class="btn-ayuda" onclick="novedadesMostrarAyuda()">❔</button> 
+          <!-- Mini menú lateral con botón de flechita -->
+    <div id="miniMenuLateral" class="expandido">
+        <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+        <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+        <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+    </div>
+
+    <div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Novedades</h3>
+  <div id="chatbotContenido">
+    <button onclick="mostrarRespuesta('queEsNovedades')">¿Qué es el módulo Novedades?</button>
+    <button onclick="mostrarRespuesta('comoSeOrganiza')">¿Cómo se organiza la información?</button>
+    <button onclick="mostrarRespuesta('historialActualizaciones')">¿Dónde veo el historial de versiones?</button>
+    <button onclick="mostrarRespuesta('cambiosImportantes')">¿Cómo saber si hubo cambios importantes?</button>
+    <button onclick="mostrarRespuesta('ultimaVersion')">¿Cómo saber cuál es la última versión?</button>
+    <button onclick="mostrarRespuesta('versionesAnteriores')">¿Puedo ver qué había en versiones anteriores?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
 
     </main>
 
@@ -125,18 +146,19 @@
     <script src="js/script.js"></script> 
     <script src="js/novedades.js"></script>
     <script src="js/nav-highlighter.js" defer></script>
+    <script src="js/chatbot-ayuda.js" defer></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem("sesionIniciada") !== "true") {
-                window.location.href = "login.html";
-            }
-        });
+       // document.addEventListener('DOMContentLoaded', () => {
+            // if (sessionStorage.getItem("sesionIniciada") !== "true") {
+            //    window.location.href = "login.html";
+            //}
+        //});
 
-        function cerrarSesion() {
-            sessionStorage.removeItem("sesionIniciada");
-            window.location.href = "login.html";
-        }
+        // function cerrarSesion() {
+        //   sessionStorage.removeItem("sesionIniciada");
+        //   window.location.href = "login.html";
+        // } 
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -151,9 +173,9 @@
         }
     </script>
 
-    <div id="button" class="button-sesion">
+    <!-- <div id="button" class="button-sesion">
         <button onclick="cerrarSesion()">Cerrar sesión</button>
-    </div>
+    </div> -->
 
 </body>
 </html>
