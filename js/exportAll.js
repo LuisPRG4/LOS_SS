@@ -1,6 +1,7 @@
 // js/exportAll.js
 
 document.addEventListener("DOMContentLoaded", () => {
+    // --- LÓGICA DE EXPORTACIÓN ---
     const btnExportarExcel = document.getElementById("btnExportarExcel");
     const btnExportarCSV = document.getElementById("btnExportarCSV");
     const btnExportarJSON = document.getElementById("btnExportarJSON");
@@ -18,6 +19,47 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnExportarPDF) { // Event listener para el botón PDF
         btnExportarPDF.addEventListener("click", () => exportarTodosLosDatos('pdf'));
     }
+
+    // --- LÓGICA DE IMPORTACIÓN ---
+    const btnToggleImport = document.getElementById("btnToggleImport");
+    const importOptionsContainer = document.getElementById("importOptionsContainer");
+    const jsonFileInput = document.getElementById("jsonFileInput");
+    // ¡¡¡CAMBIO AQUÍ!!! Apuntamos a 'btnImportarJSON' que es el ID en tu HTML
+    const btnImportarJSONDelHTML = document.getElementById("btnImportarJSON"); 
+
+    // ******************************************************************
+    // !!! ESTA ES LA PARTE QUE NECESITAS AÑADIR O ASEGURARTE QUE ESTÉ !!!
+    // ******************************************************************
+    const fileNameDisplay = document.getElementById("fileNameDisplay"); 
+
+    if (jsonFileInput && fileNameDisplay) {
+        jsonFileInput.addEventListener("change", () => {
+            if (jsonFileInput.files.length > 0) {
+                fileNameDisplay.textContent = jsonFileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = "Seleccionar archivo..."; // Texto por defecto si no se selecciona nada
+            }
+        });
+    }
+    // ******************************************************************
+    // !!! FIN DE LA PARTE A AÑADIR !!!
+    // ******************************************************************
+
+    if (btnToggleImport && importOptionsContainer) {
+        btnToggleImport.addEventListener("click", () => {
+            importOptionsContainer.classList.toggle("open");
+            // Opcional: Resetear el display del nombre del archivo y el input cuando se cierra/abre
+            if (!importOptionsContainer.classList.contains("open")) {
+                if (fileNameDisplay) fileNameDisplay.textContent = "Seleccionar archivo...";
+                if (jsonFileInput) jsonFileInput.value = ""; // Limpiar el input file
+            }
+        });
+    }
+
+    // Usamos la nueva variable aquí
+    if (btnImportarJSONDelHTML) {
+        btnImportarJSONDelHTML.addEventListener("click", importarDatosDesdeJSON);
+    }
 });
 
 async function exportarTodosLosDatos(formato = 'excel') {
@@ -28,20 +70,18 @@ async function exportarTodosLosDatos(formato = 'excel') {
             console.warn("La función 'mostrarToast' no está disponible.");
             alert(`Preparando exportación en formato ${formato.toUpperCase()}... ¡Por favor, espera!`);
         }
-        
+
         const todosLosDatos = {
-            inventario: await obtenerTodosLosProductos(), 
+            inventario: await obtenerTodosLosProductos(),
             clientes: await obtenerTodosLosClientes(),
-            pedidos: await obtenerTodosLosPedidosDB(), 
+            pedidos: await obtenerTodosLosPedidosDB(),
             ventas: await obtenerTodasLasVentas(),
-            movimientosFinancieros: await obtenerTodosLosMovimientos(), 
-            proveedores: await obtenerTodosLosProveedoresDB(), 
-            abonos: await obtenerTodosLosAbonos(), 
+            movimientos: await obtenerTodosLosMovimientos(), // Nombre del store corregido a 'movimientos'
+            proveedores: await obtenerTodosLosProveedoresDB(),
+            abonos: await obtenerTodosLosAbonos(),
             cuentasPorCobrar: (await obtenerTodasLasVentas()).filter(venta => venta.tipoPago === "credito" && venta.montoPendiente > 0)
         };
 
-        // Función auxiliar para pre-procesar datos para exportación.
-        // Esto evita duplicar la lógica de formateo para Excel y PDF/CSV
         const preprocesarDatosParaExport = (nombreHoja, datosOriginales) => {
             return datosOriginales.map(item => {
                 const copia = { ...item };
@@ -65,12 +105,11 @@ async function exportarTodosLosDatos(formato = 'excel') {
                     if (typeof copia.montoPendiente === 'number') copia.montoPendiente = copia.montoPendiente.toFixed(2);
                 } else if (nombreHoja === 'abonos') {
                     if (typeof copia.montoAbonado === 'number') copia.montoAbonado = copia.montoAbonado.toFixed(2);
-                } else if (nombreHoja === 'movimientosFinancieros') {
+                } else if (nombreHoja === 'movimientos') { // ¡CORREGIDO AQUÍ TAMBIÉN!
                     if (typeof copia.monto === 'number') copia.monto = copia.monto.toFixed(2);
                     if (typeof copia.ganancia === 'number') copia.ganancia = copia.ganancia.toFixed(2);
                 }
 
-                // Convertir cualquier otro objeto o array anidado a string JSON
                 for (const key in copia) {
                     if (Object.prototype.hasOwnProperty.call(copia, key) && typeof copia[key] === 'object' && copia[key] !== null) {
                         copia[key] = JSON.stringify(copia[key]);
@@ -93,7 +132,7 @@ async function exportarTodosLosDatos(formato = 'excel') {
             exportarACSV(processedData);
         } else if (formato === 'json') {
             exportarAJSON(processedData);
-        } else if (formato === 'pdf') { // Nueva condición para PDF
+        } else if (formato === 'pdf') {
             exportarAPDF(processedData);
         }
 
@@ -129,21 +168,20 @@ function exportarACSV(data) {
         if (datos && datos.length > 0) {
             csvContent += `\n--- Hoja: ${capitalizarPrimeraLetra(nombreHoja)} ---\n`;
 
-            const headers = Object.keys(datos[0]); // Ya no filtramos 'id' aquí, se eliminó en preprocesar
+            const headers = Object.keys(datos[0]);
 
-            csvContent += headers.map(header => `"${header.replace(/"/g, '""')}"`).join(",") + "\n"; // Escapar comillas en headers
+            csvContent += headers.map(header => `"${header.replace(/"/g, '""')}"`).join(",") + "\n";
 
             datos.forEach(item => {
                 const row = headers.map(header => {
                     let value = item[header];
-                    // Si el valor es null o undefined, convertir a cadena vacía para CSV
                     if (value === null || typeof value === 'undefined') {
                         value = '';
                     }
                     if (typeof value === 'string') {
-                        value = value.replace(/"/g, '""'); // Escape comillas dobles
+                        value = value.replace(/"/g, '""');
                         if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
-                            value = `"${value}"`; // Encerrar en comillas si contiene caracteres especiales
+                            value = `"${value}"`;
                         }
                     }
                     return value;
@@ -159,7 +197,7 @@ function exportarACSV(data) {
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", nombreArchivo);
-    document.body.appendChild(link); // Required for Firefox
+    document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     if (typeof mostrarToast === 'function') mostrarToast("¡Datos exportados a CSV correctamente! 📄", "success");
@@ -167,30 +205,27 @@ function exportarACSV(data) {
 }
 
 function exportarAJSON(data) {
-    const jsonData = JSON.stringify(data, null, 2); // pretty print with indentation
+    const jsonData = JSON.stringify(data, null, 2);
     const fecha = new Date().toISOString().slice(0, 10);
     const nombreArchivo = `BaseDeDatosLosSS_${fecha}.json`;
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonData);
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("download", nombreArchivo);
-    document.body.appendChild(downloadAnchorNode); // required for firefox
+    document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
     if (typeof mostrarToast === 'function') mostrarToast("¡Datos exportados a JSON correctamente! 📦", "success");
     else alert("¡Datos exportados a JSON correctamente!");
 }
 
-// Nueva función para exportar a PDF
 function exportarAPDF(data) {
-    // Asegurarse de que jspdf esté disponible globalmente
-    // window.jspdf está disponible si se carga jspdf.umd.min.js
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const fecha = new Date().toISOString().slice(0, 10);
     const nombreArchivo = `BaseDeDatosLosSS_${fecha}.pdf`;
 
-    let yOffset = 20; // Posición Y inicial para el contenido
+    let yOffset = 20;
     const margin = 10;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -209,13 +244,13 @@ function exportarAPDF(data) {
 
             doc.setFontSize(14);
             doc.text(capitalizarPrimeraLetra(nombreHoja), margin, yOffset);
-            yOffset += 5; // Espacio entre título y tabla
+            yOffset += 5;
 
             doc.autoTable({
                 startY: yOffset,
                 head: [headers],
                 body: body,
-                theme: 'striped', // 'striped', 'grid', 'plain'
+                theme: 'striped',
                 styles: {
                     fontSize: 8,
                     cellPadding: 2,
@@ -223,31 +258,24 @@ function exportarAPDF(data) {
                     halign: 'left'
                 },
                 headStyles: {
-                    fillColor: [218, 165, 32], // Tono dorado para el encabezado
+                    fillColor: [218, 165, 32],
                     textColor: [255, 255, 255],
                     fontStyle: 'bold'
                 },
-                columnStyles: {
-                    // Puedes definir estilos específicos por columna si lo necesitas
-                },
+                columnStyles: {},
                 margin: { left: margin, right: margin },
                 didDrawPage: function(data) {
-                    // Footer de la página con número de página
                     let str = "Página " + doc.internal.getNumberOfPages();
                     doc.setFontSize(10);
-                    // 'pageHeight - 10' es la posición desde la parte inferior
                     doc.text(str, pageWidth - margin, pageHeight - 10, { align: 'right' });
                 }
             });
 
-            // Actualiza la posición Y para la siguiente tabla
             yOffset = doc.autoTable.previous.finalY + 15;
 
-            // Añade una nueva página si el próximo contenido no cabe
             if (yOffset > pageHeight - 30 && Object.keys(data).indexOf(nombreHoja) < Object.keys(data).length - 1) {
                 doc.addPage();
-                yOffset = 20; // Restablece yOffset para la nueva página
-                // Opcional: Re-añadir encabezado de documento si se quiere en cada página
+                yOffset = 20;
             }
         }
     }
@@ -258,9 +286,52 @@ function exportarAPDF(data) {
     else alert("¡Datos exportados a PDF correctamente!");
 }
 
-
-// Función auxiliar para capitalizar la primera letra
 function capitalizarPrimeraLetra(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+async function importarDatosDesdeJSON() {
+    const fileInput = document.getElementById("jsonFileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        mostrarToast("Por favor, selecciona un archivo JSON para importar.", "warning");
+        return;
+    }
+
+    if (!confirm("ADVERTENCIA: Importar datos reemplazará toda tu información actual. ¿Estás seguro de que quieres continuar? ¡Asegúrate de tener una copia de seguridad!")) {
+        return;
+    }
+
+    mostrarToast("Iniciando importación... esto puede tardar un momento.", "info");
+
+    const reader = new FileReader();
+
+    reader.onload = async (event) => {
+        try {
+            const importedData = JSON.parse(event.target.result);
+            console.log("Datos importados leídos:", importedData);
+
+            await abrirDB(); // Asegurarse de que la DB esté abierta
+
+            await reemplazarTodosLosDatos(importedData); // Llamar a la función para importar datos
+
+            mostrarToast("¡Datos importados con éxito! La aplicación se recargará para mostrar los nuevos datos.", "success", 5000);
+            setTimeout(() => {
+                location.reload(); // Recargar la página para reflejar los nuevos datos
+            }, 2000);
+
+        } catch (error) {
+            console.error("Error al procesar el archivo JSON o al importar:", error);
+            mostrarToast("Error al importar el archivo. Asegúrate de que sea un JSON válido y con la estructura correcta. 😔", "error");
+        }
+    };
+
+    reader.onerror = (error) => {
+        console.error("Error al leer el archivo:", error);
+        mostrarToast("Error al leer el archivo. Intenta de nuevo. 😔", "error");
+    };
+
+    reader.readAsText(file);
 }
