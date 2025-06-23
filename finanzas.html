@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/ayuda.css" />
+  <link rel="stylesheet" href="css/chatbot-ayuda.css" />
 
   <style>
     /* Estilos nuevos para el gráfico */
@@ -194,8 +195,30 @@
       <button id="cerrarAyuda">Cerrar Ayuda</button>
     </section>
 
-    <!-- Botón flotante de ayuda -->
-    <button class="btn-ayuda" onclick="mostrarAyuda()">❔</button>
+    <!-- Mini menú lateral con botón de flechita -->
+    <div id="miniMenuLateral" class="expandido">
+        <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
+        <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
+        <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
+    </div>
+    
+    <div id="panelChatbot">
+  <button class="cerrarBtn" id="cerrarChatbot">×</button>
+  <h3>Chatbot - Finanzas</h3>
+  <div id="chatbotContenido">
+    <button onclick="mostrarRespuesta('nuevoMovimiento')">¿Cómo registro un nuevo movimiento?</button>
+    <button onclick="mostrarRespuesta('ingresoVsGasto')">¿Cuál es la diferencia entre ingreso y gasto?</button>
+    <button onclick="mostrarRespuesta('reiniciarTodo')">¿Qué hace el botón "Reiniciar todo"?</button>
+    <button onclick="mostrarRespuesta('filtrarFecha')">¿Cómo filtrar movimientos por fecha?</button>
+    <button onclick="mostrarRespuesta('buscarMovimiento')">¿Cómo buscar un movimiento específico?</button>
+    <button onclick="mostrarRespuesta('graficoFinanzas')">¿Qué muestra el gráfico financiero?</button>
+    <button onclick="mostrarRespuesta('gananciaInventario')">¿Qué es la ganancia potencial del inventario?</button>
+    <button onclick="mostrarRespuesta('editarEliminarMovimiento')">¿Puedo editar o eliminar movimientos?</button>
+    <button onclick="mostrarRespuesta('exportarFinanzas')">¿Puedo exportar mis finanzas a Excel?</button>
+    <button onclick="mostrarRespuesta('problemasFinanzas')">¿Qué hago si no se actualiza el balance?</button>
+  </div>
+  <div id="respuestaChatbot" style="margin-top: 10px;"></div>
+</div>
 
   </main>
 
@@ -203,6 +226,7 @@
   <script src="js/chart.js"></script>
   <script src="js/finanzas.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
+  <script src="js/chatbot-ayuda.js" defer></script>
 
   <script>
     function toggleMenu() {
