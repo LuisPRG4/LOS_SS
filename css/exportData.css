@@ -1,21 +1,23 @@
 /* --- Estilos para la sección de Exportar Todo --- */
 .export-all-section {
-    background-color: #f8f8dc; /* Un color beige claro como base */
-    border: 2px solid #daa520; /* Un borde dorado */
+    background-color: #f8f8dc;
+    border: 2px solid #daa520;
     border-radius: 15px;
     padding: 30px;
     margin: 25px auto;
-    max-width: 850px; /* Aumentar un poco el ancho máximo */
+    max-width: 850px;
     text-align: center;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box; /* Mantenemos box-sizing aquí para esta sección */
+    padding-bottom: 30px; /* Asegura espacio suficiente al final */
 }
 
 .export-all-title {
-    color: #b8860b; /* Un tono dorado más oscuro para el título */
-    font-size: 2em; /* Hacer el título un poco más grande */
+    color: #b8860b;
+    font-size: 2em;
     margin-bottom: 15px;
     font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Un ligero resplandor */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .export-all-description {
@@ -26,14 +28,15 @@
 }
 
 .export-options {
-    display: flex;
+    display: flex; /* POR DEFECTO: EN FILA (PC) */
+    flex-wrap: wrap; /* Permitir que los botones se envuelvan a la siguiente línea si no caben */
     justify-content: center;
-    gap: 15px;
+    gap: 15px; /* Espacio entre los botones */
     margin-top: 20px;
 }
 
 .btn-export {
-    background: linear-gradient(135deg, #ffd700, #b8860b); /* Degradado dorado */
+    background: linear-gradient(135deg, #ffd700, #b8860b);
     color: white;
     padding: 12px 25px;
     border: none;
@@ -43,16 +46,143 @@
     transition: all 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     display: inline-block;
-    font-weight: bold; /* Hacer el texto del botón más fuerte */
+    font-weight: bold;
+    box-sizing: border-box; /* Mantenemos box-sizing para los botones */
 }
 
 .btn-export:hover {
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(135deg, #f0e68c, #a0522d); /* Un ligero cambio al hover */
+    background: linear-gradient(135deg, #f0e68c, #a0522d);
 }
 
-/* Responsividad básica para móviles */
+/* --- Estilos para la sección de Importar Datos --- */
+
+.btn-import-toggle {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box; /* Mantenemos box-sizing para este botón */
+}
+
+.btn-import-toggle:hover {
+    background-color: #1976D2;
+}
+
+.import-options-container {
+    background-color: #f9f9f9;
+    border: 1px dashed #d4af37;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.5s ease-out, opacity 0.5s ease-out, padding 0.5s ease-out;
+    display: flex;
+    flex-direction: column; /* La sección de importación siempre en columna */
+    align-items: center;
+    gap: 15px;
+    box-sizing: border-box; /* Mantenemos box-sizing para este contenedor */
+}
+
+.import-options-container.open {
+    max-height: 600px; /* Suficientemente grande para el contenido */
+    opacity: 1;
+    padding: 20px;
+}
+
+.import-options-container h3 {
+    color: #4A2B00;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.import-description {
+    font-size: 0.9em;
+    color: #cc0000;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.btn-import { /* Este es el botón "Cargar y Reemplazar Datos" */
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-sizing: border-box; /* Mantenemos box-sizing para este botón */
+    width: auto; /* Por defecto, que se ajuste al contenido */
+    max-width: 100%; /* Evita que se desborde */
+}
+
+.btn-import:hover {
+    background-color: #45a049;
+}
+
+/* --- Estilos para el Input de Archivo Personalizado --- */
+
+.custom-file-upload {
+    display: flex; /* Por defecto, en PC, en fila */
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    flex-wrap: wrap; /* Permitir que se envuelva si hay poco espacio */
+    gap: 10px;
+    box-sizing: border-box; /* Mantenemos box-sizing para el custom-file-upload */
+    width: 100%;
+    max-width: 400px; /* Mantener un ancho razonable en PC */
+}
+
+.custom-file-upload:hover {
+    background-color: #e0e0e0;
+    border-color: #aaa;
+}
+
+.file-name-display {
+    flex-grow: 1;
+    color: #555;
+    font-size: 0.95em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+}
+
+.btn-browse-file {
+    background-color: #e6b800;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+    box-sizing: border-box; /* Mantenemos box-sizing para el botón de examinar */
+}
+
+.btn-browse-file:hover {
+    background-color: #cc9900;
+}
+
+/* --- Media Queries para Responsividad --- */
+
+/* Ajustes generales para pantallas de tablets y móviles más grandes (768px y abajo) */
 @media (max-width: 768px) {
     .export-all-section {
         padding: 20px;
@@ -64,10 +194,61 @@
     .btn-export {
         font-size: 0.9em;
         padding: 10px 20px;
+        width: auto;
+        min-width: unset;
+        max-width: 100%;
+    }
+}
+
+/* Media query ESPECÍFICO para MÓVILES pequeños (menos de 500px),
+   donde APILAMOS los botones de EXPORTACIÓN */
+@media (max-width: 500px) {
+    .export-options {
+        flex-direction: column; /* ¡APILAMOS los botones de exportación! */
+        align-items: center; /* Centramos los botones cuando están apilados */
         gap: 10px;
     }
-    .export-options {
-        flex-direction: column;
-        align-items: center;
+    .btn-export {
+        width: 100%; /* Hacemos que ocupen todo el ancho en columna */
+    }
+}
+
+/* Ajustes para elementos dentro de la sección de IMPORTACIÓN
+   en pantallas más pequeñas (menos de 600px, para la caja de archivo) */
+@media (max-width: 600px) {
+    .custom-file-upload {
+        flex-direction: column; /* Apila el texto y el botón en columnas */
+        align-items: flex-start;
+        padding: 8px 10px;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .file-name-display {
+        width: 100%;
+        margin-bottom: 5px;
+        font-size: 0.85em;
+        padding-right: 0;
+    }
+
+    .btn-browse-file {
+        width: 100%;
+        padding: 6px 12px;
+        font-size: 0.85em;
+    }
+
+    .btn-import { /* Botón "Cargar y Reemplazar Datos" en móvil */
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+
+    .import-options-container.open {
+        max-height: 600px; /* Aseguramos espacio suficiente para el contenido importado */
+        padding: 15px;
+    }
+
+    .export-all-section {
+        padding-bottom: 40px; /* Un poco más de espacio al final en móvil */
     }
 }
