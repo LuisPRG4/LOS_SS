@@ -165,9 +165,6 @@ nav a.active:hover {
   }
 }
 
-
-
-
 /* Menú Hamburguesa */
 .menu-toggle {
     display: none; /* Oculto por defecto en desktop */
@@ -1257,5 +1254,32 @@ section button {
     }
     .modal-header h2 {
         font-size: 1.5em;
+    }
+}
+
+/* --- Estilos para el Total de Reportes Especiales --- */
+.total-reporte-especial {
+    margin-top: 25px; /* Espacio arriba del total */
+    padding: 15px 20px;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-primary)); /* Degradado con tus colores */
+    color: var(--color-text-light); /* Texto blanco */
+    font-size: 1.3em; /* Tamaño de fuente más grande */
+    font-weight: bold; /* Negrita */
+    text-align: center;
+    border-radius: 12px; /* Bordes redondeados */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    border: 2px solid var(--color-text-light); /* Borde blanco para resaltar */
+    animation: fadeInScale 0.5s ease-out; /* Pequeña animación de entrada */
+}
+
+/* Animación para el total */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
