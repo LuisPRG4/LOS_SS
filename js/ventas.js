@@ -254,6 +254,10 @@ async function registrarVenta() {
 
         guardarVentas(); // Para actualizar gráficos si aplica
         mostrarVentas(); // Recarga la UI
+
+        // ¡¡¡AÑADE ESTA LÍNEA AQUÍ!!!
+        await cargarProductos(); // <-- ¡NUEVA LÍNEA! Esto recarga el select de productos con el stock actualizado.
+        
         limpiarFormulario();
     } catch (error) {
         console.error("Error al registrar/actualizar venta:", error);
