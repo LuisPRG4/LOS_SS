@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Cargar todos los datos necesarios al inicio
         ventas = await obtenerTodasLasVentas(); // Obtener todas las ventas
         clientes = await obtenerTodosLosClientes();
+        llenarDatalistClientes();
         abonos = await obtenerTodosLosAbonos();
 
         // Inicializar la lista de ventas a crédito
@@ -47,6 +48,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarToast("Error grave al cargar datos de cuentas por cobrar 😥", 'error'); // Usando tipo de toast
     }
 });
+
+function llenarDatalistClientes() {
+    const datalist = document.getElementById("clientesLista");
+    datalist.innerHTML = ""; // Limpiar por si ya había algo
+
+    // Crear una lista de nombres únicos, limpios
+    const nombresUnicos = [...new Set(clientes.map(c => c.nombre.trim()).filter(n => n))];
+
+    // Insertar cada nombre como una opción en el datalist
+    nombresUnicos.forEach(nombre => {
+        const option = document.createElement("option");
+        option.value = nombre;
+        datalist.appendChild(option);
+    });
+}
 
 async function cargarYMostrarCuentasPorCobrar() {
     try {
@@ -190,6 +206,13 @@ function cargarVentaParaEditar(ventaId) {
 
 async function aplicarFiltros() {
     const clienteFiltro = document.getElementById("filtroCliente").value.toLowerCase().trim();
+    // Si hay coincidencia exacta en cliente, mostrar solo el resumen
+const coincidenciaExacta = clientes.some(c => c.nombre.toLowerCase() === clienteFiltro);
+if (coincidenciaExacta) {
+    mostrarResumenCliente(clienteFiltro);
+    return; // Ya no seguimos con el filtro normal
+}
+
     const estadoFiltro = document.getElementById("filtroEstado").value;
     const fechaVencimientoFiltro = document.getElementById("filtroFechaVencimiento").value;
 
@@ -431,3 +454,70 @@ async function mostrarAbonosPrevios(ventaId) {
 
 // Nota: La función mostrarToast se asume que está definida en db.js o script.js
 // y que db.js se carga antes de este script.
+
+function mostrarResumenCliente(clienteNombre) {
+    const ventasDelCliente = ventasCredito.filter(v => v.cliente.toLowerCase() === clienteNombre.toLowerCase());
+
+    if (ventasDelCliente.length === 0) {
+        mostrarToast("Este cliente no tiene cuentas por cobrar pendientes. ✅", "info");
+        mostrarCuentasEnUI([]); // Limpia la vista
+        return;
+    }
+
+    const totalPendiente = ventasDelCliente.reduce((sum, v) => sum + v.montoPendiente, 0);
+
+    const card = document.createElement("div");
+    card.className = "venta-credito-card card-status-primary"; // Tarjeta azul/morado
+
+    card.innerHTML = `
+        <div class="card-header-flex">
+            <h3 class="card-title text-primary">${clienteNombre}</h3>
+            <span class="card-date">Ventas: ${ventasDelCliente.length}</span>
+        </div>
+        <p class="card-text"><strong>Total Pendiente:</strong> <span class="text-amount-danger">$${totalPendiente.toFixed(2)}</span></p>
+        <p class="card-text"><strong>Última Venta:</strong> ${ventasDelCliente[ventasDelCliente.length - 1].fecha}</p>
+        <div class="card-actions">
+            <button class="btn-secondary btn-toggle-detalles">📄 Ver detalles</button>
+        </div>
+        <div class="ventas-detalladas" style="display:none; margin-top:10px;"></div>
+    `;
+
+    const listaCuentas = document.getElementById("listaCuentasPorCobrar");
+    listaCuentas.innerHTML = ""; // Limpiar lista
+    listaCuentas.appendChild(card);
+
+    actualizarEstadisticas(ventasDelCliente); // Mostrar estadísticas solo de este cliente
+
+    // Agregar evento toggle para mostrar/ocultar detalles
+    const btnToggle = card.querySelector(".btn-toggle-detalles");
+    const detallesDiv = card.querySelector(".ventas-detalladas");
+
+    btnToggle.addEventListener("click", () => {
+        if (detallesDiv.style.display === "none") {
+            // Mostrar detalles
+            detallesDiv.style.display = "block";
+            btnToggle.textContent = "📄 Ocultar detalles";
+            // Rellenar detalles con las ventas detalladas
+            detallesDiv.innerHTML = ""; // limpiar
+            ventasDelCliente.forEach(venta => {
+                const ventaDiv = document.createElement("div");
+                ventaDiv.className = "venta-detalle";
+                ventaDiv.innerHTML = `
+                    <p><strong>ID Venta:</strong> ${venta.id} — <strong>Fecha:</strong> ${venta.fecha} — <strong>Monto Pendiente:</strong> $${venta.montoPendiente.toFixed(2)}</p>
+                `;
+                detallesDiv.appendChild(ventaDiv);
+            });
+        } else {
+            // Ocultar detalles
+            detallesDiv.style.display = "none";
+            btnToggle.textContent = "📄 Ver detalles";
+            detallesDiv.innerHTML = ""; // Opcional: limpiar cuando se oculta
+        }
+    });
+}
+
+function mostrarVentasDetalladas(clienteNombre) {
+    const ventasDelCliente = ventasCredito.filter(v => v.cliente.toLowerCase() === clienteNombre.toLowerCase());
+    mostrarCuentasEnUI(ventasDelCliente);
+    actualizarEstadisticas(ventasDelCliente);
+}
