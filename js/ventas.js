@@ -1,8 +1,3 @@
-// ventas.js adaptado para usar el nuevo db.js
-// No necesitas definir 'db', 'DB_NAME', 'DB_VERSION' ni las funciones CRUD básicas aquí.
-// Esas ahora vienen de tu archivo db.js.
-
-// Arrays globales para almacenar los datos en memoria después de cargarlos de IndexedDB
 let clientes = [];
 let ventas = [];
 let productos = [];
@@ -11,10 +6,6 @@ let abonos = []; // ¡NUEVO! Para cargar los abonos
 
 let editVentaId = null; // Cambiado de editVentaIndex a editVentaId para usar el ID de la DB
 let productosVenta = [];
-
-// Las funciones 'guardarVentas', 'mostrarToast', 'limpiarFormulario', 'actualizarTablaProductos',
-// 'eliminarProductoVenta', 'toggleExportOptions' no interactúan directamente con la DB
-// y no necesitan cambios en su lógica interna (salvo la carga de datos que se hace al inicio).
 
 async function guardarVentas() {
     // Las ventas ya se guardan/actualizan a través de las funciones de db.js en registrarVenta.
@@ -93,7 +84,6 @@ function mostrarOpcionesPago() {
         inputFechaVencimiento.value = ''; // Limpiar si se cambia a contado
     }
 }
-
 
 async function registrarVenta() {
     const clienteNombre = document.getElementById("clienteVenta").value.trim();
@@ -352,7 +342,6 @@ async function mostrarVentas(filtradas) {
     }
 }
 
-
 function crearCardVenta(venta, id) {
     const productosTexto = venta.productos.map(p => `${p.nombre} x${p.cantidad}`).join(", ");
 
@@ -395,7 +384,6 @@ function crearCardVenta(venta, id) {
         }
     }
 
-
     const card = document.createElement("div");
     // Usamos la clase de color de borde dinámicamente
     card.className = `bg-white border ${bgColorClass} rounded-2xl p-4 shadow-md mt-2 transition-all duration-300`;
@@ -422,7 +410,6 @@ function crearCardVenta(venta, id) {
     return card;
 }
 
-
 async function filtrarVentas() {
     const input = document.getElementById("buscadorVentas").value.toLowerCase().trim();
     ventas = await obtenerTodasLasVentas(); // Asegúrate de tener la lista completa y actualizada
@@ -443,7 +430,6 @@ async function filtrarVentas() {
             await actualizarVenta(venta.id, venta); // Persistir el estado actualizado
         }
     }
-
 
     const filtradas = ventas.filter(v => {
         const productos = v.productos.map(p => p.nombre.toLowerCase()).join(" ");
@@ -543,7 +529,6 @@ function mostrarToast(mensaje) {
         setTimeout(() => toast.remove(), 400);
     }, 3000);
 }
-
 
 async function revertirVenta(id) {
     ventas = await obtenerTodasLasVentas();
@@ -707,9 +692,10 @@ async function agregarProductoAVenta() {
     }
 
     if (existente) {
-        existente.cantidad += cantidad;
-        existente.subtotal = existente.cantidad * producto.precio;
-    } else {
+    // Si el producto ya estaba en la lista, sólo aumentamos cantidad y subtotal
+    existente.cantidad += cantidad;
+    existente.subtotal = existente.cantidad * producto.precio;
+} else {
         productosVenta.push({
             nombre: producto.nombre,
             precio: producto.precio,
@@ -1025,7 +1011,6 @@ async function mostrarAbonosPrevios(ventaId) {
     });
     listaAbonos.appendChild(ul);
 }
-
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
