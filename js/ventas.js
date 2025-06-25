@@ -85,17 +85,46 @@ function mostrarOpcionesPago() {
     }
 }
 
+//fecha y hora personalizadas
 function obtenerFechaVenta() {
-    const usarFechaPersonalizada = document.getElementById("activarFechaManual")?.checked;
-    const fechaManual = document.getElementById("fechaManual")?.value;
+  const usarManual = document.getElementById("activarFechaManual")?.checked;
+  const fechaManual = document.getElementById("fechaVentaPersonalizada")?.value;
+  const horaManual = document.getElementById("horaVentaPersonalizada")?.value;
 
-    if (usarFechaPersonalizada && fechaManual) {
-        // Si se quiere usar una fecha y hora personalizada
-        return fechaManual;
+  if (usarManual && fechaManual) {
+    return horaManual
+      ? `${fechaManual}T${horaManual}`
+      : fechaManual;
+  }
+
+  return new Date().toISOString().split("T")[0]; // Por defecto solo la fecha actual
+}
+
+//Activar el checkbox para fecha y hora personalizadas
+function toggleFechaManual() {
+    const mostrar = document.getElementById("activarFechaManual").checked;
+    document.getElementById("opcionFechaManual").style.display = mostrar ? "block" : "none";
+}
+
+
+//Formatear fecha y hora
+function obtenerFechaHoraFormateada() {
+    const usarManual = document.getElementById("activarFechaManual")?.checked;
+
+    if (usarManual) {
+        const fechaInput = document.getElementById("fechaVentaPersonalizada")?.value;
+        const horaInput = document.getElementById("horaVentaPersonalizada")?.value;
+
+        if (fechaInput) {
+            const fechaStr = horaInput ? `${fechaInput}T${horaInput}` : `${fechaInput}T00:00`;
+            const fecha = new Date(fechaStr);
+            return fecha.toISOString().slice(0, 16).replace("T", " ");
+        }
     }
 
-    // Si no, usamos la fecha actual (solo yyyy-mm-dd)
-    return new Date().toISOString().split("T")[0];
+    // Si no se usa manual, devolver fecha actual con hora
+    const ahora = new Date();
+    return ahora.toISOString().slice(0, 16).replace("T", " ");
 }
 
 async function registrarVenta() {
@@ -168,7 +197,7 @@ async function registrarVenta() {
         detallePago,
         ingreso,
         ganancia,
-        fecha: obtenerFechaVenta(),
+        fecha: obtenerFechaHoraFormateada(),
         // --- NUEVOS CAMPOS DE CRÉDITO ---
         montoPendiente: montoPendiente,
         estadoPago: estadoPago // 'Pendiente', 'Pagado Parcial', 'Pagado Total'
@@ -404,7 +433,7 @@ function crearCardVenta(venta, id) {
     card.innerHTML = `
         <div class="flex justify-between items-center mb-2">
             <h3 class="text-lg font-semibold text-purple-700">${venta.cliente}</h3>
-            <span class="text-sm text-gray-500">${venta.fecha}</span>
+            <span class="card-date">🕒 ${venta.fecha}</span>
         </div>
         <p class="text-sm text-gray-800"><strong>Productos:</strong> ${productosTexto}</p>
         <p class="text-sm text-gray-800"><strong>Total:</strong> $${venta.ingreso.toFixed(2)}</p>
@@ -428,7 +457,6 @@ function toggleFechaPersonalizada() {
   const mostrar = document.getElementById("activarFechaPersonalizada").checked;
   document.getElementById("campoFechaPersonalizada").style.display = mostrar ? "block" : "none";
 }
-
 
 async function filtrarVentas() {
     const input = document.getElementById("buscadorVentas").value.toLowerCase().trim();
@@ -627,7 +655,7 @@ async function eliminarVentaPermanente(id) {
             tipo: "ajuste",
             monto: -venta.ingreso,
             ganancia: -venta.ganancia, // Ojo, esta ganancia podría ser negativa en un ajuste
-            fecha: obtenerFechaVenta(),
+            fecha: obtenerFechaHoraFormateada(),
             descripcion: `Eliminación manual de venta a ${venta.cliente} (ID: ${id})`
         });
 
