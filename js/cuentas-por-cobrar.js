@@ -169,8 +169,9 @@ function agregarEventosHistorial() {
 
 
 function crearCardVentaCredito(venta) {
+    const nombreCliente = venta.cliente || "Cliente desconocido";
     const productosTexto = venta.productos.map(p => `${p.nombre} x${p.cantidad}`).join(", ");
-    const fechaVencimiento = venta.detallePago.fechaVencimiento || "Sin fecha";
+    const fechaVencimiento = venta.detallePago?.fechaVencimiento || "Sin fecha";
 
     let estadoPagoHTML = '';
     let cardStatusClass = 'card-status-info';
@@ -181,7 +182,7 @@ function crearCardVentaCredito(venta) {
     const vencimientoDate = new Date(fechaVencimiento);
     const vencimientoOnlyDate = new Date(vencimientoDate.getFullYear(), vencimientoDate.getMonth(), vencimientoDate.getDate());
 
-    // Nueva lógica: texto de días de mora o por vencer
+    // Texto de días de mora o por vencer
     let textoDias = '';
     if (fechaVencimiento !== "Sin fecha") {
         const diff = vencimientoOnlyDate - today;
@@ -198,7 +199,7 @@ function crearCardVentaCredito(venta) {
         textoDias = `<span class="mora-text text-muted">Sin fecha de vencimiento</span>`;
     }
 
-    // Colores y estados
+    // Colores y etiquetas de estado
     if (venta.montoPendiente <= 0) {
         cardStatusClass = 'card-status-success';
         textColorClass = 'text-success';
@@ -221,12 +222,27 @@ function crearCardVentaCredito(venta) {
         estadoPagoHTML = `<span class="tag-status tag-info">(Pendiente)</span>`;
     }
 
+    // 🧠 Nivel de riesgo
+    const ventasCliente = ventasCredito.filter(v => v.cliente === nombreCliente);
+    const vencidas = ventasCliente.filter(v => {
+        const fechaV = new Date(v.detallePago?.fechaVencimiento || '9999-12-31');
+        return v.montoPendiente > 0 && fechaV < new Date();
+    });
+
+    let nivelRiesgo = 'Bajo';
+    if (vencidas.length >= 3) {
+        nivelRiesgo = 'Alto';
+    } else if (vencidas.length >= 1) {
+        nivelRiesgo = 'Medio';
+    }
+
     const card = document.createElement("div");
     card.className = `venta-credito-card ${cardStatusClass}`;
 
     card.innerHTML = `
     <div class="card-header-flex">
-        <h3 class="card-title ${textColorClass}">${venta.cliente}</h3>
+        <h3 class="card-title ${textColorClass}">${nombreCliente}</h3>
+        <p class="riesgo-nivel">🧠 Riesgo: <strong>${nivelRiesgo}</strong></p>
         <span class="card-date">Reg: ${venta.fecha}</span>
     </div>
     <p class="card-text"><strong>Productos:</strong> ${productosTexto}</p>
@@ -247,40 +263,38 @@ function crearCardVentaCredito(venta) {
     <div class="historial-pagos" id="historial-${venta.id}" style="display:none; margin-top:10px;"></div>
     `;
 
-    // Botón de WhatsApp si el cliente tiene teléfono
-    const clienteDatos = clientes.find(c => c.nombre === venta.cliente); // Buscar por nombre
+    // 📱 Botón WhatsApp si el cliente tiene teléfono
+    const clienteDatos = clientes.find(c => c.nombre === nombreCliente);
     if (clienteDatos?.telefono) {
-    const numero = clienteDatos.telefono.replace(/\D/g, '');
-    const mensaje = encodeURIComponent(`Hola ${clienteDatos.nombre}, tienes una cuenta pendiente con nosotros. ¿Podemos ayudarte a regularizarla?`);
-    
-    // Detectar si es dispositivo móvil
-    const esMovil = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
-    const enlace = esMovil
-        ? `https://wa.me/52${numero}?text=${mensaje}` // App en móvil
-        : `https://web.whatsapp.com/send?phone=52${numero}&text=${mensaje}`; // Web en escritorio
+        const numero = clienteDatos.telefono.replace(/\D/g, '');
+        const mensaje = encodeURIComponent(`Hola ${clienteDatos.nombre}, tienes una cuenta pendiente con nosotros. ¿Podemos ayudarte a regularizarla?`);
 
-    const botonWhatsapp = document.createElement("a");
-    botonWhatsapp.href = enlace;
-    botonWhatsapp.target = "_blank";
-    botonWhatsapp.className = "btn-whatsapp";
-    botonWhatsapp.innerHTML = "📱 Contactar por WhatsApp";
+        const esMovil = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+        const enlace = esMovil
+            ? `https://wa.me/52${numero}?text=${mensaje}`
+            : `https://web.whatsapp.com/send?phone=52${numero}&text=${mensaje}`;
 
-    // Evento para mostrar ícono ✔️ al hacer clic
-    botonWhatsapp.addEventListener("click", () => {
-    botonWhatsapp.innerHTML = "✔️ Enviado por WhatsApp";
-    botonWhatsapp.classList.add("enviado");
-
-    setTimeout(() => {
+        const botonWhatsapp = document.createElement("a");
+        botonWhatsapp.href = enlace;
+        botonWhatsapp.target = "_blank";
+        botonWhatsapp.className = "btn-whatsapp";
         botonWhatsapp.innerHTML = "📱 Contactar por WhatsApp";
-        botonWhatsapp.classList.remove("enviado");
-    }, 5000); // Vuelve al estado original después de 5 segundos
-    });
 
-    card.querySelector(".card-actions").appendChild(botonWhatsapp);
+        botonWhatsapp.addEventListener("click", () => {
+            botonWhatsapp.innerHTML = "✔️ Enviado por WhatsApp";
+            botonWhatsapp.classList.add("enviado");
+            setTimeout(() => {
+                botonWhatsapp.innerHTML = "📱 Contactar por WhatsApp";
+                botonWhatsapp.classList.remove("enviado");
+            }, 5000);
+        });
+
+        card.querySelector(".card-actions").appendChild(botonWhatsapp);
     }
 
     return card;
 }
+
 
 //NUEVA A LA 1 AM
 // Función para cargar y mostrar el historial de pagos de una venta
