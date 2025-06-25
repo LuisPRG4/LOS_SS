@@ -211,6 +211,38 @@ function crearCardVentaCredito(venta) {
             <button onclick="cargarVentaParaEditar(${venta.id})" class="btn-warning">✏️ Editar Venta</button>
         </div>
     `;
+    // Botón de WhatsApp si el cliente tiene teléfono
+    const clienteDatos = clientes.find(c => c.nombre === venta.cliente); // Buscar por nombre
+    if (clienteDatos?.telefono) {
+    const numero = clienteDatos.telefono.replace(/\D/g, '');
+    const mensaje = encodeURIComponent(`Hola ${clienteDatos.nombre}, tienes una cuenta pendiente con nosotros. ¿Podemos ayudarte a regularizarla?`);
+    
+    // Detectar si es dispositivo móvil
+    const esMovil = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+    const enlace = esMovil
+        ? `https://wa.me/52${numero}?text=${mensaje}` // App en móvil
+        : `https://web.whatsapp.com/send?phone=52${numero}&text=${mensaje}`; // Web en escritorio
+
+    const botonWhatsapp = document.createElement("a");
+    botonWhatsapp.href = enlace;
+    botonWhatsapp.target = "_blank";
+    botonWhatsapp.className = "btn-whatsapp";
+    botonWhatsapp.innerHTML = "📱 Contactar por WhatsApp";
+
+    // Evento para mostrar ícono ✔️ al hacer clic
+    botonWhatsapp.addEventListener("click", () => {
+    botonWhatsapp.innerHTML = "✔️ Enviado por WhatsApp";
+    botonWhatsapp.classList.add("enviado");
+
+    setTimeout(() => {
+        botonWhatsapp.innerHTML = "📱 Contactar por WhatsApp";
+        botonWhatsapp.classList.remove("enviado");
+    }, 5000); // Vuelve al estado original después de 5 segundos
+    });
+
+    card.querySelector(".card-actions").appendChild(botonWhatsapp);
+    }
+
     return card;
 }
 
@@ -304,10 +336,8 @@ async function actualizarEstadisticas(currentFilteredVentas = null) {
     document.getElementById("ventasVencidasProximas").textContent = `${vencidasCount} / ${proximasVencerCount}`;
 }
 
-
 // --- Funciones del Modal de Abonos ---
 // (Estas asumen que tienes obtenerVentaPorId y obtenerAbonosPorPedidoId en db.js)
-
 async function abrirModalAbono(ventaId) {
     currentVentaIdAbono = ventaId;
     const venta = await obtenerVentaPorId(ventaId);
