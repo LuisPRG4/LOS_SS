@@ -8,6 +8,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     await abrirDB(); // Asegúrate de abrir la DB primero, si no lo hace db.js
     productos = await obtenerTodosLosProductos(); // Carga inicial de productos
     mostrarProductos();
+
+     // Listener para el filtro por unidad
+  document.getElementById("filtroUnidad").addEventListener("change", () => {
+    const unidadSeleccionada = document.getElementById("filtroUnidad").value;
+    if (unidadSeleccionada === "todos") {
+      mostrarProductos(productos);
+    } else {
+      const filtrados = productos.filter(p => p.unidadDeMedida === unidadSeleccionada);
+      mostrarProductos(filtrados);
+    }
+  });
+
     cargarProveedores();
     setupPreview();
 });
@@ -25,14 +37,16 @@ function mostrarProductos(filtrados = productos) {
         const card = document.createElement("div");
         card.className = "producto-card";
 
-        const minMax = (producto.stockMin !== undefined || producto.stockMax !== undefined)
+        const minMax = (producto.stockMin != null || producto.stockMax != null)
             ? `<p><strong>Stock mínimo:</strong> ${producto.stockMin ?? 'N/D'}</p>
-               <p><strong>Stock máximo:</strong> ${producto.stockMax ?? 'N/D'}</p>` : '';
+            <p><strong>Stock máximo:</strong> ${producto.stockMax ?? 'N/D'}</p>`
+                                                                                : '';
+
 
         card.innerHTML = `
             <img src="${producto.imagen || 'https://via.placeholder.com/80'}" alt="Imagen" class="producto-imagen" />
             <h3>${producto.nombre}</h3>
-            <p><strong>Stock:</strong> ${producto.stock}</p>
+            <p><strong>Stock:</strong> ${producto.stock} ${producto.unidadDeMedida || "N/D"}</p>
             <p><strong>Vendidos:</strong> ${producto.vendidos}</p>
             <p><strong>Proveedor:</strong> ${producto.proveedor || "N/A"}</p>
             <p><strong>Costo:</strong> $${producto.costo?.toFixed(2) || "0.00"}</p>
@@ -76,8 +90,14 @@ async function eliminarProductoDesdeUI(idProducto) { // Ahora recibe el ID direc
 function guardarProducto() {
     const nombre = document.getElementById("nombre").value.trim();
     const stock = parseInt(document.getElementById("stock").value) || 0;
-    const stockMin = parseInt(document.getElementById("stockMin").value) || null;
-    const stockMax = parseInt(document.getElementById("stockMax").value) || null;
+    const unidadDeMedida = document.getElementById("unidadDeMedida").value;
+
+    const stockMin = document.getElementById("stockMin").value.trim();
+    const stockMax = document.getElementById("stockMax").value.trim();
+
+    const stockMinNum = stockMin === "" ? null : parseInt(stockMin);
+    const stockMaxNum = stockMax === "" ? null : parseInt(stockMax);
+
     const vendidos = parseInt(document.getElementById("vendidos").value) || 0;
     const costo = parseFloat(document.getElementById("costo").value) || 0;
     const precio = parseFloat(document.getElementById("precio").value) || 0;
@@ -89,38 +109,65 @@ function guardarProducto() {
     if (stock < 0 || vendidos < 0 || costo < 0 || precio < 0)
         return mostrarToast("Los valores no pueden ser negativos ⚠️", "error");
 
+    // Validación para stockMin y stockMax no negativos
+    if ((stockMinNum !== null && stockMinNum < 0) || (stockMaxNum !== null && stockMaxNum < 0)) {
+        return mostrarToast("Stock mínimo y máximo no pueden ser negativos ⚠️", "error");
+    }
+
     if (archivo) {
         const lector = new FileReader();
         lector.onload = function (e) {
             const imagenBase64 = e.target.result;
-            guardarProductoFinal({ nombre, stock, vendidos, costo, precio, imagen: imagenBase64, proveedor, stockMin, stockMax });
+            guardarProductoFinal({ 
+                nombre, 
+                stock, 
+                vendidos, 
+                costo, 
+                precio, 
+                imagen: imagenBase64, 
+                proveedor, 
+                stockMin: stockMinNum, 
+                stockMax: stockMaxNum, 
+                unidadDeMedida 
+            });
         };
         lector.readAsDataURL(archivo);
     } else {
-        // Si no hay archivo nuevo, mantén la imagen existente si estás editando
         const imagenBase64 = (editIndex !== null && productos[editIndex]) ? productos[editIndex].imagen : "";
-        guardarProductoFinal({ nombre, stock, vendidos, costo, precio, imagen: imagenBase64, proveedor, stockMin, stockMax });
+        guardarProductoFinal({ 
+            nombre, 
+            stock, 
+            vendidos, 
+            costo, 
+            precio, 
+            imagen: imagenBase64, 
+            proveedor, 
+            stockMin: stockMinNum, 
+            stockMax: stockMaxNum, 
+            unidadDeMedida 
+        });
     }
 }
 
 async function guardarProductoFinal(producto) {
-    if (editIndex === null) { // Es un producto nuevo
-        await agregarProducto(producto); // Función de db.js
+    if (editIndex === null) { // Producto nuevo
+        await agregarProducto(producto); // db.js
         mostrarToast("Producto guardado ✅");
-    } else { // Es un producto existente (editando)
-        producto.id = editId; // Asigna el ID real al objeto producto antes de actualizar
-        await actualizarProducto(editId, producto); // Función de db.js
+    } else { // Producto existente (editar)
+        producto.id = editId; // Asigna el ID real
+        await actualizarProducto(editId, producto); // db.js
         mostrarToast("Producto actualizado ✏️");
-        // Reinicia las variables de edición
+
+        // Reiniciar edición
         editIndex = null;
         editId = null;
         document.getElementById("btnGuardar").textContent = "Guardar";
         document.getElementById("btnCancelar").style.display = "none";
     }
 
-    // Siempre recargar y mostrar después de guardar/actualizar
-    productos = await obtenerTodosLosProductos(); 
-    mostrarProductos(); 
+    // Recargar lista
+    productos = await obtenerTodosLosProductos();
+    actualizarListaProductos(); // Reemplaza mostrarProductos() para respetar filtro
     limpiarCampos();
 }
 
@@ -140,6 +187,10 @@ function cargarProducto(index) {
     document.getElementById("stockMin").value = producto.stockMin ?? "";
     document.getElementById("stockMax").value = producto.stockMax ?? "";
 
+    const unidadSelect = document.getElementById("unidadDeMedida");
+    // Si no hay unidad o está vacía, seleccionamos la opción vacía
+    unidadSelect.value = producto.unidadDeMedida || "";
+
     const preview = document.getElementById("imagenPreview");
     preview.src = producto.imagen || "";
     preview.style.display = producto.imagen ? "block" : "none";
@@ -149,6 +200,16 @@ function cargarProducto(index) {
     document.getElementById("btnGuardar").textContent = "Actualizar";
     document.getElementById("btnCancelar").style.display = "inline-block";
     window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function actualizarListaProductos() {
+  const unidadSeleccionada = document.getElementById("filtroUnidad").value;
+  if (unidadSeleccionada === "todos") {
+    mostrarProductos(productos);
+  } else {
+    const filtrados = productos.filter(p => p.unidadDeMedida === unidadSeleccionada);
+    mostrarProductos(filtrados);
+  }
 }
 
 function limpiarCampos() {
