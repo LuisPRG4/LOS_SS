@@ -1,5 +1,3 @@
-// js/cuentas-por-cobrar.js
-
 // Variables globales para almacenar datos en memoria
 let ventasCredito = []; // Solo las ventas a crédito
 let clientes = [];
@@ -16,6 +14,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         clientes = await obtenerTodosLosClientes();
         llenarDatalistClientes();
         abonos = await obtenerTodosLosAbonos();
+
+        // *** ¡AÑADE ESTA LÍNEA AQUÍ! ***
+        if (typeof renderCalendar === 'function') { // Asegurarnos que la función exista
+            renderCalendar(); // Llama a la función del calendario para que se dibuje
+        } else {
+            console.error("Error: renderCalendar() no está definido. Asegúrate de que js/calendar.js está enlazado correctamente.");
+        }
 
         // Inicializar la lista de ventas a crédito
         await cargarYMostrarCuentasPorCobrar();
@@ -38,8 +43,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         // (Esto es en ventas.js, pero lo mantengo aquí por si acaso lo colocaste aquí)
         const storedEditVentaId = localStorage.getItem('editVentaId');
         if (storedEditVentaId) {
-            // No hacemos nada aquí, esta lógica va en ventas.js para redireccionar.
-            // Aquí solo nos aseguramos de que no haya conflicto si se carga este script en otra página.
             localStorage.removeItem('editVentaId'); // Limpiar después de usar si por alguna razón queda aquí
         }
 
