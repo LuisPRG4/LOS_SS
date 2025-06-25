@@ -137,44 +137,55 @@ function crearCardVentaCredito(venta) {
     const fechaVencimiento = venta.detallePago.fechaVencimiento || "Sin fecha";
 
     let estadoPagoHTML = '';
-    let cardStatusClass = 'card-status-info'; // Clase base para el borde de la tarjeta
-    let textColorClass = 'text-info'; // Clase base para el color del texto del título/cliente
+    let cardStatusClass = 'card-status-info';
+    let textColorClass = 'text-info';
 
     const now = new Date();
-    // Ajustar `now` para solo comparar fechas sin tiempo (para evitar que "hoy" ya sea vencido a las 00:01)
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const vencimientoDate = new Date(fechaVencimiento);
     const vencimientoOnlyDate = new Date(vencimientoDate.getFullYear(), vencimientoDate.getMonth(), vencimientoDate.getDate());
 
-    // Lógica para el color y el estado
+    // Nueva lógica: texto de días de mora o por vencer
+    let textoDias = '';
+    if (fechaVencimiento !== "Sin fecha") {
+        const diff = vencimientoOnlyDate - today;
+        const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        if (dias < 0) {
+            textoDias = `<span class="mora-text text-danger">Hace ${Math.abs(dias)} día${Math.abs(dias) === 1 ? '' : 's'} de mora</span>`;
+        } else if (dias === 0) {
+            textoDias = `<span class="mora-text text-warning">Vence hoy</span>`;
+        } else {
+            textoDias = `<span class="mora-text text-muted">Faltan ${dias} día${dias === 1 ? '' : 's'}</span>`;
+        }
+    } else {
+        textoDias = `<span class="mora-text text-muted">Sin fecha de vencimiento</span>`;
+    }
+
+    // Colores y estados
     if (venta.montoPendiente <= 0) {
-        cardStatusClass = 'card-status-success'; // Verde
+        cardStatusClass = 'card-status-success';
         textColorClass = 'text-success';
         estadoPagoHTML = `<span class="tag-status tag-success">(Pagado)</span>`;
     } else if (vencimientoOnlyDate < today) {
-        cardStatusClass = 'card-status-danger'; // Rojo
+        cardStatusClass = 'card-status-danger';
         textColorClass = 'text-danger';
         estadoPagoHTML = `<span class="tag-status tag-danger">(Vencida)</span>`;
-    } else if (vencimientoOnlyDate.getTime() - today.getTime() < (7 * 24 * 60 * 60 * 1000)) { // Menos de 7 días para vencer
-        cardStatusClass = 'card-status-warning'; // Naranja
+    } else if (vencimientoOnlyDate.getTime() - today.getTime() < (7 * 24 * 60 * 60 * 1000)) {
+        cardStatusClass = 'card-status-warning';
         textColorClass = 'text-warning';
         estadoPagoHTML = `<span class="tag-status tag-warning">(Próxima a Vencer)</span>`;
+    } else if (venta.estadoPago === 'Pagado Parcial') {
+        cardStatusClass = 'card-status-primary';
+        textColorClass = 'text-primary';
+        estadoPagoHTML = `<span class="tag-status tag-primary">(Pagado Parcial)</span>`;
     } else {
-        // Por defecto: pendiente y no vencida, o parcialmente pagada y no vencida
-        if (venta.estadoPago === 'Pagado Parcial') {
-            cardStatusClass = 'card-status-primary'; // Tu color principal
-            textColorClass = 'text-primary';
-            estadoPagoHTML = `<span class="tag-status tag-primary">(Pagado Parcial)</span>`;
-        } else { // Pendiente total y no vencida
-            cardStatusClass = 'card-status-info'; // Azul claro
-            textColorClass = 'text-info';
-            estadoPagoHTML = `<span class="tag-status tag-info">(Pendiente)</span>`;
-        }
+        cardStatusClass = 'card-status-info';
+        textColorClass = 'text-info';
+        estadoPagoHTML = `<span class="tag-status tag-info">(Pendiente)</span>`;
     }
 
-
     const card = document.createElement("div");
-    // Usamos las clases específicas de tarjeta y el estado para el borde izquierdo
     card.className = `venta-credito-card ${cardStatusClass}`;
 
     card.innerHTML = `
@@ -185,11 +196,14 @@ function crearCardVentaCredito(venta) {
         <p class="card-text"><strong>Productos:</strong> ${productosTexto}</p>
         <p class="card-text"><strong>Total Venta:</strong> $${venta.ingreso.toFixed(2)}</p>
         <p class="card-text"><strong>Monto Pendiente:</strong> <span class="text-amount-danger">$${venta.montoPendiente.toFixed(2)}</span></p>
-        <p class="card-text"><strong>Vencimiento:</strong> ${fechaVencimiento} ${estadoPagoHTML}</p>
+        <p class="card-text">
+            <strong>Vencimiento:</strong> ${fechaVencimiento} ${estadoPagoHTML}<br>
+            ${textoDias}
+        </p>
         <div class="card-actions">
             ${venta.montoPendiente > 0 ?
-                `<button onclick="abrirModalAbono(${venta.id})" class="btn-success">💰 Abonar</button>`
-                : `<button class="btn-disabled">✅ Pagado</button>`
+                `<button onclick="abrirModalAbono(${venta.id})" class="btn-success">💰 Abonar</button>` :
+                `<button class="btn-disabled">✅ Pagado</button>`
             }
             <button onclick="cargarVentaParaEditar(${venta.id})" class="btn-warning">✏️ Editar Venta</button>
         </div>
