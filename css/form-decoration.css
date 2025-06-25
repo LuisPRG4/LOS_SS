@@ -1,0 +1,161 @@
+/* Variables para colores dorados y brillos */
+:root {
+    --gold-primary: #FFD700; /* Gold */
+    --gold-light: #FFECB3;   /* Light Gold */
+    --gold-dark: #B8860B;    /* Dark Gold */
+    --gold-glow: rgba(255, 215, 0, 0.6); /* Gold glow effect */
+}
+
+/* Base style for the decorated form section */
+.golden-decorated-form {
+    position: relative; /* Necesario para posicionar los pseudo-elementos */
+    padding: 30px; /* Padding interno para los elementos del formulario */
+    margin: 40px auto; /* Centrar y dar espacio a la sección */
+    max-width: 700px; /* Ancho máximo para que el formulario se vea bien */
+    background-color: #fffaf0; /* Fondo cremita para el formulario */
+    border-radius: 15px; /* Esquinas suaves para la sección principal */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Sombra suave principal */
+    overflow: hidden; /* Recorta los pseudo-elementos si se extienden demasiado */
+    z-index: 1; /* Asegura que esté por encima de elementos básicos de la página */
+
+    /* Estilo de "cadenitas" para el borde */
+    border: 2px dotted var(--gold-primary); /* Borde punteado dorado */
+}
+
+/* Estilo para el título dentro de la sección decorada */
+.golden-decorated-form h2 {
+    font-size: 2.2rem;
+    color: var(--gold-dark); /* Dorado oscuro para el título */
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 800;
+    text-shadow: 1px 1px 5px var(--gold-glow); /* Resplandor de texto para el título */
+    border-bottom: 2px solid var(--gold-light); /* Subrayado dorado claro */
+    padding-bottom: 10px;
+    position: relative; /* Para z-index */
+    z-index: 2; /* Asegura que el título esté por encima de los brillos */
+}
+
+/* Pseudo-elementos para los "puntos de anclaje" en las esquinas */
+
+/* Punto de anclaje superior izquierdo */
+.golden-decorated-form::before {
+    content: '';
+    position: absolute;
+    top: -15px; /* Posición ligeramente fuera del borde superior */
+    left: -15px; /* Posición ligeramente fuera del borde izquierdo */
+    width: 40px; /* Tamaño del punto de anclaje */
+    height: 40px;
+    background: radial-gradient(circle at center, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%); /* Degradado radial dorado */
+    border-radius: 50%; /* Forma circular */
+    box-shadow: 0 0 15px var(--gold-glow), inset 0 0 8px var(--gold-light); /* Resplandor dorado e iluminación interna */
+    z-index: 3; /* Por encima de otros elementos */
+    border: 2px solid white; /* Borde blanco para definición */
+}
+
+/* Punto de anclaje inferior derecho (usando ::after) */
+.golden-decorated-form::after {
+    content: '';
+    position: absolute;
+    bottom: -15px; /* Posición ligeramente fuera del borde inferior */
+    right: -15px; /* Posición ligeramente fuera del borde derecho */
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle at center, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 15px var(--gold-glow), inset 0 0 8px var(--gold-light);
+    z-index: 3;
+    border: 2px solid white;
+}
+
+/* Media queries para responsividad en dispositivos móviles */
+@media (max-width: 768px) {
+    .golden-decorated-form {
+        margin: 20px 10px; /* Margen ajustado para pantallas pequeñas */
+        padding: 20px; /* Padding reducido */
+        max-width: 100%; /* Ocupa todo el ancho disponible */
+        border-radius: 10px; /* Bordes un poco menos redondeados */
+    }
+    .golden-decorated-form h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+    .golden-decorated-form::before,
+    .golden-decorated-form::after {
+        width: 30px; /* Puntos de anclaje más pequeños en móvil */
+        height: 30px;
+        top: -10px;
+        left: -10px;
+        bottom: -10px;
+        right: -10px;
+        box-shadow: 0 0 10px var(--gold-glow); /* Menos resplandor en móvil */
+    }
+}
+
+/* Estilos para los form-group y form-control dentro de esta sección */
+/* Asegúrate de que tus estilos generales de .form-group y .form-control
+   en style.css no tengan !important para que estos puedan sobrescribir si es necesario. */
+.golden-decorated-form label {
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 5px;
+    display: block;
+    font-size: 1.05rem;
+}
+
+.golden-decorated-form input[type="text"],
+.golden-decorated-form input[type="number"],
+.golden-decorated-form input[type="email"],
+.golden-decorated-form textarea {
+    width: calc(100% - 22px); /* Ajuste por el padding y borde */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Sombra interna sutil */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.golden-decorated-form input:focus,
+.golden-decorated-form textarea:focus {
+    border-color: var(--gold-primary); /* Borde dorado al enfocar */
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3), inset 0 1px 3px rgba(0,0,0,0.05); /* Resplandor dorado al enfocar */
+    outline: none;
+}
+
+.golden-decorated-form button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    /* Colores para tus botones btn-primario y btn-cancelar */
+}
+
+/* Estilos específicos para tus botones en clientes.html */
+.golden-decorated-form .btn-primario {
+    background: linear-gradient(145deg, #FFDF40, #DAA520); /* Degradado dorado para el botón primario */
+    color: #4a4a4a; /* Texto oscuro para contraste */
+    border: 1px solid var(--gold-dark);
+}
+
+.golden-decorated-form .btn-primario:hover {
+    background: linear-gradient(145deg, #FFE066, #E6B32E); /* Brillo al hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3), 0 0 18px var(--gold-glow); /* Resplandor dorado más intenso */
+}
+
+.golden-decorated-form .btn-cancelar {
+    background-color: #ef4444; /* Rojo */
+    color: white;
+}
+
+.golden-decorated-form .btn-cancelar:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+}
