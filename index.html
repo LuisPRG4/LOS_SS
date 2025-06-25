@@ -11,6 +11,8 @@
 
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/exportData.css" />
+  <link rel="stylesheet" href="css/form-decoration.css" /> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/index.css"
   
 </head>
 <body>
@@ -47,9 +49,18 @@
     <section class="kpi-box">
       <h2>📈 Indicadores</h2>
       <div class="kpis">
-        <div class="kpi"><strong>Ventas Hoy:</strong> $<span id="ventasHoy">0</span></div>
-        <div class="kpi"><strong>Ventas Semana:</strong> $<span id="ventasSemana">0</span></div>
-        <div class="kpi"><strong>Más Vendido:</strong> <span id="productoTop">-</span></div>
+        <div class="kpi">
+            <strong>Ventas Hoy:</strong> $<span id="ventasHoy">0</span>
+            <span class="kpi-pernos-adicionales"></span> <!-- ¡TIENE QUE IR AQUÍ DENTRO DE ESTE DIV! -->
+        </div>
+        <div class="kpi">
+            <strong>Ventas Semana:</strong> $<span id="ventasSemana">0</span>
+            <span class="kpi-pernos-adicionales"></span> <!-- ¡Y AQUÍ DENTRO DE ESTE OTRO DIV! -->
+        </div>
+        <div class="kpi">
+            <strong>Más Vendido:</strong> <span id="productoTop">-</span>
+            <span class="kpi-pernos-adicionales"></span> <!-- ¡Y TAMBIÉN AQUÍ DENTRO DE ESTE TERCER DIV! -->
+        </div>
       </div>
     </section>
 
@@ -59,10 +70,10 @@
     </section>
 
     <!-- EXPORTAR LOS DATOS-->
-    <section class="export-all-section">
-    <h2 class="export-all-title">🗄️ Exportar Todos los Datos 💎</h2>
-    <p class="export-all-description">Elige el formato para descargar una copia completa de tu información.</p>
-    <div class="export-options">
+    <section class="export-all-section golden-decorated-form">
+      <h2 class="export-all-title">🗄️ Exportar Todos los Datos 💎</h2>
+      <p class="export-all-description">Elige el formato para descargar una copia completa de tu información.</p>
+      <div class="export-options">
 
         <button id="btnExportarExcel" class="btn-export">
             <img src="icons/1.EXCEL.png" alt="Excel" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a Excel
@@ -93,7 +104,7 @@
     <button id="btnImportarJSON" class="btn-import btn-primary">
         <img src="icons/6. CARGAR Y REEMPLAZAR.png" alt="Importar" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Cargar y Reemplazar Datos
     </button>
-</div>
+  </div>
 </section>
 
   </main>
