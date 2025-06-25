@@ -1283,3 +1283,10 @@ section button {
         transform: scale(1);
     }
 }
+
+/* ESTILO PARA EL TEXTO DE MORA */
+.mora-text {
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 4px;
+}
