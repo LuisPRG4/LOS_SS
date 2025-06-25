@@ -85,6 +85,19 @@ function mostrarOpcionesPago() {
     }
 }
 
+function obtenerFechaVenta() {
+    const usarFechaPersonalizada = document.getElementById("activarFechaManual")?.checked;
+    const fechaManual = document.getElementById("fechaManual")?.value;
+
+    if (usarFechaPersonalizada && fechaManual) {
+        // Si se quiere usar una fecha y hora personalizada
+        return fechaManual;
+    }
+
+    // Si no, usamos la fecha actual (solo yyyy-mm-dd)
+    return new Date().toISOString().split("T")[0];
+}
+
 async function registrarVenta() {
     const clienteNombre = document.getElementById("clienteVenta").value.trim();
     const tipoPago = document.getElementById("tipoPago").value;
@@ -155,7 +168,7 @@ async function registrarVenta() {
         detallePago,
         ingreso,
         ganancia,
-        fecha: new Date().toISOString().split("T")[0],
+        fecha: obtenerFechaVenta(),
         // --- NUEVOS CAMPOS DE CRÉDITO ---
         montoPendiente: montoPendiente,
         estadoPago: estadoPago // 'Pendiente', 'Pagado Parcial', 'Pagado Total'
@@ -410,6 +423,13 @@ function crearCardVenta(venta, id) {
     return card;
 }
 
+//FECHA PERSONALIZADA
+function toggleFechaPersonalizada() {
+  const mostrar = document.getElementById("activarFechaPersonalizada").checked;
+  document.getElementById("campoFechaPersonalizada").style.display = mostrar ? "block" : "none";
+}
+
+
 async function filtrarVentas() {
     const input = document.getElementById("buscadorVentas").value.toLowerCase().trim();
     ventas = await obtenerTodasLasVentas(); // Asegúrate de tener la lista completa y actualizada
@@ -607,7 +627,7 @@ async function eliminarVentaPermanente(id) {
             tipo: "ajuste",
             monto: -venta.ingreso,
             ganancia: -venta.ganancia, // Ojo, esta ganancia podría ser negativa en un ajuste
-            fecha: new Date().toISOString().split("T")[0],
+            fecha: obtenerFechaVenta(),
             descripcion: `Eliminación manual de venta a ${venta.cliente} (ID: ${id})`
         });
 
