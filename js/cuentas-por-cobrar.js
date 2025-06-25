@@ -133,7 +133,18 @@ function mostrarCuentasEnUI(cuentasParaMostrar) {
         const card = crearCardVentaCredito(venta);
         listaCuentas.appendChild(card);
     });
+
+    agregarEventosHistorial(); // ¡Agrega los eventos a los botones!
 }
+
+//NUEVA A LA 1 AM
+function agregarEventosHistorial() {
+    document.querySelectorAll('.btn-ver-historial').forEach(btn => {
+        btn.removeEventListener('click', toggleHistorialPagos);
+        btn.addEventListener('click', toggleHistorialPagos);
+    });
+}
+
 
 function crearCardVentaCredito(venta) {
     const productosTexto = venta.productos.map(p => `${p.nombre} x${p.cantidad}`).join(", ");
@@ -192,25 +203,28 @@ function crearCardVentaCredito(venta) {
     card.className = `venta-credito-card ${cardStatusClass}`;
 
     card.innerHTML = `
-        <div class="card-header-flex">
-            <h3 class="card-title ${textColorClass}">${venta.cliente}</h3>
-            <span class="card-date">Reg: ${venta.fecha}</span>
-        </div>
-        <p class="card-text"><strong>Productos:</strong> ${productosTexto}</p>
-        <p class="card-text"><strong>Total Venta:</strong> $${venta.ingreso.toFixed(2)}</p>
-        <p class="card-text"><strong>Monto Pendiente:</strong> <span class="text-amount-danger">$${venta.montoPendiente.toFixed(2)}</span></p>
-        <p class="card-text">
-            <strong>Vencimiento:</strong> ${fechaVencimiento} ${estadoPagoHTML}<br>
-            ${textoDias}
-        </p>
-        <div class="card-actions">
-            ${venta.montoPendiente > 0 ?
-                `<button onclick="abrirModalAbono(${venta.id})" class="btn-success">💰 Abonar</button>` :
-                `<button class="btn-disabled">✅ Pagado</button>`
-            }
-            <button onclick="cargarVentaParaEditar(${venta.id})" class="btn-warning">✏️ Editar Venta</button>
-        </div>
+    <div class="card-header-flex">
+        <h3 class="card-title ${textColorClass}">${venta.cliente}</h3>
+        <span class="card-date">Reg: ${venta.fecha}</span>
+    </div>
+    <p class="card-text"><strong>Productos:</strong> ${productosTexto}</p>
+    <p class="card-text"><strong>Total Venta:</strong> $${venta.ingreso.toFixed(2)}</p>
+    <p class="card-text"><strong>Monto Pendiente:</strong> <span class="text-amount-danger">$${venta.montoPendiente.toFixed(2)}</span></p>
+    <p class="card-text">
+        <strong>Vencimiento:</strong> ${fechaVencimiento} ${estadoPagoHTML}<br>
+        ${textoDias}
+    </p>
+    <div class="card-actions">
+        ${venta.montoPendiente > 0 ?
+            `<button onclick="abrirModalAbono(${venta.id})" class="btn-success">💰 Abonar</button>` :
+            `<button class="btn-disabled">✅ Pagado</button>`
+        }
+        <button onclick="cargarVentaParaEditar(${venta.id})" class="btn-warning">✏️ Editar Venta</button>
+        <button class="btn-info btn-ver-historial" data-venta-id="${venta.id}">📜 Ver Historial de Pagos</button>
+    </div>
+    <div class="historial-pagos" id="historial-${venta.id}" style="display:none; margin-top:10px;"></div>
     `;
+
     // Botón de WhatsApp si el cliente tiene teléfono
     const clienteDatos = clientes.find(c => c.nombre === venta.cliente); // Buscar por nombre
     if (clienteDatos?.telefono) {
@@ -244,6 +258,50 @@ function crearCardVentaCredito(venta) {
     }
 
     return card;
+}
+
+//NUEVA A LA 1 AM
+// Función para cargar y mostrar el historial de pagos de una venta
+async function toggleHistorialPagos(event) {
+    const btn = event.currentTarget;
+    const ventaId = Number(btn.dataset.ventaId);
+    const historialDiv = document.getElementById(`historial-${ventaId}`);
+
+    if (!historialDiv) return;
+
+    if (historialDiv.style.display === 'block') {
+        // Ocultar historial
+        historialDiv.style.display = 'none';
+        btn.textContent = '📜 Ver Historial de Pagos';
+        historialDiv.innerHTML = '';
+        return;
+    }
+
+    // Mostrar historial
+    btn.textContent = '❌ Ocultar Historial';
+
+    try {
+        // Obtener abonos desde IndexedDB (usamos la función que tienes)
+        const abonos = await obtenerAbonosPorPedidoId(ventaId);
+
+        if (abonos.length === 0) {
+            historialDiv.innerHTML = '<p>No hay abonos registrados para esta venta.</p>';
+        } else {
+            // Crear listado bonito de abonos
+            historialDiv.innerHTML = abonos.map(abono => `
+                <div class="abono-item">
+                    <p><strong>Fecha:</strong> ${abono.fechaAbono}</p>
+                    <p><strong>Monto Abonado:</strong> $${abono.montoAbonado.toFixed(2)}</p>
+                    ${abono.metodoPago ? `<p><strong>Método de Pago:</strong> ${abono.metodoPago}</p>` : ''}
+                </div>
+                <hr>
+            `).join('');
+        }
+        historialDiv.style.display = 'block';
+    } catch (error) {
+        historialDiv.innerHTML = `<p class="text-danger">Error al cargar el historial: ${error}</p>`;
+        historialDiv.style.display = 'block';
+    }
 }
 
 // Abre la venta en el módulo de ventas.html para edición
