@@ -85,15 +85,20 @@
     <option value="credito">Crédito</option>
   </select>
 
-  <!-- Fecha personalizada -->
-<div style="margin-top: 10px; display: flex; flex-direction: column; align-items: flex-start;">
-  <label style="display: flex; align-items: center; gap: 8px;">
-    <input type="checkbox" id="activarFechaPersonalizada" onchange="document.getElementById('campoFechaPersonalizada').style.display = this.checked ? 'block' : 'none';">
-    Usar fecha personalizada
-  </label>
-  <input type="datetime-local" id="campoFechaPersonalizada" style="display: none; margin-top: 5px; padding: 8px; border: 1px solid #ccc; border-radius: 8px; max-width: 300px;" />
-</div>
+<!-- Checkbox para activar la fecha manual -->
+<label style="margin-top: 10px; display: block;">
+  <input type="checkbox" id="activarFechaManual" onchange="toggleFechaManual()" />
+  Usar fecha personalizada
+</label>
 
+<!-- Campos de fecha y hora -->
+<div id="opcionFechaManual" style="display: none; margin-top: 10px;">
+  <label for="fechaVentaPersonalizada">Fecha personalizada:</label>
+  <input type="date" id="fechaVentaPersonalizada" />
+
+  <label for="horaVentaPersonalizada" style="margin-top: 8px;">Hora (opcional):</label>
+  <input type="time" id="horaVentaPersonalizada" />
+</div>
 
   <!-- Contado -->
   <div id="opcionesContado" style="display: none;">
