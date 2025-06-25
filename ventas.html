@@ -85,6 +85,16 @@
     <option value="credito">Crédito</option>
   </select>
 
+  <!-- Fecha personalizada -->
+<div style="margin-top: 10px; display: flex; flex-direction: column; align-items: flex-start;">
+  <label style="display: flex; align-items: center; gap: 8px;">
+    <input type="checkbox" id="activarFechaPersonalizada" onchange="document.getElementById('campoFechaPersonalizada').style.display = this.checked ? 'block' : 'none';">
+    Usar fecha personalizada
+  </label>
+  <input type="datetime-local" id="campoFechaPersonalizada" style="display: none; margin-top: 5px; padding: 8px; border: 1px solid #ccc; border-radius: 8px; max-width: 300px;" />
+</div>
+
+
   <!-- Contado -->
   <div id="opcionesContado" style="display: none;">
     <label>Método:</label>
