@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/ayuda.css" />
+    <link rel="stylesheet" href="css/calendar.css" />
     <link rel="stylesheet" href="css/chatbot-ayuda.css" />
 
 </head>
@@ -45,9 +46,17 @@
     </nav>
 
     <main>
+
+        <!-- Puedes colocarla aquí, después de la navegación principal -->
+        <section class="seccion-calendario">
+            <h2 class="titulo-calendario">📅 Calendario de Vencimientos</h2>
+            <div id="calendarioVencimientos"></div> <!-- Aquí se dibujará el calendario -->
+        </section>
+
         <section class="filtro-seccion">
             <h2>🔍 Filtros de Búsqueda</h2>
             <div class="filtros-container">
+
                 <div class="form-group">
                     <label for="filtroCliente">Buscar por Cliente:</label>
                     <input list="clientesLista" id="filtroCliente" class="form-control" placeholder="Nombre del cliente" autocomplete="off">
@@ -66,6 +75,7 @@
                     <label for="filtroFechaVencimiento">Vencimiento hasta:</label>
                     <input type="date" id="filtroFechaVencimiento" class="form-control">
                 </div>
+
                 <div class="form-group-buttons">
                     <button id="btnFiltrarCuentas" class="btn-primary">Aplicar Filtros</button>
                     <button id="btnLimpiarFiltros" class="btn-secondary">Limpiar Filtros</button>
@@ -169,6 +179,7 @@
     </div>
 
     <script src="js/db.js"></script>
+    <script src="js/calendar.js"></script> <!-- ¡NUEVA LÍNEA CLAVE! -->
     <script src="js/cuentas-por-cobrar.js"></script>
     <script src="js/nav-highlighter.js" defer></script>
     <script src="js/chatbot-ayuda.js" defer></script>
