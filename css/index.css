@@ -1,0 +1,211 @@
+/*
+* Estilos específicos para la página de inicio (index.html)
+* Aquí se definen los estilos para las KPI box y otros elementos exclusivos del dashboard.
+*/
+
+/* KPI Box - Ajustes para que sea menos amplio y más centrado */
+.kpi-box {
+    background-color: #fffaf0; /* Un CREMITA muy claro */
+    border-radius: 18px; /* Bordes más suaves */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), /* Sombra más pronunciada */
+                0 0 20px rgba(255, 215, 0, 0.3); /* Sutil resplandor dorado */
+    padding: 25px; /* ¡REDUCIDO! Menos padding general para la caja principal */
+    margin: 30px auto; /* Centrar y dar espacio */
+    max-width: 900px; /* ¡AJUSTADO! Un ancho máximo para que no se estire demasiado */
+    text-align: center;
+    border: 1px solid #f0e68c; /* Borde dorado suave */
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-box h2 {
+    color: #B8860B; /* Dorado oscuro para el título */
+    border-color: #FFD700; /* Borde dorado para el título */
+    font-size: 2.2rem; /* Más grande y prominente */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor de las KPIs individuales */
+.kpis {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* ¡CENTRADOS! Para que se vean bien si hay pocos */
+    gap: 20px; /* Espacio entre las tarjetas */
+    margin-top: 25px;
+    padding: 0 10px; /* Un poco de padding horizontal si el contenedor principal es muy ancho */
+}
+
+/* Tarjeta individual de KPI - Ajustes para un tamaño más compacto y detalle */
+.kpi {
+    background: linear-gradient(145deg, #FFECB3, #FFD700); /* Degradado dorado para cada KPI */
+    border: 1px solid #DAA520; /* Borde más oscuro del oro */
+    border-radius: 15px; /* Bordes más redondeados */
+    padding: 25px 25px; /* ¡AJUSTADO! Más padding interno para dejar espacio a los pernos */
+    flex: 0 1 280px; /* Se ajusta pero prefiere un ancho de 280px */
+    max-width: 300px; /* ¡AJUSTADO! Ancho máximo para cada tarjeta individual */
+    font-size: 1.1rem; /* Texto ligeramente ajustado */
+    font-weight: 600; /* Más audaz */
+    color: #4a4a4a; /* Texto oscuro para buen contraste con el dorado */
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1), /* Sombra elegante, más sutil */
+                inset 0 0 5px rgba(255, 255, 255, 0.4); /* Sombra interior para un efecto de "vidrio" o profundidad */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: default;
+    position: relative; /* ¡CLAVE! Necesario para posicionar los pernos */
+    overflow: hidden; /* Asegura que los pernos no se salgan del borde si son muy grandes */
+}
+
+.kpi:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2),
+                0 0 25px rgba(255, 215, 0, 0.6); /* Resplandor dorado más intenso */
+    border-color: #B8860B;
+}
+
+.kpi strong {
+    color: #7a6300;
+    font-weight: 800;
+    display: block; /* Para que el título esté en su propia línea */
+    margin-bottom: 5px; /* Pequeño espacio debajo del título */
+}
+
+/* Contenedor auxiliar para los pernos adicionales (bottom-left y top-right) */
+/* Posicionado ABSOLUTO respecto al .kpi padre, pero con z-index para que sus pseudo-elementos estén bien */
+.kpi-pernos-adicionales {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Crucial para que no bloquee interacciones del KPI */
+    z-index: 3; /* Asegura que esté por encima de posibles capas de texto o fondo de KPI */
+}
+
+
+/* ESTILOS COMUNES PARA TODOS LOS PERNOS (para PC) */
+/* Unificamos los estilos base del perno aquí. Estos serán pseudo-elementos de .kpi Y .kpi-pernos-adicionales */
+.kpi::before,
+.kpi::after,
+.kpi-pernos-adicionales::before,
+.kpi-pernos-adicionales::after {
+    content: '';
+    position: absolute; /* Absoluto respecto a su padre (.kpi o .kpi-pernos-adicionales) */
+    width: 14px; /* Tamaño del perno */
+    height: 14px;
+    border-radius: 50%; /* Forma circular del perno */
+    box-shadow: 0 0 5px rgba(0,0,0,0.3), /* Sombra para darle profundidad */
+                inset 0 0 3px rgba(255,255,255,0.5); /* Brillo interior */
+    z-index: 4; /* Asegura que el perno esté por encima de todo */
+    transition: transform 0.2s ease;
+
+    /* Para simular la "cruz" del tornillo, usamos un truco con múltiples fondos */
+    background:
+        linear-gradient(to right, transparent 40%, #c29d00 40%, #c29d00 60%, transparent 60%), /* Línea vertical de la cruz (tono más oscuro) */
+        linear-gradient(to bottom, transparent 40%, #c29d00 40%, #c29d00 60%, transparent 60%), /* Línea horizontal de la cruz (tono más oscuro) */
+        radial-gradient(circle at center, #d4af37 0%, #a07d00 70%); /* Fondo base del perno (círculo dorado) */
+    background-size: 100% 100%; /* Asegura que los degradados cubran todo el tamaño */
+    background-repeat: no-repeat;
+}
+
+/* POSICIONAMIENTO INDIVIDUAL DE CADA PERNO (por defecto para PC) */
+
+/* Perno Superior Izquierdo (es pseudo-elemento de .kpi) */
+.kpi::before {
+    top: 5px; /* Más cerca de la esquina real del padding */
+    left: 5px;
+}
+
+/* Perno Superior Derecho (es pseudo-elemento de .kpi-pernos-adicionales) */
+.kpi-pernos-adicionales::before {
+    top: 5px;
+    right: 5px;
+}
+
+/* Perno Inferior Izquierdo (es pseudo-elemento de .kpi-pernos-adicionales) */
+.kpi-pernos-adicionales::after {
+    bottom: 5px;
+    left: 5px;
+}
+
+/* Perno Inferior Derecho (es pseudo-elemento de .kpi) */
+.kpi::after {
+    bottom: 5px;
+    right: 5px;
+}
+
+/* EFECTOS DE HOVER - ROTACIÓN INDIVIDUAL */
+
+/* Perno Superior Izquierdo */
+.kpi:hover::before {
+    transform: rotate(15deg);
+}
+
+/* Perno Superior Derecho */
+.kpi:hover .kpi-pernos-adicionales::before {
+    transform: rotate(-15deg); /* Rotación opuesta para variar */
+}
+
+/* Perno Inferior Izquierdo */
+.kpi:hover .kpi-pernos-adicionales::after {
+    transform: rotate(15deg); /* Rotación similar al superior izquierdo */
+}
+
+/* Perno Inferior Derecho */
+.kpi:hover::after {
+    transform: rotate(-15deg); /* Rotación opuesta al inferior izquierdo */
+}
+
+
+/* Media queries para responsividad de los KPI */
+@media (max-width: 768px) {
+    .kpi-box {
+        padding: 20px;
+        margin: 20px 10px;
+        max-width: 100%;
+    }
+
+    .kpi-box h2 {
+        font-size: 1.8rem;
+    }
+
+    .kpis {
+        gap: 15px;
+    }
+
+    .kpi {
+        flex: 1 1 100%; /* Ocupar todo el ancho en pantallas pequeñas */
+        max-width: none;
+        font-size: 1.1rem;
+        padding: 30px 20px 15px; /* ¡AJUSTADO! Más padding arriba para la pestaña, menos abajo */
+        display: flex; /* Asegura flexbox para centrar contenido */
+        flex-direction: column; /* Apila contenido verticalmente */
+        align-items: center; /* Centra horizontalmente el contenido */
+        justify-content: center; /* Centra verticalmente el contenido */
+        text-align: center; /* Asegura centrado del texto */
+    }
+
+    /* OCULTAR TODOS LOS PERNOS EN MÓVIL (LOS DE LAS ESQUINAS) */
+    .kpi::before, /* Antes era el perno central, ahora lo ocultamos para redefinirlo */
+    .kpi::after,
+    .kpi-pernos-adicionales::before,
+    .kpi-pernos-adicionales::after {
+        display: none; /* ¡Oculta todos los 4 pernos en móvil! */
+    }
+
+    /* REPOSICIONAR Y ESTILIZAR LA NUEVA PESTAÑA SUJETADORA (usamos .kpi::before ya que está oculto y podemos redefinirlo) */
+    .kpi::before {
+        content: ''; /* Asegura que el pseudo-elemento exista */
+        display: block; /* Muestra el pseudo-elemento */
+        position: absolute; /* Posicionamiento absoluto respecto a .kpi */
+        top: 0; /* Pegado al borde superior */
+        left: 50%; /* Centrado horizontalmente */
+        transform: translateX(-50%); /* Ajuste fino para centrado perfecto */
+        width: 60px; /* Ancho de la pestaña */
+        height: 20px; /* Alto de la pestaña */
+        background: linear-gradient(145deg, #FFD700, #B8860B); /* Degradado dorado para la pestaña */
+        border-radius: 0 0 10px 10px; /* Solo redondea las esquinas inferiores para efecto de pestaña */
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3); /* Sombra para darle volumen */
+        z-index: 5; /* Asegura que esté por encima de todo */
+        border: 1px solid #7a6300; /* Borde más oscuro del oro */
+    }
+    /* No hay animación de rotación en hover para la pestaña en móvil */
+}
