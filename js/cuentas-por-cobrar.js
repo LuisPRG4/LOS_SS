@@ -97,6 +97,11 @@ async function cargarYMostrarCuentasPorCobrar() {
 
         mostrarCuentasEnUI(pendientesFiltradas);
         await actualizarEstadisticas(pendientesFiltradas); // Actualiza estadísticas con los datos filtrados
+
+        verificarRecordatorios(pendientesFiltradas);
+
+        mostrarRankingMorosos(pendientesFiltradas); // o filteredCuentas si estás en aplicarFiltros
+
     } catch (error) {
         console.error("Error al cargar y mostrar cuentas por cobrar:", error);
         mostrarToast("Error al cargar cuentas por cobrar ❌", 'error');
@@ -135,6 +140,23 @@ function mostrarCuentasEnUI(cuentasParaMostrar) {
     });
 
     agregarEventosHistorial(); // ¡Agrega los eventos a los botones!
+}
+
+//FUNCIÓN RECORDARTORIOS 25 DE JUNIO 2025
+function verificarRecordatorios(pedidos) {
+    const hoy = new Date();
+    const proximosAVencer = pedidos.filter(pedido => {
+        const fechaVencimiento = new Date(pedido.detallePago?.fechaVencimiento);
+        if (pedido.estadoPago !== "Pagado Total" && !isNaN(fechaVencimiento)) {
+            const diffDias = (fechaVencimiento - hoy) / (1000 * 60 * 60 * 24);
+            return diffDias >= 0 && diffDias <= 3;
+        }
+        return false;
+    });
+
+    if (proximosAVencer.length > 0) {
+        mostrarToast(`⚠️ Tienes ${proximosAVencer.length} cliente(s) por vencer en menos de 3 días.`, "warning", 5000);
+    }
 }
 
 //NUEVA A LA 1 AM
@@ -314,11 +336,11 @@ function cargarVentaParaEditar(ventaId) {
 async function aplicarFiltros() {
     const clienteFiltro = document.getElementById("filtroCliente").value.toLowerCase().trim();
     // Si hay coincidencia exacta en cliente, mostrar solo el resumen
-const coincidenciaExacta = clientes.some(c => c.nombre.toLowerCase() === clienteFiltro);
-if (coincidenciaExacta) {
+ const coincidenciaExacta = clientes.some(c => c.nombre.toLowerCase() === clienteFiltro);
+ if (coincidenciaExacta) {
     mostrarResumenCliente(clienteFiltro);
     return; // Ya no seguimos con el filtro normal
-}
+ }
 
     const estadoFiltro = document.getElementById("filtroEstado").value;
     const fechaVencimientoFiltro = document.getElementById("filtroFechaVencimiento").value;
@@ -332,7 +354,10 @@ if (coincidenciaExacta) {
         // o si queremos ver específicamente "Pagado Parcial" o "Pendiente"
         if (venta.montoPendiente <= 0 && estadoFiltro !== "") return false; // Si está pagada y no estamos en "Todas", no mostrar
 
-        const matchesCliente = clienteFiltro === "" || venta.cliente.toLowerCase().includes(clienteFiltro);
+        const idVentaTexto = String(venta.id || "").toLowerCase();
+        const nombreCliente = venta.cliente?.toLowerCase() || "";
+        const matchesCliente = clienteFiltro === "" || nombreCliente.includes(clienteFiltro) || idVentaTexto.includes(clienteFiltro);
+
 
         let matchesEstado = true;
         if (estadoFiltro === "Pendiente") {
@@ -668,4 +693,39 @@ function mostrarVentasDetalladas(clienteNombre) {
     const ventasDelCliente = ventasCredito.filter(v => v.cliente.toLowerCase() === clienteNombre.toLowerCase());
     mostrarCuentasEnUI(ventasDelCliente);
     actualizarEstadisticas(ventasDelCliente);
+}
+
+//RANKING DE MOROSOS
+function calcularRankingMorosos(ventas) {
+  const resumenClientes = {};
+
+  ventas.forEach(venta => {
+    if (!resumenClientes[venta.cliente]) {
+      resumenClientes[venta.cliente] = 0;
+    }
+    resumenClientes[venta.cliente] += venta.montoPendiente;
+  });
+
+  const ranking = Object.entries(resumenClientes)
+    .sort((a, b) => b[1] - a[1]) // Orden descendente
+    .slice(0, 5); // Top 5
+
+  return ranking; // [['Juan', 500], ['Ana', 300], ...]
+}
+
+//MOSTRAR MOROSOS
+function mostrarRankingMorosos(ventas) {
+  const lista = document.getElementById("listaRankingMorosos");
+  if (!lista) return;
+
+  const ranking = calcularRankingMorosos(ventas);
+
+  if (ranking.length === 0) {
+    lista.innerHTML = "<li>No hay clientes con deuda significativa.</li>";
+    return;
+  }
+
+  lista.innerHTML = ranking.map(([nombre, total]) =>
+    `<li><strong>${nombre}</strong>: $${total.toFixed(2)}</li>`
+  ).join('');
 }
