@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/ayuda.css">
+  <link rel="stylesheet" href="css/note.css">
   <link rel="stylesheet" href="css/chatbot-ayuda.css">
 
 </head>
@@ -52,7 +53,10 @@
       <input type="number" id="telefono" placeholder="Teléfono" />
         <label>Correo electrónico del cliente:</label>
       <input type="email" id="email" placeholder="Correo electrónico" />
-      
+
+      <label>Nota sobre el cliente (opcional):</label>
+      <textarea id="notaCliente" placeholder="Escribe una nota especial, comportamiento de pago, referencias, etc." rows="3"></textarea>
+
       <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
         <button id="btnGuardarCliente" class="btn-primario">Guardar Cliente</button>
         <button onclick="cancelarEdicionCliente()" id="btnCancelarEdicionCliente" class="btn-cancelar" style="display:none;">Cancelar</button>
