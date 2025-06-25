@@ -36,6 +36,7 @@ function renderizarClientes(listaClientes) {
             <p><strong>Dirección:</strong> ${cliente.direccion || "No especificada"}</p>
             <p><strong>Teléfono:</strong> ${cliente.telefono || "No especificado"}</p>
             <p><strong>Email:</strong> ${cliente.email || "No especificado"}</p>
+            ${cliente.nota ? `<p class="nota-cliente">📝 ${cliente.nota}</p>` : ''}
             <button onclick="editarCliente(${cliente.id})" class="btn-editar">✏️ Editar</button>
             <button onclick="eliminarClienteDesdeUI(${cliente.id})" class="btn-eliminar">🗑️ Eliminar</button>
         `;
@@ -43,18 +44,20 @@ function renderizarClientes(listaClientes) {
     });
 }
 
+
 async function manejarGuardarCliente() {
     const nombre = document.getElementById("nombreCliente").value.trim();
     const direccion = document.getElementById("direccion").value.trim();
     const telefono = document.getElementById("telefono").value.trim();
     const email = document.getElementById("email").value.trim();
+    const nota = document.getElementById("notaCliente")?.value.trim() || "";
 
     if (!nombre) {
         mostrarToast("El nombre del cliente es obligatorio ⚠️");
         return;
     }
 
-    const clienteData = { nombre, direccion, telefono, email };
+    const clienteData = { nombre, direccion, telefono, email, nota };
 
     try {
         if (editClienteId === null) {
@@ -89,6 +92,7 @@ async function editarCliente(id) {
         document.getElementById("direccion").value = cliente.direccion;
         document.getElementById("telefono").value = cliente.telefono;
         document.getElementById("email").value = cliente.email;
+        document.getElementById("notaCliente").value = cliente.nota || "";
 
         editClienteId = id;
         document.getElementById("btnGuardarCliente").textContent = "Actualizar Cliente";
@@ -138,6 +142,7 @@ function limpiarFormulario() {
     document.getElementById("direccion").value = "";
     document.getElementById("telefono").value = "";
     document.getElementById("email").value = "";
+    document.getElementById("notaCliente").value = "";
 }
 
 async function filtrarClientes() {
