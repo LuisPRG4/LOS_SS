@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/ayuda.css"/>
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
+  <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
 
 </head>
 <body>
@@ -42,7 +43,7 @@
   </nav>
 
   <main>
-    <section>
+    <section class="golden-decorated-form"> <!-- ¡NUEVA CLASE AÑADIDA AQUÍ! -->
       <h2>➕ Agregar Proveedor</h2>
         <label>Ingresa el nombre del proveedor:</label>
       <input type="text" id="nombreProveedor" placeholder="Nombre del proveedor" />
@@ -57,8 +58,6 @@
         <button onclick="agregarProveedor()" id="btnGuardarProveedor" class="btn-primario">Guardar Proveedor</button>
         <button onclick="cancelarEdicionProveedor()" id="btnCancelarProveedor" class="btn-cancelar" style="display:none;">Cancelar</button>
       </div>
-
-
     </section>
 
     <section>
@@ -168,7 +167,6 @@
     }
   });
 </script>
-
 
 </body>
 </html>
