@@ -6,3 +6,9 @@
     border-radius: 10px;
     margin-top: 5px;
 }
+
+#notaCliente::placeholder {
+  font-family: 'Segoe UI', sans-serif;
+  font-style: Regular;
+  color: #999999;
+}
