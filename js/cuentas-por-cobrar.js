@@ -501,7 +501,6 @@ async function mostrarAbonosPrevios(ventaId) {
 
 // Nota: La función mostrarToast se asume que está definida en db.js o script.js
 // y que db.js se carga antes de este script.
-
 function mostrarResumenCliente(clienteNombre) {
     const ventasDelCliente = ventasCredito.filter(v => v.cliente.toLowerCase() === clienteNombre.toLowerCase());
 
@@ -525,7 +524,9 @@ function mostrarResumenCliente(clienteNombre) {
         <p class="card-text"><strong>Última Venta:</strong> ${ventasDelCliente[ventasDelCliente.length - 1].fecha}</p>
         <div class="card-actions">
             <button class="btn-secondary btn-toggle-detalles">📄 Ver detalles</button>
+            <button class="btn-imprimir-resumen">🧾 Exportar resumen</button>
         </div>
+
         <div class="ventas-detalladas" style="display:none; margin-top:10px;"></div>
     `;
 
@@ -561,6 +562,48 @@ function mostrarResumenCliente(clienteNombre) {
             detallesDiv.innerHTML = ""; // Opcional: limpiar cuando se oculta
         }
     });
+
+    const btnImprimir = card.querySelector(".btn-imprimir-resumen");
+    btnImprimir.addEventListener("click", () => {
+    const contenido = `
+        <html>
+        <head>
+            <title>Resumen de ${clienteNombre}</title>
+            <style>
+                body { font-family: sans-serif; padding: 20px; }
+                h1 { color: #5b2d90; }
+                .venta-item { margin-bottom: 10px; }
+                .venta-item span { display: inline-block; min-width: 120px; }
+                .total { font-weight: bold; font-size: 18px; margin-top: 20px; }
+                .footer { margin-top: 40px; font-size: 12px; color: #555; }
+            </style>
+        </head>
+        <body>
+            <h1>Resumen de cuenta: ${clienteNombre}</h1>
+            <div class="total">Total pendiente: $${totalPendiente.toFixed(2)}</div>
+            <h3>Ventas pendientes:</h3>
+            <div>
+                ${ventasDelCliente.map(v => `
+                    <div class="venta-item">
+                        <span><strong>ID:</strong> ${v.id}</span>
+                        <span><strong>Fecha:</strong> ${v.fecha}</span>
+                        <span><strong>Monto:</strong> $${v.montoPendiente.toFixed(2)}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="footer">
+                Generado el ${new Date().toLocaleString()}
+            </div>
+        </body>
+        </html>
+    `;
+
+    const ventana = window.open('', '_blank');
+    ventana.document.write(contenido);
+    ventana.document.close();
+    ventana.print();
+});
+
 }
 
 function mostrarVentasDetalladas(clienteNombre) {
