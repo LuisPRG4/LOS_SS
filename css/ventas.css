@@ -1,0 +1,299 @@
+/*
+* Estilos específicos para las tarjetas de venta en el historial (ventas.html)
+* y para los elementos del modal de abono.
+*/
+
+/* --- Rediseño de las Tarjetas de Venta en el Historial --- */
+
+/* Contenedor principal de cada tarjeta de venta */
+.venta-card {
+    background: linear-gradient(145deg, #fffaf0, #fefefe); /* Degradado suave, casi blanco/crema */
+    border-radius: 18px; /* Bordes más redondeados */
+    padding: 25px; /* Buen padding interno */
+    margin-bottom: 20px; /* Espacio entre tarjetas */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), /* Sombra pronunciada */
+                0 0 15px rgba(255, 215, 0, 0.2); /* Sutil resplandor dorado */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease; /* Transiciones suaves */
+    border: 2px solid #f0e68c; /* Borde dorado suave */
+}
+
+.venta-card:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2),
+                0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+/* Encabezado de la tarjeta (Cliente y Fecha) */
+.venta-card .header-venta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #e0e0e0; /* Línea divisoria más suave */
+}
+
+.venta-card .header-venta h3 {
+    font-size: 1.5em; /* Título del cliente más grande */
+    color: #5b2d90; /* Púrpura principal */
+    margin: 0;
+}
+
+.venta-card .header-venta .fecha-venta {
+    font-size: 0.9em;
+    color: #888;
+}
+
+/* Detalles de la venta */
+.venta-card .detalle-venta p {
+    margin-bottom: 8px; /* Espacio entre líneas de detalle */
+    font-size: 1em;
+    color: #333;
+    display: flex; /* Para alinear ícono/etiqueta y valor */
+    align-items: baseline; /* Alinea por la base del texto */
+}
+
+.venta-card .detalle-venta strong {
+    color: #666; /* Color para las etiquetas */
+    font-weight: 600;
+    margin-right: 5px; /* Espacio entre etiqueta y valor */
+}
+
+/* Estado de pago (crédito) */
+.venta-card .estado-pago {
+    font-weight: bold;
+    margin-left: 5px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    display: inline-block; /* Para que ocupe solo su espacio */
+}
+
+.venta-card .estado-pago.pendiente { background-color: #ffe0b2; color: #e65100; } /* Naranja */
+.venta-card .estado-pago.parcial { background-color: #fffde7; color: #f9a825; } /* Amarillo */
+.venta-card .estado-pago.pagado-total { background-color: #e8f5e9; color: #388e3c; } /* Verde */
+.venta-card .estado-pago.vencido { background-color: #ffebee; color: #d32f2f; } /* Rojo */
+
+
+/* Contenedor de botones al pie de la tarjeta */
+.venta-card .acciones-venta {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #e0e0e0; /* Línea divisoria */
+    display: flex;
+    flex-wrap: wrap; /* Permite que los botones se envuelvan en móvil */
+    gap: 10px; /* Espacio entre botones */
+    justify-content: center; /* Centra los botones */
+}
+
+/* Estilos para los botones de acción dentro de la tarjeta de venta */
+.venta-card .acciones-venta button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: white; /* Color de texto blanco por defecto para los botones */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    min-width: 100px; /* Ancho mínimo para que se vean bien */
+}
+
+.venta-card .acciones-venta button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Colores específicos para cada tipo de botón */
+.venta-card .acciones-venta .btn-editar {
+    background-color: #ffc107; /* Amarillo/Naranja de edición */
+}
+.venta-card .acciones-venta .btn-editar:hover { background-color: #e0a800; }
+
+.venta-card .acciones-venta .btn-revertir {
+    background-color: #dc3545; /* Rojo de revertir */
+}
+.venta-card .acciones-venta .btn-revertir:hover { background-color: #c82333; }
+
+.venta-card .acciones-venta .btn-eliminar {
+    background-color: #6c757d; /* Gris de eliminar */
+}
+.venta-card .acciones-venta .btn-eliminar:hover { background-color: #5a6268; }
+
+.venta-card .acciones-venta .btn-abonar {
+    background-color: #28a745; /* Verde de abonar */
+}
+.venta-card .acciones-venta .btn-abonar:hover { background-color: #218838; }
+
+/* --- Estilos para el Modal de Abonos (también de ventas) --- */
+
+/* Contenedor principal del modal */
+#modalAbono { /* El ID ya lo tienes en HTML */
+    /* Estas propiedades ya están en tu HTML inline, pero es bueno tenerlas en CSS */
+    /* position: fixed; top: 0; left: 0; width: 100%; height: 100%; */
+    /* background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; */
+    z-index: 50; /* Tu z-index actual del HTML */
+}
+
+/* Contenido del modal */
+#modalAbono > div { /* Apunta al div dentro del modal #modalAbono */
+    background-color: #fffaf0; /* Fondo del modal acorde a tu header */
+    padding: 30px;
+    border-radius: 16px; /* Borde redondeado grande */
+    box-shadow: 0 8px 25px rgba(91, 45, 144, 0.3); /* Sombra elegante */
+    width: 90%;
+    max-width: 550px; /* Un poco más ancho para el modal */
+    animation: fadeInScale 0.3s ease-out; /* Animación de entrada (definida en style.css) */
+    border: 2px solid #d4af37; /* Borde dorado */
+}
+
+/* Encabezado del modal */
+#modalAbono .flex.justify-between.items-center.border-b.pb-3.mb-4 { /* Clases exactas del header del modal */
+    border-bottom: 1px solid #d4af37; /* Línea dorada */
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+#modalAbono h2.text-2xl.font-bold.text-blue-700 { /* Título del modal */
+    margin: 0;
+    font-size: 1.8em;
+    color: #4b3500; /* Color de tu título */
+    /* Aseguramos que no haya border-bottom de otros h2 */
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#modalAbono button.text-gray-500.hover\:text-gray-700.text-3xl.leading-none { /* Botón de cerrar (x) */
+    font-size: 2.5em;
+    color: #888;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+#modalAbono button.text-gray-500.hover\:text-gray-700.text-3xl.leading-none:hover {
+    color: #333;
+}
+
+/* Detalles de la venta dentro del modal */
+#detalleVentaModal p {
+    margin-bottom: 8px;
+    font-size: 0.95em;
+    color: #555;
+}
+
+#detalleVentaModal strong {
+    color: #333;
+}
+
+/* Lista de abonos previos dentro del modal */
+#listaAbonosModal {
+    max-height: 160px; /* Altura máxima para scrollear */
+    overflow-y: auto;
+    background-color: #fcf9f2; /* Fondo claro para la lista */
+    border: 1px solid #d4af37; /* Borde dorado */
+    border-radius: 8px;
+    padding: 10px;
+}
+
+#listaAbonosModal ul {
+    list-style: none; /* Sin viñetas */
+    padding: 0;
+    margin: 0;
+}
+
+#listaAbonosModal li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e0e0; /* Línea discontinua suave */
+    font-size: 0.9em;
+    color: #666;
+}
+
+#listaAbonosModal li:last-child {
+    border-bottom: none;
+}
+
+/* Pie del modal (botones) */
+#modalAbono .flex.justify-end.gap-3 { /* Clases exactas del footer del modal */
+    padding-top: 15px;
+    border-top: 1px solid #d4af37; /* Línea dorada */
+}
+
+/* Ajustar botones dentro del modal para que sigan tu estilo principal */
+#modalAbono .flex.justify-end.gap-3 button {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 10px; /* Más redondeado */
+    font-weight: bold;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+#modalAbono #btnRegistrarAbono { /* Botón de confirmar abono */
+    background-color: #28a745; /* Verde */
+}
+#modalAbono #btnRegistrarAbono:hover { background-color: #218838; }
+
+#modalAbono button[onclick="cerrarModalAbono()"] { /* Botón de cancelar */
+    background-color: #6c757d; /* Gris */
+}
+#modalAbono button[onclick="cerrarModalAbono()"]:hover { background-color: #5a6268; }
+
+
+/* Media Queries para responsividad */
+@media (max-width: 768px) {
+    .venta-card {
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+    }
+
+    .venta-card .header-venta {
+        flex-direction: column; /* Apila el cliente y la fecha */
+        align-items: flex-start;
+    }
+
+    .venta-card .header-venta h3 {
+        font-size: 1.3em;
+        margin-bottom: 5px;
+    }
+
+    .venta-card .header-venta .fecha-venta {
+        font-size: 0.85em;
+    }
+
+    .venta-card .detalle-venta p {
+        flex-direction: column; /* Apila la etiqueta y el valor */
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .venta-card .detalle-venta strong {
+        margin-bottom: 3px; /* Espacio entre etiqueta y valor apilados */
+    }
+
+    .venta-card .acciones-venta {
+        flex-direction: column; /* Apila los botones verticalmente */
+        gap: 8px; /* Menos espacio entre botones apilados */
+    }
+
+    .venta-card .acciones-venta button {
+        width: 100%; /* Ocupa todo el ancho disponible */
+        padding: 12px 15px;
+        font-size: 1em;
+        min-width: unset; /* Reinicia el ancho mínimo */
+    }
+
+    /* Ajustes para el modal en móvil */
+    #modalAbono > div {
+        padding: 20px;
+    }
+
+    #modalAbono h2.text-2xl.font-bold.text-blue-700 {
+        font-size: 1.5em;
+    }
+}
