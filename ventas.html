@@ -122,7 +122,16 @@
     <input type="date" id="fechaVencimiento" />
   </div>
 
-  <button id="btnRegistrarVenta" onclick="registrarVenta()">🧾 Guardar Venta</button>
+  <div class="form-group acciones-form"> <!-- ¡NUEVO DIV PARA AGRUPAR BOTONES! -->
+    <button type="submit" id="btnRegistrarVenta" class="btn-primary" onclick="registrarVenta()">
+        🧾 Guardar Venta
+    </button>
+    <button type="button" id="btnCancelarEdicion" class="btn-secondary" style="display: none;"> <!-- ¡MUY IMPORTANTE: ESTA LÍNEA! -->
+        ❌ Cancelar
+    </button>
+  </div>
+
+</section>
 
 </section>
 
