@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/ayuda.css"/>
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/cards-general.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
 
 </head>
 <body>
@@ -60,11 +61,12 @@
       </div>
     </section>
 
-    <section>
-      <h2>📋 Lista de Proveedores</h2>
-      <input type="text" id="buscadorProveedores" placeholder="🔍 Buscar proveedores..." oninput="filtrarProveedores()" />
-      <ul id="listaProveedores"></ul>
-    </section>
+         <section>
+          <h2>📋 Lista de Proveedores</h2>
+          <input type="text" id="buscadorProveedores" placeholder="🔍 Buscar proveedores..." oninput="filtrarProveedores()" />
+          <!-- Cambiado de <ul> a <div> y añadida clase para layout de cuadrícula -->
+          <div id="listaProveedores" class="proveedores-grid"></div>
+        </section>
 
     <!-- Ayuda contextual para Proveedores -->
   <section id="ayuda">
