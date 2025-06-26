@@ -1,25 +1,24 @@
-// db.js (VERSION CORREGIDA Y COMPLETA)
+// js/db.js (CÓDIGO COMPLETO Y CORREGIDO PARA INCLUIR MERMAS Y MODALES PERSONALIZADOS)
 
 let db;
 
 const DB_NAME = 'miTiendaDB';
 
 // --- ¡¡¡IMPORTANTE!!! INCREMENTA ESTE NÚMERO CADA VEZ QUE CAMBIES LA ESTRUCTURA DE LA DB ---
-// Tu código original decía 8. Para forzar la actualización ahora, debe ser al menos 9.
-const DB_VERSION = 10; // <--- ¡ASEGÚRATE DE QUE ESTE NÚMERO SEA MAYOR QUE EL ÚLTIMO QUE USÓ TU APP!
-
+// Incrementado a 14 para asegurar la recreación de la DB si hubo problemas con la versión anterior.
+const DB_VERSION = 14; 
 
 // Nombres de los Object Stores y sus configuraciones
 const STORES = {
     productos: { keyPath: 'id', autoIncrement: true },
     clientes: { keyPath: 'id', autoIncrement: true },
     pedidos: { keyPath: 'id', autoIncrement: true },
-    ventas: { keyPath: 'id', autoIncrement: true }, // Entiendo que 'ventas' es para ventas completadas
+    ventas: { keyPath: 'id', autoIncrement: true },
     movimientos: { keyPath: 'id', autoIncrement: true },
     proveedores: { keyPath: 'id', autoIncrement: true },
-    abonos: { keyPath: 'id', autoIncrement: true } // Confirmamos que 'abonos' es un store principal
+    abonos: { keyPath: 'id', autoIncrement: true },
+    mermas: { keyPath: 'id', autoIncrement: true } 
 };
-
 
 /**
  * Abre la base de datos IndexedDB y crea/actualiza los object stores.
@@ -27,7 +26,7 @@ const STORES = {
  */
 function abrirDB() {
     return new Promise((resolve, reject) => {
-        if (db) { // Si la DB ya está abierta, la devolvemos directamente
+        if (db) { 
             resolve(db);
             return;
         }
@@ -35,76 +34,62 @@ function abrirDB() {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
 
         request.onupgradeneeded = event => {
-            db = event.target.result; // ASIGNAR la DB dentro de onupgradeneeded
+            db = event.target.result; 
 
             console.log(`onupgradeneeded ejecutado. Versión actual: ${event.oldVersion}, Nueva versión: ${event.newVersion}`);
             console.log('Creando/Actualizando object stores...');
 
-            // --- Lógica para asegurar que todos los stores y sus índices están actualizados ---
-            // Recorremos todos los stores definidos en STORES
             for (const storeName in STORES) {
-                // Si el store ya existe, pero la versión cambió, lo borramos para recrearlo
-                // y asegurar que tenga todos los índices y la estructura correcta.
-                // ¡ADVERTENCIA: ESTO BORRA TODOS LOS DATOS EN ESE STORE!
                 if (db.objectStoreNames.contains(storeName)) {
                     db.deleteObjectStore(storeName);
                     console.log(`Object Store '${storeName}' existente eliminado para actualización.`);
                 }
 
-                // Creamos el objectStore (o lo recreamos si se borró)
                 const store = db.createObjectStore(storeName, STORES[storeName]);
                 console.log(`Object Store '${storeName}' creado/recreado.`);
 
-                // Crear índices específicos para cada store
                 switch (storeName) {
                     case 'productos':
                         store.createIndex('nombre', 'nombre', { unique: false });
                         store.createIndex('categoria', 'categoria', { unique: false });
-                        store.createIndex('stock', 'stock', { unique: false }); // Un índice útil
+                        store.createIndex('stock', 'stock', { unique: false });
                         break;
                     case 'clientes':
                         store.createIndex('nombre', 'nombre', { unique: false });
                         store.createIndex('telefono', 'telefono', { unique: false });
                         break;
                     case 'pedidos':
-                        // Índices existentes
                         store.createIndex('fechaPedido', 'fechaPedido', { unique: false });
-                        store.createIndex('estado', 'estado', { unique: false }); // "Pendiente", "Preparado", "Entregado"
-                        // Índices que tenías en la definición original de tu `abrirDB`
-                        // Si 'cliente' es el ID del cliente o el nombre, asegúrate de la consistencia.
-                        // Asumo que 'cliente' es el nombre del cliente en el pedido.
-                        store.createIndex('clienteNombre', 'cliente.nombre', { unique: false }); // Si cliente es un objeto con propiedad 'nombre'
-                        store.createIndex('productoId', 'productoId', { unique: false }); // Si guardas el ID del producto en los ítems del pedido
-
-                        // --- NUEVOS ÍNDICES para Ventas a Crédito ---
-                        // Asegúrate de que los pedidos tendrán campos como:
-                        // tipoVenta: 'Contado' | 'Crédito'
-                        // montoPendiente: número (0 si es contado, >0 si es crédito)
-                        // fechaVencimiento: string de fecha
-                        // estadoPago: 'Pendiente' | 'Pagado Parcial' | 'Pagado Total'
-                        store.createIndex('tipoVenta', 'tipoVenta', { unique: false });
-                        store.createIndex('montoPendiente', 'montoPendiente', { unique: false });
+                        store.createIndex('estado', 'estado', { unique: false });
+                        store.createIndex('clienteNombre', 'cliente.nombre', { unique: false }); 
+                        store.createIndex('productoId', 'productoId', { unique: false }); 
+                        store.createIndex('tipoVenta', 'tipoVenta', { unique: false }); 
+                        store.createIndex('montoPendiente', 'montoPendiente', { unique: false }); 
                         store.createIndex('fechaVencimiento', 'fechaVencimiento', { unique: false });
                         store.createIndex('estadoPago', 'estadoPago', { unique: false });
                         break;
                     case 'ventas':
                         store.createIndex('clienteId', 'clienteId', { unique: false });
                         store.createIndex('fecha', 'fecha', { unique: false });
-                        store.createIndex('tipoPago', 'tipoPago', { unique: false }); // 'Efectivo', 'Tarjeta', 'Crédito' (si 'ventas' guarda la transacción final)
+                        store.createIndex('tipoPago', 'tipoPago', { unique: false });
                         break;
                     case 'movimientos':
                         store.createIndex('fecha', 'fecha', { unique: false });
-                        store.createIndex('tipo', 'tipo', { unique: false }); // 'entrada', 'salida'
+                        store.createIndex('tipo', 'tipo', { unique: false });
                         break;
                     case 'proveedores':
                         store.createIndex('nombre', 'nombre', { unique: false });
                         store.createIndex('contacto', 'contacto', { unique: false });
                         break;
                     case 'abonos':
-                        // Renombramos el índice a 'pedidoId' para ser consistente con el objectStore 'pedidos'
                         store.createIndex('pedidoId', 'pedidoId', { unique: false });
-                        store.createIndex('fechaAbono', 'fechaAbono', { unique: false }); // Fecha específica del abono
-                        store.createIndex('montoAbonado', 'montoAbonado', { unique: false }); // Si quieres reportar abonos por monto
+                        store.createIndex('fechaAbono', 'fechaAbono', { unique: false });
+                        store.createIndex('montoAbonado', 'montoAbonado', { unique: false });
+                        break;
+                    case 'mermas':
+                        store.createIndex('productoId', 'productoId', { unique: false });
+                        store.createIndex('fecha', 'fecha', { unique: false });
+                        store.createIndex('motivo', 'motivo', { unique: false });
                         break;
                 }
             }
@@ -123,18 +108,9 @@ function abrirDB() {
     });
 }
 
-
-// === Funciones Genéricas CRUD (MEJOR ENFOQUE) ===
-
-// Estas funciones operan sobre cualquier Object Store que les pases.
-// Esto reduce la duplicación de código.
-
-// Nota: Ya veo que tienes async functions. Asegúrate de que 'db' esté inicializado
-// llamando a abrirDB() antes de usar estas funciones genéricas en tu app.
-// Por ejemplo: await abrirDB(); antes de hacer cualquier operación.
-
+// Funciones genéricas para interactuar con cualquier Object Store
 async function obtenerTodosItems(storeName) {
-    const dbInstance = await abrirDB(); // Asegura que la DB está abierta
+    const dbInstance = await abrirDB();
     return new Promise((resolve, reject) => {
         const transaction = dbInstance.transaction([storeName], 'readonly');
         const store = transaction.objectStore(storeName);
@@ -145,58 +121,54 @@ async function obtenerTodosItems(storeName) {
 }
 
 async function agregarItem(storeName, item) {
-    const dbInstance = await abrirDB(); // Asegura que la DB está abierta
+    const dbInstance = await abrirDB();
     return new Promise((resolve, reject) => {
         const transaction = dbInstance.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
         const request = store.add(item);
-        request.onsuccess = () => resolve(request.result); // result es el ID de la clave
+        request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
 }
 
 async function actualizarItem(storeName, id, item) {
-    const dbInstance = await abrirDB(); // Asegura que la DB está abierta
+    const dbInstance = await abrirDB();
     return new Promise((resolve, reject) => {
         const transaction = dbInstance.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
         const itemToUpdate = { ...item };
-        // Asegúrate de que el 'id' del objeto a 'put' coincida con el 'keyPath'
-        // y que sea numérico si el keyPath es autoIncrement.
-        itemToUpdate[STORES[storeName].keyPath] = Number(id);
+        itemToUpdate[STORES[storeName].keyPath] = Number(id); 
 
-        const request = store.put(itemToUpdate); // put() actualiza si existe, añade si no
+        const request = store.put(itemToUpdate);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
 }
 
 async function eliminarItem(storeName, id) {
-    const dbInstance = await abrirDB(); // Asegura que la DB está abierta
+    const dbInstance = await abrirDB();
     return new Promise((resolve, reject) => {
         const transaction = dbInstance.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
-        // ¡CRÍTICO! Asegurarse de que el ID sea numérico si el keyPath es autoIncrement
-        const request = store.delete(Number(id));
+        const request = store.delete(Number(id)); 
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
     });
 }
 
 async function obtenerItemPorId(storeName, id) {
-    const dbInstance = await abrirDB(); // Asegura que la DB está abierta
+    const dbInstance = await abrirDB();
     return new Promise((resolve, reject) => {
         const transaction = dbInstance.transaction([storeName], 'readonly');
         const store = transaction.objectStore(storeName);
-        // ¡CRÍTICO! Asegurarse de que el ID sea numérico si el keyPath es autoIncrement
-        const request = store.get(Number(id));
+        const request = store.get(Number(id)); 
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
 }
 
 async function limpiarStore(storeName) {
-    const dbInstance = await abrirDB(); // Asegura que la DB está abierta
+    const dbInstance = await abrirDB();
     return new Promise((resolve, reject) => {
         const transaction = dbInstance.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
@@ -206,7 +178,6 @@ async function limpiarStore(storeName) {
     });
 }
 
-
 // === Funciones Específicas (Wrappers que llaman a las genéricas para mayor legibilidad) ===
 
 // Productos
@@ -215,6 +186,25 @@ window.obtenerTodosLosProductos = () => obtenerTodosItems('productos');
 window.obtenerProductoPorId = (id) => obtenerItemPorId('productos', id);
 window.actualizarProducto = (id, producto) => actualizarItem('productos', id, producto);
 window.eliminarProducto = (id) => eliminarItem('productos', id);
+
+async function obtenerProductoPorNombre(nombre) {
+    const dbInstance = await abrirDB();
+    return new Promise((resolve, reject) => {
+        const transaction = dbInstance.transaction(['productos'], 'readonly');
+        const store = transaction.objectStore('productos');
+        const index = store.index('nombre');
+
+        const request = index.get(nombre);
+        request.onsuccess = () => {
+            resolve(request.result);
+        };
+        request.onerror = () => {
+            console.error("Error al obtener producto por nombre:", request.error);
+            reject(request.error);
+        };
+    });
+}
+window.obtenerProductoPorNombre = obtenerProductoPorNombre;
 
 // Clientes
 window.agregarCliente = (cliente) => agregarItem('clientes', cliente);
@@ -228,15 +218,13 @@ async function obtenerClientePorNombre(nombre) {
 }
 window.obtenerClientePorNombre = obtenerClientePorNombre;
 
-
 // Pedidos
 window.agregarPedidoDB = (pedido) => agregarItem('pedidos', pedido);
 window.obtenerTodosLosPedidosDB = () => obtenerTodosItems('pedidos');
-window.obtenerPedidoPorId = (id) => obtenerItemPorId('pedidos', id); // Usamos obtenerPedidoPorId, no obtenerPedidoPorIdDB para consistencia
+window.obtenerPedidoPorId = (id) => obtenerItemPorId('pedidos', id); 
 window.actualizarPedidoDB = (id, pedido) => actualizarItem('pedidos', id, pedido);
 window.eliminarPedidoDB = (id) => eliminarItem('pedidos', id);
-window.limpiarTodosLosPedidosDB = () => limpiarStore('pedidos'); // Usa la genérica
-
+window.limpiarTodosLosPedidosDB = () => limpiarStore('pedidos');
 
 // Ventas
 window.agregarVenta = (venta) => agregarItem('ventas', venta);
@@ -244,8 +232,7 @@ window.obtenerTodasLasVentas = () => obtenerTodosItems('ventas');
 window.obtenerVentaPorId = (id) => obtenerItemPorId('ventas', id);
 window.actualizarVenta = (id, venta) => actualizarItem('ventas', id, venta);
 window.eliminarVenta = (id) => eliminarItem('ventas', id);
-window.limpiarTodasLasVentas = () => limpiarStore('ventas'); // Nueva función de limpieza
-
+window.limpiarTodasLasVentas = () => limpiarStore('ventas');
 
 // Movimientos
 window.agregarMovimientoDB = (movimiento) => agregarItem('movimientos', movimiento);
@@ -255,7 +242,6 @@ window.actualizarMovimientoDB = (id, movimiento) => actualizarItem('movimientos'
 window.eliminarMovimientoDB = (id) => eliminarItem('movimientos', id);
 window.limpiarTodosLosMovimientos = () => limpiarStore('movimientos');
 
-
 // Proveedores
 window.agregarProveedorDB = (proveedor) => agregarItem('proveedores', proveedor);
 window.obtenerTodosLosProveedoresDB = () => obtenerTodosItems('proveedores');
@@ -264,14 +250,22 @@ window.actualizarProveedorDB = (id, proveedor) => actualizarItem('proveedores', 
 window.eliminarProveedorDB = (id) => eliminarItem('proveedores', id);
 window.limpiarTodosLosProveedoresDB = () => limpiarStore('proveedores');
 
-
-// Abonos (¡NUEVAS FUNCIONES ESPECÍFICAS PARA EL NUEVO STORE!)
+// Abonos
 window.agregarAbonoDB = (abono) => agregarItem('abonos', abono);
-window.obtenerTodosLosAbonos = () => obtenerTodosItems('abonos'); // Útil para depuración o reportes generales
+window.obtenerTodosLosAbonos = () => obtenerTodosItems('abonos');
 window.obtenerAbonoPorId = (id) => obtenerItemPorId('abonos', id);
 window.actualizarAbonoDB = (id, abono) => actualizarItem('abonos', id, abono);
 window.eliminarAbonoDB = (id) => eliminarItem('abonos', id);
 window.limpiarTodosLosAbonosDB = () => limpiarStore('abonos');
+
+// Mermas 
+window.agregarMermaDB = (merma) => agregarItem('mermas', merma);
+window.obtenerTodasLasMermasDB = () => obtenerTodosItems('mermas');
+window.obtenerMermaPorId = (id) => obtenerItemPorId('mermas', id);
+window.actualizarMermaDB = (id, merma) => actualizarItem('mermas', id, merma);
+window.eliminarMermaDB = (id) => eliminarItem('mermas', id);
+window.limpiarTodasLasMermasDB = () => limpiarStore('mermas');
+
 
 // La función para obtener abonos por pedidoId que ya tenías (ajustada para el nuevo índice 'pedidoId')
 async function obtenerAbonosPorPedidoId(pedidoId) {
@@ -279,10 +273,10 @@ async function obtenerAbonosPorPedidoId(pedidoId) {
     return new Promise((resolve, reject) => {
         const transaction = dbInstance.transaction(["abonos"], "readonly");
         const store = transaction.objectStore("abonos");
-        const index = store.index("pedidoId"); // Usamos el nuevo índice 'pedidoId'
+        const index = store.index("pedidoId"); 
 
         const abonos = [];
-        const requestCursor = index.openCursor(IDBKeyRange.only(Number(pedidoId))); // Asegurarse de que el ID sea numérico
+        const requestCursor = index.openCursor(IDBKeyRange.only(Number(pedidoId))); 
         requestCursor.onsuccess = (e) => {
             const cursor = e.target.result;
             if (cursor) {
@@ -295,21 +289,11 @@ async function obtenerAbonosPorPedidoId(pedidoId) {
         requestCursor.onerror = () => reject("Error al cargar abonos por pedido ID");
     });
 }
-window.obtenerAbonosPorPedidoId = obtenerAbonosPorPedidoId; // Exportar esta función
+window.obtenerAbonosPorPedidoId = obtenerAbonosPorPedidoId; 
 
-
-// Exportar las funciones para que estén disponibles globalmente
+// Exportar las funciones principales para que estén disponibles globalmente
 window.abrirDB = abrirDB;
 window.limpiarStore = limpiarStore;
-
-// (Tus exportaciones de funciones específicas ya están abajo, no es necesario duplicar)
-// Ejemplos: window.agregarProducto = agregarProducto; etc.
-// Asegúrate de que todas tus funciones específicas estén exportadas al final de db.js
-// como ya lo tienes.
-
-// db.js (AGREGA ESTO AL FINAL DEL ARCHIVO)
-
-// ... (todas tus funciones existentes, como abrirDB, CRUD genéricas, y wrappers específicos) ...
 
 // Función para mostrar toasts (asegúrate de tener el contenedor #toastContainer en tu HTML)
 function mostrarToast(message, type = 'info', duration = 3000) {
@@ -327,11 +311,10 @@ function mostrarToast(message, type = 'info', duration = 3000) {
 
     void toast.offsetWidth; // Forzar reflow para la transición CSS
 
-    toast.classList.add('show'); // Aplica la clase para mostrarlo (asumiendo CSS para .toast.show)
+    toast.classList.add('show'); 
 
     setTimeout(() => {
-        toast.classList.remove('show'); // Remueve la clase para ocultarlo
-        // Espera a que la transición de ocultar termine antes de remover el elemento
+        toast.classList.remove('show'); 
         toast.addEventListener('transitionend', () => {
             toast.remove();
         }, { once: true });
@@ -341,21 +324,7 @@ function mostrarToast(message, type = 'info', duration = 3000) {
 // Haz que la función mostrarToast esté disponible globalmente
 window.mostrarToast = mostrarToast;
 
-// Exportar las funciones principales para que estén disponibles globalmente (si no lo hiciste ya)
-// Estas ya las tienes, solo asegúrate de que 'window.mostrarToast' esté con ellas.
-window.abrirDB = abrirDB;
-window.limpiarStore = limpiarStore;
 
-// (Tus exportaciones de funciones específicas ya están abajo, no es necesario duplicar)
-// Ejemplos: window.agregarProducto = agregarProducto; etc.
-// Asegúrate de que todas tus funciones específicas estén exportadas al final de db.js
-// como ya lo tienes.
-
-/**
- * Reemplaza todos los datos existentes en la base de datos con los datos importados.
- * Esto borra todas las tiendas de objetos y luego inserta los nuevos datos.
- * @param {object} importedData - Objeto con los datos a importar, donde cada clave es el nombre de una tienda de objetos.
- */
 /**
  * Reemplaza todos los datos existentes en la base de datos con los datos importados.
  * Esto borra todas las tiendas de objetos y luego inserta los nuevos datos.
@@ -369,14 +338,13 @@ async function reemplazarTodosLosDatos(importedData) {
         }
 
         const transaction = db.transaction(
-            ['productos', 'clientes', 'ventas', 'movimientos', 'pedidos', 'proveedores', 'abonos'], // ¡CORRECTO, AHORA ES 'movimientos'!
+            ['productos', 'clientes', 'ventas', 'movimientos', 'pedidos', 'proveedores', 'abonos', 'mermas'], 
             'readwrite'
         );
 
-        // Almacenes de objetos (tablas) que esperamos importar
         const objectStores = [
-            'productos', 'clientes', 'ventas', 'movimientos', // ¡CORRECTO, AHORA ES 'movimientos'!
-            'pedidos', 'proveedores', 'abonos'
+            'productos', 'clientes', 'ventas', 'movimientos',
+            'pedidos', 'proveedores', 'abonos', 'mermas' 
         ];
 
         transaction.oncomplete = () => {
@@ -393,7 +361,7 @@ async function reemplazarTodosLosDatos(importedData) {
         objectStores.forEach(storeName => {
             try {
                 const store = transaction.objectStore(storeName);
-                store.clear(); // Elimina todos los registros
+                store.clear(); 
                 console.log(`Tienda '${storeName}' limpiada.`);
             } catch (e) {
                 console.warn(`No se pudo limpiar la tienda '${storeName}', quizás no existe:`, e);
@@ -405,13 +373,53 @@ async function reemplazarTodosLosDatos(importedData) {
             if (importedData[storeName] && Array.isArray(importedData[storeName])) {
                 const store = transaction.objectStore(storeName);
                 importedData[storeName].forEach(item => {
-                    const itemToStore = { ...item }; // Copia para no modificar el original
-                    // Usamos 'put' para que los IDs existentes se mantengan,
-                    // y los nuevos se añadan si el ID no existe (si es autoincremental).
-                    store.put(itemToStore); // ¡CORRECTO, USAMOS 'put'!
+                    const itemToStore = { ...item }; 
+                    store.put(itemToStore); 
                 });
                 console.log(`Datos de '${storeName}' insertados: ${importedData[storeName].length} registros.`);
             }
         }
     });
 }
+
+// NUEVA FUNCIÓN: mostrarConfirmacion - Define el modal personalizado de confirmación
+window.mostrarConfirmacion = async (message, title = "Confirmar") => {
+    return new Promise(resolve => {
+        const modalHtml = `
+            <div id="customConfirmModal" style="
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+                z-index: 1000;
+            ">
+                <div style="
+                    background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    max-width: 400px; text-align: center; font-family: 'Segoe UI', sans-serif;
+                ">
+                    <h3 style="margin-top: 0; color: #333; font-size: 1.4em;">${title}</h3>
+                    <p style="margin-bottom: 25px; color: #555; font-size: 1em;">${message}</p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <button id="confirmYes" style="
+                            background-color: #4CAF50; color: white; padding: 10px 20px; border: none;
+                            border-radius: 8px; cursor: pointer; font-size: 1em; transition: background-color 0.3s;
+                        ">Sí</button>
+                        <button id="confirmNo" style="
+                            background-color: #f44336; color: white; padding: 10px 20px; border: none;
+                            border-radius: 8px; cursor: pointer; font-size: 1em; transition: background-color 0.3s;
+                        ">No</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        const modal = document.getElementById('customConfirmModal');
+        document.getElementById('confirmYes').onclick = () => {
+            modal.remove();
+            resolve(true);
+        };
+        document.getElementById('confirmNo').onclick = () => {
+            modal.remove();
+            resolve(false);
+        };
+    });
+};
