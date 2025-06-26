@@ -1,0 +1,126 @@
+@font-face {
+  font-family: 'Handlee';
+  src: url('/fonts/Handlee-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  font-family: 'Handlee', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* Fondo con tu imagen local: ¡RUTA CORREGIDA AQUÍ! */
+  background: url('../resources/GPT.png') no-repeat center center fixed;
+  background-size: cover; 
+  animation: brillo 10s ease-in-out infinite alternate; 
+}
+
+@keyframes brillo {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+main {
+  background: white;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 30px rgba(218, 165, 32, 0.25);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  border: 2px solid #d4af37;
+  animation: fadeInScale 0.8s ease-out forwards;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+
+.titulo {
+  color: #d4af37;
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-bottom: 0.2rem;
+}
+
+.subtitulo {
+  margin-top: 0;
+  color: #555;
+  font-weight: normal;
+  font-size: 1.1rem;
+}
+
+label {
+  display: block;
+  text-align: left;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #968039;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.75rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+}
+
+button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(90deg, #d4af37, #b98c1c);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #b98c1c, #d4af37);
+  transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#error {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.8rem;
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+@media (max-width: 500px) {
+  main {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  .titulo {
+    font-size: 2rem;
+  }
+}
