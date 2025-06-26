@@ -2,7 +2,7 @@
 
 let productos = [];
 let editIndex = null; // Mantiene el índice en el array 'productos' para edición
-let editId = null;    // Mantiene el ID real del producto de la DB para edición
+let editId = null;    // Mantiene el ID real del producto de la DB para edición
 
 document.addEventListener("DOMContentLoaded", async () => {
     await abrirDB(); // Asegúrate de abrir la DB primero, si no lo hace db.js
@@ -29,11 +29,12 @@ function mostrarProductos(filtrados = productos) {
             ? `<p><strong>Stock mínimo:</strong> ${producto.stockMin ?? 'N/D'}</p>
                <p><strong>Stock máximo:</strong> ${producto.stockMax ?? 'N/D'}</p>` : '';
 
+        // ¡MODIFICADO! Añadir la unidad de medida aquí
         card.innerHTML = `
             <img src="${producto.imagen || 'https://via.placeholder.com/80'}" alt="Imagen" class="producto-imagen" />
             <h3>${producto.nombre}</h3>
-            <p><strong>Stock:</strong> ${producto.stock}</p>
-            <p><strong>Vendidos:</strong> ${producto.vendidos}</p>
+            <p><strong>Stock:</strong> ${producto.stock} ${producto.unidadMedida || 'unidad(es)'}</p> <!-- ¡UNIDAD DE MEDIDA AQUÍ! -->
+            <p><strong>Vendidos:</strong> ${producto.vendidos} ${producto.unidadMedida || 'unidad(es)'}</p> <!-- ¡Y AQUÍ TAMBIÉN! -->
             <p><strong>Proveedor:</strong> ${producto.proveedor || "N/A"}</p>
             <p><strong>Costo:</strong> $${producto.costo?.toFixed(2) || "0.00"}</p>
             <p><strong>Precio:</strong> $${producto.precio?.toFixed(2) || "0.00"}</p>
@@ -50,13 +51,15 @@ function mostrarProductos(filtrados = productos) {
 
 // Renombré la función para evitar confusión con la de db.js
 async function eliminarProductoDesdeUI(idProducto) { // Ahora recibe el ID directamente desde el onclick
-    console.log("Intentando eliminar producto. ID recibido:", idProducto); 
-    if (confirm("¿Estás seguro de eliminar este producto?")) {
-        console.log("Confirmación aceptada para eliminar producto. ID a eliminar en DB:", idProducto); 
+    console.log("Intentando eliminar producto. ID recibido:", idProducto);
+    // ¡MODIFICADO! Usar un modal en lugar de alert/confirm
+    const confirmacion = await mostrarConfirmacion("¿Estás seguro de eliminar este producto?", "Eliminar Producto");
+    if (confirmacion) {
+        console.log("Confirmación aceptada para eliminar producto. ID a eliminar en DB:", idProducto);
         try {
             // Llama a la función global 'eliminarProducto' que viene de db.js
             // Aseguramos que el ID es un número para IndexedDB
-            await eliminarProducto(Number(idProducto)); 
+            await eliminarProducto(Number(idProducto));
             mostrarToast("Producto eliminado 🗑️");
         } catch (error) {
             console.error("Error al eliminar el producto de la DB:", error);
@@ -64,11 +67,11 @@ async function eliminarProductoDesdeUI(idProducto) { // Ahora recibe el ID direc
         }
         // Después de cualquier operación de DB (agregar, actualizar, eliminar),
         // recargar la lista completa y volver a mostrarla
-        productos = await obtenerTodosLosProductos(); 
-        mostrarProductos(); 
+        productos = await obtenerTodosLosProductos();
+        mostrarProductos();
     } else {
-        console.log("Eliminación cancelada por el usuario."); 
-        mostrarToast("Eliminación cancelada ❌"); 
+        console.log("Eliminación cancelada por el usuario.");
+        mostrarToast("Eliminación cancelada ❌");
     }
 }
 
@@ -76,6 +79,8 @@ async function eliminarProductoDesdeUI(idProducto) { // Ahora recibe el ID direc
 function guardarProducto() {
     const nombre = document.getElementById("nombre").value.trim();
     const stock = parseInt(document.getElementById("stock").value) || 0;
+    // ¡NUEVO! Obtener la unidad de medida
+    const unidadMedida = document.getElementById("unidadMedida").value.trim();
     const stockMin = parseInt(document.getElementById("stockMin").value) || null;
     const stockMax = parseInt(document.getElementById("stockMax").value) || null;
     const vendidos = parseInt(document.getElementById("vendidos").value) || 0;
@@ -89,17 +94,19 @@ function guardarProducto() {
     if (stock < 0 || vendidos < 0 || costo < 0 || precio < 0)
         return mostrarToast("Los valores no pueden ser negativos ⚠️", "error");
 
+    const productoData = { nombre, stock, unidadMedida, vendidos, costo, precio, proveedor, stockMin, stockMax }; // ¡unidadMedida incluida!
+
     if (archivo) {
         const lector = new FileReader();
         lector.onload = function (e) {
-            const imagenBase64 = e.target.result;
-            guardarProductoFinal({ nombre, stock, vendidos, costo, precio, imagen: imagenBase64, proveedor, stockMin, stockMax });
+            productoData.imagen = e.target.result;
+            guardarProductoFinal(productoData);
         };
         lector.readAsDataURL(archivo);
     } else {
         // Si no hay archivo nuevo, mantén la imagen existente si estás editando
-        const imagenBase64 = (editIndex !== null && productos[editIndex]) ? productos[editIndex].imagen : "";
-        guardarProductoFinal({ nombre, stock, vendidos, costo, precio, imagen: imagenBase64, proveedor, stockMin, stockMax });
+        productoData.imagen = (editIndex !== null && productos[editIndex]) ? productos[editIndex].imagen : "";
+        guardarProductoFinal(productoData);
     }
 }
 
@@ -119,8 +126,8 @@ async function guardarProductoFinal(producto) {
     }
 
     // Siempre recargar y mostrar después de guardar/actualizar
-    productos = await obtenerTodosLosProductos(); 
-    mostrarProductos(); 
+    productos = await obtenerTodosLosProductos();
+    mostrarProductos();
     limpiarCampos();
 }
 
@@ -139,6 +146,8 @@ function cargarProducto(index) {
     document.getElementById("proveedor").value = producto.proveedor || "";
     document.getElementById("stockMin").value = producto.stockMin ?? "";
     document.getElementById("stockMax").value = producto.stockMax ?? "";
+    // ¡NUEVO! Cargar la unidad de medida
+    document.getElementById("unidadMedida").value = producto.unidadMedida || "unidad"; // Valor por defecto si no existe
 
     const preview = document.getElementById("imagenPreview");
     preview.src = producto.imagen || "";
@@ -154,6 +163,8 @@ function cargarProducto(index) {
 function limpiarCampos() {
     document.getElementById("nombre").value = "";
     document.getElementById("stock").value = "";
+    // ¡NUEVO! Limpiar la unidad de medida
+    document.getElementById("unidadMedida").value = "unidad"; // Restablecer al valor por defecto
     document.getElementById("stockMin").value = "";
     document.getElementById("stockMax").value = "";
     document.getElementById("vendidos").value = "";
@@ -175,10 +186,10 @@ function mostrarToast(mensaje, tipo = "info") { // Añadido 'tipo' para posibles
     const toastContainer = document.getElementById("toastContainer");
     if (!toastContainer) { // Pequeña verificación si el contenedor no existe
         console.warn("No se encontró el contenedor de toasts. Mensaje:", mensaje);
-        alert(mensaje); // Fallback para mostrar el mensaje
+        // ¡MODIFICADO! Quitado alert, no usar alert
         return;
     }
-    
+
     const toast = document.createElement("div");
     toast.className = `toast ${tipo}`; // Agrega clase de tipo (info, error, success)
     toast.textContent = mensaje;
@@ -189,6 +200,48 @@ function mostrarToast(mensaje, tipo = "info") { // Añadido 'tipo' para posibles
         toast.classList.remove("show");
         setTimeout(() => toast.remove(), 400);
     }, 3000);
+}
+
+// ¡NUEVA FUNCIÓN! Para reemplazar los confirm/alert del navegador
+function mostrarConfirmacion(mensaje, titulo = "Confirmar") {
+    return new Promise((resolve) => {
+        const modalHtml = `
+            <div id="customConfirmModal" style="
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+                z-index: 1000;
+            ">
+                <div style="
+                    background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    max-width: 400px; text-align: center; font-family: 'Inter', sans-serif;
+                ">
+                    <h3 style="margin-top: 0; color: #333; font-size: 1.4em;">${titulo}</h3>
+                    <p style="margin-bottom: 25px; color: #555; font-size: 1em;">${mensaje}</p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <button id="confirmYes" style="
+                            background-color: #4CAF50; color: white; padding: 10px 20px; border: none;
+                            border-radius: 8px; cursor: pointer; font-size: 1em; transition: background-color 0.3s;
+                        ">Sí</button>
+                        <button id="confirmNo" style="
+                            background-color: #f44336; color: white; padding: 10px 20px; border: none;
+                            border-radius: 8px; cursor: pointer; font-size: 1em; transition: background-color 0.3s;
+                        ">No</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        const modal = document.getElementById('customConfirmModal');
+        document.getElementById('confirmYes').onclick = () => {
+            modal.remove();
+            resolve(true);
+        };
+        document.getElementById('confirmNo').onclick = () => {
+            modal.remove();
+            resolve(false);
+        };
+    });
 }
 
 
