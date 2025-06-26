@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/ayuda.css">
   <link rel="stylesheet" href="css/chatbot-ayuda.css">
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/cards-general.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
 
 </head>
 <body>
@@ -69,10 +70,11 @@
 
 </section>
 
-    <section>
-      <h2>📋 Lista de Pedidos</h2>
-      <ul id="listaPedidos"></ul>
-    </section>
+            <section>
+          <h2>📋 Lista de Pedidos</h2>
+          <!-- Cambiado de <ul> a <div> y añadida clase para layout de cuadrícula -->
+          <div id="listaPedidos" class="pedidos-grid"></div>
+        </section>
 
     <div class="form-buttons"> 
     <button id="btnLimpiarPedidos" class="btn-limpiar-pedidos">
