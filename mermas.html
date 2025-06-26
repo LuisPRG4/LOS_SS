@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="css/ayuda.css" />
   <link rel="stylesheet" href="css/chatbot-ayuda.css">
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/cards-general.css"/>
   
-
 </head>
 <body>
   <div id="toastContainer" class="toast-container"></div>
@@ -78,16 +78,17 @@
       <input type="text" id="buscadorMerma" placeholder="🔍 Buscar mermas..." oninput="filtrarMermas()" />
 
       <div style="margin-top: 1rem;">
-  <button onclick="toggleOpcionesExport()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
-    ⬇️ Exportar
-  </button>
-  <div id="opcionesExportMerma" style="display: none; margin-top: 0.5rem;">
-    <button onclick="exportarMermasExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2">📊 Exportar a Excel</button>
-    <button onclick="exportarMermasPDF()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md">📄 Exportar a PDF</button>
-  </div>
-</div>
+      <button onclick="toggleOpcionesExport()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+        ⬇️ Exportar
+        </button>
+        <div id="opcionesExportMerma" style="display: none; margin-top: 0.5rem;">
+        <button onclick="exportarMermasExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2">📊 Exportar a Excel</button>
+        <button onclick="exportarMermasPDF()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md">📄 Exportar a PDF</button>
+      </div>
+        </div>
 
-      <ul id="listaMermas" style="margin-top: 1rem;"></ul>
+      <!-- Cambiado de <ul> a <div> y añadida clase para layout de cuadrícula -->
+      <div id="listaMermas" class="mermas-grid"></div>
     </section>
 
     <!-- Ayuda contextual -->
