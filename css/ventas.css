@@ -297,3 +297,101 @@
         font-size: 1.5em;
     }
 }
+
+/* Estilos para el botón primario (Guardar/Actualizar Venta) */
+.btn-primary {
+    background-color: hsl(51, 73%, 50%); 
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #bea826; /* Púrpura más oscuro al pasar el ratón */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Estilos para el botón secundario (Cancelar) */
+.btn-secondary {
+    background-color: #6c757d; /* Gris */
+    color: white;
+    padding: 12px 25px; /* Mismo padding para mantener consistencia */
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1em; /* Mismo tamaño de fuente */
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    /* Elimina margin-left si ya está manejado por gap en acciones-form */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Gris más oscuro al pasar el ratón */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Estilos para agrupar los botones del formulario */
+.acciones-form {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
+    gap: 15px; /* Espacio entre los botones */
+    justify-content: center; /* Centrar los botones */
+    margin-top: 30px; /* Margen superior para separarlo del resto del formulario */
+    padding-top: 20px;
+    border-top: 1px dashed #e0e0e0; /* Línea divisoria suave */
+}
+
+/* Ajustes para los botones dentro de acciones-form en móvil */
+@media (max-width: 768px) {
+    .acciones-form {
+        flex-direction: column; /* Apilar botones verticalmente en móvil */
+        gap: 10px; /* Menos espacio apilados */
+    }
+
+    .acciones-form button {
+        width: 100%; /* Botones de ancho completo en móvil */
+        margin-left: 0; /* Asegura que no haya margen izquierdo extra si estaban en una fila */
+    }
+}
+
+/* También, verifica que tengas este estilo para el botón de agregar producto, 
+   o ajusta su padding si quieres que se vea igual que los otros dos */
+.btn-agregar-producto {
+    background-color: #28a745; /* Verde para agregar */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 15px; /* Para separarlo de los campos de cantidad */
+    width: auto; /* Ocupa solo el espacio necesario */
+    display: block; /* Para que ocupe su propia línea si es necesario */
+    margin-left: auto;
+    margin-right: auto; /* Centrar en pantallas más grandes si es un bloque */
+}
+
+.btn-agregar-producto:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Y si tienes un .form-control en style.css, asegúrate de que no le de width:100% a los botones */
+/* Esto es solo una sugerencia si los botones no se ven bien o se estiran */
+.form-control {
+    width: 100%; /* Por defecto para inputs */
+}
+/* Pero para los botones dentro de acciones-form, la regla de arriba los ajusta */
