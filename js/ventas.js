@@ -111,7 +111,6 @@ function toggleFechaManual() {
     }
 }
 
-
 async function registrarVenta() {
     const clienteNombre = document.getElementById("clienteVenta").value.trim();
     const tipoPago = document.getElementById("tipoPago").value;
@@ -283,6 +282,7 @@ async function registrarVenta() {
 }
 
 // Actualizada para cargar desde IndexedDB
+// Actualizada para cargar desde IndexedDB
 async function mostrarVentas(filtradas) {
     if (!filtradas) {
         ventas = await obtenerTodasLasVentas();
@@ -290,7 +290,8 @@ async function mostrarVentas(filtradas) {
         for (const venta of ventas) {
             if (venta.tipoPago === 'credito') {
                 const abonosDeVenta = await obtenerAbonosPorPedidoId(venta.id); // Usamos obtenerAbonosPorPedidoId
-                const totalAbonado = abonosDeVenta.reduce((sum, abono) => sum + abono.montoAbonado, 0);
+                // ¡CORRECCIÓN AQUÍ! abonosDeVenta en lugar de abonosDeVnta
+                const totalAbonado = abonosDeVenta.reduce((sum, abono) => sum + abono.montoAbonado, 0); 
                 venta.montoPendiente = Math.max(0, venta.ingreso - totalAbonado); // Recalcular monto pendiente
 
                 if (venta.montoPendiente === 0) {
@@ -320,7 +321,8 @@ async function mostrarVentas(filtradas) {
 
     filtradas.forEach((venta) => {
         if (venta.tipoPago === "contado") {
-            const metodo = venta.detallePago.metodo || "Efectivo"; // Default por si no existe
+            // ¡CORRECCIÓN DE SEGURIDAD AQUÍ! Añadimos ?. para evitar errores si detallePago es undefined
+            const metodo = venta.detallePago?.metodo || "Efectivo"; 
             if (!grupoContado[metodo]) grupoContado[metodo] = [];
             grupoContado[metodo].push({ venta, id: venta.id });
         } else {
@@ -375,22 +377,36 @@ async function mostrarVentas(filtradas) {
     }
 }
 
+// Function to create the HTML card for each sale in the history
 function crearCardVenta(venta, id) {
     // Generate product text with quantity and unit of measure
-    const productosTexto = venta.productos.map(p => {
-        const unidad = p.unidadMedida || 'unidad(es)'; // Fallback if no unit
+    // ¡CORRECCIÓN CRUCIAL AQUÍ! Aseguramos que venta.productos sea un array antes de usar .map()
+    let productosTexto = "";
+
+    try {
+    const productosVentaArray = Array.isArray(venta.productos)
+        ? venta.productos
+        : JSON.parse(venta.productos || '[]');
+
+    productosTexto = productosVentaArray.map(p => {
+        const unidad = p.unidadMedida || 'unidad(es)';
         return `${p.nombre} x${p.cantidad} ${unidad}`;
     }).join(", ");
+    } catch (e) {
+    console.warn("⚠️ Error procesando productos de la venta:", e);
+    mostrarToast("¡Elimina ese estúpido caché! 🤬🔥", "error");
+    productosTexto = "Error al cargar productos";
+    }
 
     // Format the sale date and time
-    const fechaVenta = new Date(venta.fecha).toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit' 
+    const fechaVenta = new Date(venta.fecha).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
     });
-    const horaVenta = new Date(venta.fecha).toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    const horaVenta = new Date(venta.fecha).toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
     });
 
     let detallePagoHTML = '';
@@ -398,25 +414,26 @@ function crearCardVenta(venta, id) {
     let estadoClase = ''; // For applying color classes to payment status
 
     if (venta.tipoPago === "contado") {
-        // For cash sales
-        detallePagoHTML = `<p><strong>Método:</strong> ${venta.detallePago.metodo}</p>`;
+        // Verificación de seguridad para detallePago y metodo
+        detallePagoHTML = `<p><strong>Método:</strong> ${venta.detallePago?.metodo || 'N/A'}</p>`;
         estadoPagoHTML = `<span class="estado-pago pagado-total">(Pagado)</span>`; // Always "Pagado" for cash
     } else { // Credit
         // For credit sales
-        const fechaVencimiento = venta.detallePago.fechaVencimiento || "N/A";
+        // Verificación de seguridad para detallePago y fechaVencimiento
+        const fechaVencimiento = venta.detallePago?.fechaVencimiento || "N/A";
         detallePagoHTML = `
-            <p><strong>Acreedor:</strong> ${venta.detallePago.acreedor || "N/A"}</p>
+            <p><strong>Acreedor:</strong> ${venta.detallePago?.acreedor || "N/A"}</p>
             <p><strong>Vence:</strong> ${fechaVencimiento}</p>
         `;
 
         // Logic to determine the color class for payment status
         switch (venta.estadoPago) {
             case 'Pendiente':
-                estadoPagoHTML = `<span class="estado-pago pendiente">(Pendiente: $${venta.montoPendiente.toFixed(2)})</span>`;
+                estadoPagoHTML = `<span class="estado-pago pendiente">(Pendiente: $${venta.montoPendiente?.toFixed(2) || '0.00'})</span>`;
                 estadoClase = 'border-red-400'; // Defines the border color for the card
                 break;
             case 'Pagado Parcial':
-                estadoPagoHTML = `<span class="estado-pago parcial">(Parcial: $${venta.montoPendiente.toFixed(2)} restantes)</span>`;
+                estadoPagoHTML = `<span class="estado-pago parcial">(Parcial: $${venta.montoPendiente?.toFixed(2) || '0.00'} restantes)</span>`;
                 estadoClase = 'border-orange-400';
                 break;
             case 'Pagado Total':
@@ -431,15 +448,13 @@ function crearCardVenta(venta, id) {
         // Highlight if the due date has passed and it's still pending
         if (venta.tipoPago === 'credito' && venta.estadoPago !== 'Pagado Total' && fechaVencimiento && new Date(fechaVencimiento) < new Date()) {
             estadoClase = 'border-red-700 ring-2 ring-red-500'; // More striking for overdue
-            estadoPagoHTML = `<span class="estado-pago vencido">(OVERDUE: $${venta.montoPendiente.toFixed(2)})</span>`; // Stronger text
+            estadoPagoHTML = `<span class="estado-pago vencido">(OVERDUE: $${venta.montoPendiente?.toFixed(2) || '0.00'})</span>`; // Stronger text
         }
     }
 
     const card = document.createElement("div");
-    // We assign the new 'venta-card' class and the dynamic border class
-    card.className = `venta-card ${estadoClase}`; 
+    card.className = `venta-card ${estadoClase}`;
 
-    // The inner HTML of the card, using the new structure and classes
     card.innerHTML = `
         <div class="header-venta">
             <h3>${venta.cliente}</h3>
@@ -447,7 +462,7 @@ function crearCardVenta(venta, id) {
         </div>
         <div class="detalle-venta">
             <p><strong>Productos:</strong> ${productosTexto}</p>
-            <p><strong>Total:</strong> $${venta.ingreso.toFixed(2)}</p>
+            <p><strong>Total:</strong> $${venta.ingreso?.toFixed(2) || '0.00'}</p>
             <p><strong>Condición:</strong> ${venta.tipoPago} ${estadoPagoHTML}</p>
             ${detallePagoHTML}
         </div>
@@ -469,7 +484,6 @@ function toggleFechaManual() {
     const mostrar = document.getElementById("activarFechaManual").checked;
     document.getElementById("opcionFechaManual").style.display = mostrar ? "block" : "none";
 }
-
 
 async function filtrarVentas() {
     const input = document.getElementById("buscadorVentas").value.toLowerCase().trim();
@@ -501,7 +515,6 @@ async function filtrarVentas() {
         const tipoVenta = (v.tipoPago || "").toLowerCase();
         const estadoPago = (v.estadoPago || "").toLowerCase();
         const fechaVencimiento = (v.detallePago.fechaVencimiento || "").toLowerCase();
-
 
         return (
             cliente.includes(input) ||
@@ -595,7 +608,6 @@ function mostrarToast(mensaje, tipo = "info") { // Añadido 'tipo' para posibles
     }
 }
 
-
 // ¡NUEVA FUNCIÓN! Para reemplazar los confirm/alert del navegador
 function mostrarConfirmacion(mensaje, titulo = "Confirmar") {
     return new Promise((resolve) => {
@@ -643,7 +655,6 @@ function mostrarConfirmacion(mensaje, titulo = "Confirmar") {
         };
     });
 }
-
 
 async function revertirVenta(id) {
     ventas = await obtenerTodasLasVentas();
@@ -774,7 +785,6 @@ function mostrarPromptPersonalizado(mensaje, titulo = "Entrada Requerida", input
     });
 }
 
-
 async function eliminarVentaPermanente(id) {
     ventas = await obtenerTodasLasVentas();
     movimientos = await obtenerTodosLosMovimientos();
@@ -834,46 +844,79 @@ async function eliminarVentaPermanente(id) {
     }
 }
 
+// La función cargarVenta (dentro de js/ventas.js)
+// Esta versión asume que los datos de productos en la venta ya contienen 'unidadMedida'
+// para evitar llamadas individuales a la DB para cada producto.
 async function cargarVenta(id) {
-    ventas = await obtenerTodasLasVentas();
-    const venta = ventas.find(v => v.id === id);
-    if (!venta) return;
+    try {
+        ventas = await obtenerTodasLasVentas(); // Asegurarse de tener las ventas más recientes
+        const venta = ventas.find(v => v.id === id);
 
-    document.getElementById("clienteVenta").value = venta.cliente;
-    document.getElementById("tipoPago").value = venta.tipoPago;
-    mostrarOpcionesPago(); // Para que se muestren las opciones correctas
+        if (!venta) {
+            mostrarToast("Venta no encontrada para editar. 😞");
+            return;
+        }
 
-    if (venta.tipoPago === "contado") {
-        document.getElementById("metodoContado").value = venta.detallePago.metodo;
-    } else { // Crédito
-        document.getElementById("fechaVencimiento").value = venta.detallePago.fechaVencimiento;
-        // Podrías cargar el monto pendiente aquí si lo tuvieras en el formulario
-        // document.getElementById("montoPendienteInput").value = venta.montoPendiente.toFixed(2);
-    }
+        editVentaId = id; // Establecer el ID de la venta que estamos editando
+        document.getElementById("btnRegistrarVenta").textContent = "Actualizar Venta";
+        document.getElementById("btnCancelarEdicion").style.display = "inline-block"; // ¡MOSTRAR EL BOTÓN CANCELAR!
 
-    // ¡MODIFICADO! Asegúrate de que productosVenta contenga la unidad de medida
-    productosVenta = await Promise.all(venta.productos.map(async p => {
-        const prodCompleto = await obtenerProductoPorNombre(p.nombre); // Asumiendo que esta función existe en db.js
-        return {
+        // 1. Cargar datos de la venta al formulario
+        document.getElementById("clienteVenta").value = venta.cliente;
+        document.getElementById("tipoPago").value = venta.tipoPago;
+
+        // Mostrar/ocultar opciones de pago y cargar detalles de pago
+        mostrarOpcionesPago(); // Esto asegurará que los campos correctos estén visibles
+
+        if (venta.tipoPago === "contado") {
+            document.getElementById("metodoContado").value = venta.detallePago.metodo || '';
+            // Desactivar fecha manual si se edita una venta al contado (opcional, pero lógico)
+            document.getElementById("activarFechaManual").checked = false;
+            toggleFechaManual(); // Para ocultar los inputs de fecha manual
+        } else { // Venta a crédito
+            document.getElementById("fechaVencimiento").value = venta.detallePago.fechaVencimiento || '';
+            // Si hay una fecha de venta personalizada guardada, cargarla y activar
+            if (venta.fecha) {
+                const fechaParte = venta.fecha.slice(0, 10); // Formato YYYY-MM-DD
+                const horaParte = venta.fecha.length > 10 ? venta.fecha.slice(11, 16) : ''; // Formato HH:mm
+                document.getElementById("activarFechaManual").checked = true;
+                toggleFechaManual(); // Para mostrar los inputs de fecha manual
+                document.getElementById("fechaVentaPersonalizada").value = fechaParte;
+                document.getElementById("horaVentaPersonalizada").value = horaParte;
+            } else {
+                document.getElementById("activarFechaManual").checked = false;
+                toggleFechaManual();
+            }
+        }
+
+        // 2. Cargar productos de la venta al array temporal 'productosVenta'
+        // IMPORTANTE: Aquí NO necesitamos 'obtenerProductoPorNombre'.
+        // Asumimos que los 'productos' guardados en 'venta.productos' ya tienen
+        // toda la información necesaria, incluyendo 'unidadMedida' y 'costo',
+        // ya que así se guardaron en 'registrarVenta'.
+        productosVenta = venta.productos.map(p => ({
             nombre: p.nombre,
             precio: p.precio,
-            costo: p.costo,
+            costo: p.costo, // Asegurarse de que el costo esté en el objeto del producto guardado
             cantidad: p.cantidad,
             subtotal: p.subtotal,
-            unidadMedida: prodCompleto ? prodCompleto.unidadMedida : (p.unidadMedida || 'unidad(es)') // Asegura la unidad
-        };
-    }));
+            unidadMedida: p.unidadMedida || 'unidad(es)' // Fallback por si acaso la unidad de medida no se guardó
+        }));
+        actualizarTablaProductos(); // Volver a renderizar la tabla con los productos cargados
 
-    actualizarTablaProductos();
-    editVentaId = id; // Almacena el ID de la venta que se está editando
-    document.getElementById("btnRegistrarVenta").textContent = "Actualizar Venta";
-
-    setTimeout(() => {
-        const formulario = document.getElementById("formularioVenta");
+        // 3. Desplazarse al formulario de registro para editar
+        // Usamos el ID del formulario principal de registro de ventas
+        const formulario = document.getElementById("formularioVenta"); // Asegúrate de que tu formulario principal tiene este ID
         if (formulario) {
             formulario.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-    }, 100);
+
+        mostrarToast(`Cargando venta de ${venta.cliente} para edición...`);
+
+    } catch (error) {
+        console.error("Error al cargar venta para edición:", error);
+        mostrarToast("Error al cargar venta para edición 😥");
+    }
 }
 
 async function agregarProductoAVenta() {
@@ -1107,7 +1150,6 @@ async function validarClienteIngresado() {
 }
 
 // === Funciones para Abonos / Modal de Cobro ===
-
 let currentVentaIdAbono = null; // Para saber qué venta se está abonando
 
 // Abre el modal para registrar un abono
@@ -1264,6 +1306,15 @@ async function mostrarAbonosPrevios(ventaId) {
     listaAbonos.appendChild(ul);
 }
 
+// Función para limpiar el formulario y resetear el modo de edición
+function cancelarEdicionVenta() {
+    limpiarFormulario(); // Llama a la función que ya limpia los campos y la tabla
+    editVentaId = null; // Resetea el ID de la venta en edición
+    document.getElementById("btnRegistrarVenta").textContent = "Registrar Venta"; // Vuelve el texto del botón a su original
+    mostrarToast("Edición de venta cancelada.", "info"); // Mensaje de confirmación
+    document.getElementById("btnCancelarEdicion").style.display = "none"; // ¡OCULTAR EL BOTÓN CANCELAR!
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         await abrirDB();
@@ -1273,6 +1324,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         productos = await obtenerTodosLosProductos(); // Asegúrate de cargar productos con unidad de medida
         movimientos = await obtenerTodosLosMovimientos();
         abonos = await obtenerTodosLosAbonos(); // Cargar abonos al inicio
+        
 
         mostrarVentas();
         mostrarOpcionesPago();
@@ -1292,6 +1344,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 cerrarModalAbono();
             }
         });
+
+        // Asociar evento al botón de cancelar edición
+        document.getElementById("btnCancelarEdicion").addEventListener("click", cancelarEdicionVenta);
 
     } catch (error) {
         console.error("Error al inicializar la aplicación:", error);
