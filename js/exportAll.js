@@ -1,11 +1,11 @@
-// js/exportAll.js
+// js/exportAll.js (CÓDIGO CORREGIDO Y ACTUALIZADO)
 
 document.addEventListener("DOMContentLoaded", () => {
     // --- LÓGICA DE EXPORTACIÓN ---
     const btnExportarExcel = document.getElementById("btnExportarExcel");
     const btnExportarCSV = document.getElementById("btnExportarCSV");
     const btnExportarJSON = document.getElementById("btnExportarJSON");
-    const btnExportarPDF = document.getElementById("btnExportarPDF"); // Nuevo botón PDF
+    const btnExportarPDF = document.getElementById("btnExportarPDF");
 
     if (btnExportarExcel) {
         btnExportarExcel.addEventListener("click", () => exportarTodosLosDatos('excel'));
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnExportarJSON) {
         btnExportarJSON.addEventListener("click", () => exportarTodosLosDatos('json'));
     }
-    if (btnExportarPDF) { // Event listener para el botón PDF
+    if (btnExportarPDF) {
         btnExportarPDF.addEventListener("click", () => exportarTodosLosDatos('pdf'));
     }
 
@@ -24,44 +24,56 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnToggleImport = document.getElementById("btnToggleImport");
     const importOptionsContainer = document.getElementById("importOptionsContainer");
     const jsonFileInput = document.getElementById("jsonFileInput");
-    // ¡¡¡CAMBIO AQUÍ!!! Apuntamos a 'btnImportarJSON' que es el ID en tu HTML
-    const btnImportarJSONDelHTML = document.getElementById("btnImportarJSON"); 
-
-    // ******************************************************************
-    // !!! ESTA ES LA PARTE QUE NECESITAS AÑADIR O ASEGURARTE QUE ESTÉ !!!
-    // ******************************************************************
-    const fileNameDisplay = document.getElementById("fileNameDisplay"); 
+    const btnImportarJSONDelHTML = document.getElementById("btnImportarJSON");
+    const fileNameDisplay = document.getElementById("fileNameDisplay");
 
     if (jsonFileInput && fileNameDisplay) {
         jsonFileInput.addEventListener("change", () => {
             if (jsonFileInput.files.length > 0) {
                 fileNameDisplay.textContent = jsonFileInput.files[0].name;
             } else {
-                fileNameDisplay.textContent = "Seleccionar archivo..."; // Texto por defecto si no se selecciona nada
+                fileNameDisplay.textContent = "Seleccionar archivo...";
             }
         });
     }
-    // ******************************************************************
-    // !!! FIN DE LA PARTE A AÑADIR !!!
-    // ******************************************************************
 
     if (btnToggleImport && importOptionsContainer) {
         btnToggleImport.addEventListener("click", () => {
             importOptionsContainer.classList.toggle("open");
-            // Opcional: Resetear el display del nombre del archivo y el input cuando se cierra/abre
             if (!importOptionsContainer.classList.contains("open")) {
                 if (fileNameDisplay) fileNameDisplay.textContent = "Seleccionar archivo...";
-                if (jsonFileInput) jsonFileInput.value = ""; // Limpiar el input file
+                if (jsonFileInput) jsonFileInput.value = "";
             }
         });
     }
 
-    // Usamos la nueva variable aquí
     if (btnImportarJSONDelHTML) {
         btnImportarJSONDelHTML.addEventListener("click", importarDatosDesdeJSON);
     }
 });
 
+/**
+ * Obtiene todos los datos de los diferentes object stores de IndexedDB.
+ * @returns {Promise<Object>} Objeto con todos los datos por nombre de store.
+ */
+async function obtenerTodosLosDatosDeLaDB() {
+    return {
+        productos: await obtenerTodosLosProductos(), // ¡Cambiado de 'inventario' a 'productos'!
+        clientes: await obtenerTodosLosClientes(),
+        pedidos: await obtenerTodosLosPedidosDB(),
+        ventas: await obtenerTodasLasVentas(),
+        movimientos: await obtenerTodosLosMovimientos(),
+        proveedores: await obtenerTodosLosProveedoresDB(),
+        abonos: await obtenerTodosLosAbonos(),
+        // cuentasPorCobrar no es un store, es un filtro de 'ventas',
+        // se calcula al momento si es necesario para reportes.
+    };
+}
+
+/**
+ * Exporta todos los datos de la DB en el formato especificado.
+ * @param {string} formato - El formato de exportación ('excel', 'csv', 'json', 'pdf').
+ */
 async function exportarTodosLosDatos(formato = 'excel') {
     try {
         if (typeof mostrarToast === 'function') {
@@ -71,69 +83,45 @@ async function exportarTodosLosDatos(formato = 'excel') {
             alert(`Preparando exportación en formato ${formato.toUpperCase()}... ¡Por favor, espera!`);
         }
 
-        const todosLosDatos = {
-            inventario: await obtenerTodosLosProductos(),
-            clientes: await obtenerTodosLosClientes(),
-            pedidos: await obtenerTodosLosPedidosDB(),
-            ventas: await obtenerTodasLasVentas(),
-            movimientos: await obtenerTodosLosMovimientos(), // Nombre del store corregido a 'movimientos'
-            proveedores: await obtenerTodosLosProveedoresDB(),
-            abonos: await obtenerTodosLosAbonos(),
-            cuentasPorCobrar: (await obtenerTodasLasVentas()).filter(venta => venta.tipoPago === "credito" && venta.montoPendiente > 0)
-        };
+        const todosLosDatos = await obtenerTodosLosDatosDeLaDB();
 
-        const preprocesarDatosParaExport = (nombreHoja, datosOriginales) => {
-            return datosOriginales.map(item => {
-                const copia = { ...item };
-                delete copia.id; // Eliminar el ID interno de IndexedDB
+        // Para PDF y Excel, podemos incluir cuentasPorCobrar como una hoja/sección adicional
+        const cuentasPorCobrarData = (todosLosDatos.ventas || []).filter(venta => venta.tipoPago === "credito" && venta.montoPendiente > 0);
+        
+        let dataParaExportar;
 
-                if (nombreHoja === 'ventas' || nombreHoja === 'cuentasPorCobrar') {
-                    if (copia.productos && Array.isArray(copia.productos)) {
-                        copia.productos = copia.productos.map(p => `${p.nombre} x${p.cantidad} ($${p.precio?.toFixed(2)})`).join('; ');
-                    }
-                    if (copia.detallePago && typeof copia.detallePago === 'object' && copia.detallePago !== null) {
-                        if (copia.tipoPago === 'contado') {
-                            copia.metodoPago = copia.detallePago.metodo;
-                        } else if (copia.tipoPago === 'credito') {
-                            copia.acreedor = copia.detallePago.acreedor || 'N/A';
-                            copia.fechaVencimiento = copia.detallePago.fechaVencimiento || 'N/A';
-                        }
-                        delete copia.detallePago;
-                    }
-                    if (typeof copia.ingreso === 'number') copia.ingreso = copia.ingreso.toFixed(2);
-                    if (typeof copia.ganancia === 'number') copia.ganancia = copia.ganancia.toFixed(2);
-                    if (typeof copia.montoPendiente === 'number') copia.montoPendiente = copia.montoPendiente.toFixed(2);
-                } else if (nombreHoja === 'abonos') {
-                    if (typeof copia.montoAbonado === 'number') copia.montoAbonado = copia.montoAbonado.toFixed(2);
-                } else if (nombreHoja === 'movimientos') { // ¡CORREGIDO AQUÍ TAMBIÉN!
-                    if (typeof copia.monto === 'number') copia.monto = copia.monto.toFixed(2);
-                    if (typeof copia.ganancia === 'number') copia.ganancia = copia.ganancia.toFixed(2);
+        if (formato === 'json') {
+            // Para JSON, solo exportamos los stores base que son importables
+            dataParaExportar = {};
+            for (const key in todosLosDatos) {
+                // Excluir 'cuentasPorCobrar' y cualquier otro dato no-store si lo añades
+                if (key !== 'cuentasPorCobrar' && todosLosDatos[key]) { // Asegurarse de que el dato exista
+                    dataParaExportar[key] = preprocesarDatosParaExport(key, todosLosDatos[key]);
                 }
-
-                for (const key in copia) {
-                    if (Object.prototype.hasOwnProperty.call(copia, key) && typeof copia[key] === 'object' && copia[key] !== null) {
-                        copia[key] = JSON.stringify(copia[key]);
-                    }
+            }
+        } else {
+            // Para Excel/CSV/PDF, preprocesamos todos los datos, incluyendo cuentasPorCobrar si se desea como una sección
+            dataParaExportar = {};
+            for (const key in todosLosDatos) {
+                if (todosLosDatos[key]) {
+                    dataParaExportar[key] = preprocesarDatosParaExport(key, todosLosDatos[key]);
                 }
-                return copia;
-            });
-        };
-
-        const processedData = {};
-        for (const [key, value] of Object.entries(todosLosDatos)) {
-            if (value && value.length > 0) {
-                processedData[key] = preprocesarDatosParaExport(key, value);
+            }
+            // Añadir cuentasPorCobrar si hay datos y no es formato JSON
+            if (cuentasPorCobrarData.length > 0) {
+                dataParaExportar.cuentasPorCobrar = preprocesarDatosParaExport('cuentasPorCobrar', cuentasPorCobrarData);
             }
         }
 
+        // Ejecutar la exportación según el formato
         if (formato === 'excel') {
-            await exportarAExcel(processedData);
+            await exportarAExcel(dataParaExportar);
         } else if (formato === 'csv') {
-            exportarACSV(processedData);
+            exportarACSV(dataParaExportar);
         } else if (formato === 'json') {
-            exportarAJSON(processedData);
+            exportarAJSON(dataParaExportar);
         } else if (formato === 'pdf') {
-            exportarAPDF(processedData);
+            exportarAPDF(dataParaExportar);
         }
 
     } catch (error) {
@@ -145,6 +133,55 @@ async function exportarTodosLosDatos(formato = 'excel') {
         }
     }
 }
+
+/**
+ * Preprocesa los datos de un store para que sean más legibles en la exportación.
+ * Por ejemplo, convierte arrays de objetos en cadenas, formatea números, etc.
+ * @param {string} nombreHoja - Nombre del store o de la hoja de cálculo.
+ * @param {Array<Object>} datosOriginales - Array de objetos a preprocesar.
+ * @returns {Array<Object>} Array de objetos preprocesados.
+ */
+const preprocesarDatosParaExport = (nombreHoja, datosOriginales) => {
+    return datosOriginales.map(item => {
+        const copia = { ...item };
+        delete copia.id; // Eliminar el ID interno de IndexedDB
+
+        if (nombreHoja === 'ventas' || nombreHoja === 'cuentasPorCobrar') {
+            if (copia.productos && Array.isArray(copia.productos)) {
+                copia.productos = copia.productos.map(p => `${p.nombre} x${p.cantidad} ($${p.precio?.toFixed(2)})`).join('; ');
+            }
+            if (copia.detallePago && typeof copia.detallePago === 'object' && copia.detallePago !== null) {
+                if (copia.tipoPago === 'contado') {
+                    copia.metodoPago = copia.detallePago.metodo;
+                } else if (copia.tipoPago === 'credito') {
+                    copia.acreedor = copia.detallePago.acreedor || 'N/A';
+                    copia.fechaVencimiento = copia.detallePago.fechaVencimiento || 'N/A';
+                }
+                delete copia.detallePago;
+            }
+            if (typeof copia.ingreso === 'number') copia.ingreso = copia.ingreso.toFixed(2);
+            if (typeof copia.ganancia === 'number') copia.ganancia = copia.ganancia.toFixed(2);
+            if (typeof copia.montoPendiente === 'number') copia.montoPendiente = copia.montoPendiente.toFixed(2);
+        } else if (nombreHoja === 'abonos') {
+            if (typeof copia.montoAbonado === 'number') copia.montoAbonado = copia.montoAbonado.toFixed(2);
+        } else if (nombreHoja === 'movimientos') {
+            if (typeof copia.monto === 'number') copia.monto = copia.monto.toFixed(2);
+            if (typeof copia.ganancia === 'number') copia.ganancia = copia.ganancia.toFixed(2);
+        } else if (nombreHoja === 'productos') { // Nuevo: Para inventario, asegura stock/costo/precio
+            if (typeof copia.stock === 'number') copia.stock = copia.stock.toString(); // Convertir a string para exportación
+            if (typeof copia.costo === 'number') copia.costo = copia.costo.toFixed(2);
+            if (typeof copia.precio === 'number') copia.precio = copia.precio.toFixed(2);
+        }
+
+        // Convertir cualquier objeto anidado que quede a cadena JSON
+        for (const key in copia) {
+            if (Object.prototype.hasOwnProperty.call(copia, key) && typeof copia[key] === 'object' && copia[key] !== null) {
+                copia[key] = JSON.stringify(copia[key]);
+            }
+        }
+        return copia;
+    });
+};
 
 async function exportarAExcel(data) {
     const wb = XLSX.utils.book_new();
@@ -200,6 +237,7 @@ function exportarACSV(data) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     if (typeof mostrarToast === 'function') mostrarToast("¡Datos exportados a CSV correctamente! 📄", "success");
     else alert("¡Datos exportados a CSV correctamente!");
 }
@@ -239,12 +277,23 @@ function exportarAPDF(data) {
 
     for (const [nombreHoja, datos] of Object.entries(data)) {
         if (datos && datos.length > 0) {
-            const headers = Object.keys(datos[0]);
-            const body = datos.map(item => headers.map(header => item[header]));
-
             doc.setFontSize(14);
             doc.text(capitalizarPrimeraLetra(nombreHoja), margin, yOffset);
             yOffset += 5;
+
+            const headers = Object.keys(datos[0]);
+            const body = datos.map(item => headers.map(header => item[header]));
+
+            // Verificar si hay espacio suficiente para la tabla actual, si no, agregar una nueva página
+            if (yOffset + (body.length * 8) + 20 > pageHeight - margin && doc.internal.getNumberOfPages() > 1) { // 8 es aprox alto fila
+                 doc.addPage();
+                 yOffset = margin + 10; // Reiniciar yOffset en la nueva página
+            }
+             if (doc.autoTable.previous && doc.autoTable.previous.finalY + 15 > pageHeight - 30 && Object.keys(data).indexOf(nombreHoja) < Object.keys(data).length - 1) {
+                doc.addPage();
+                yOffset = margin + 10;
+            }
+
 
             doc.autoTable({
                 startY: yOffset,
@@ -271,11 +320,14 @@ function exportarAPDF(data) {
                 }
             });
 
-            yOffset = doc.autoTable.previous.finalY + 15;
+            yOffset = doc.autoTable.previous.finalY + 15; // Actualiza el yOffset para la siguiente tabla
 
-            if (yOffset > pageHeight - 30 && Object.keys(data).indexOf(nombreHoja) < Object.keys(data).length - 1) {
-                doc.addPage();
-                yOffset = 20;
+            // Añadir una nueva página si el contenido de la próxima sección no cabe
+            if (Object.keys(data).indexOf(nombreHoja) < Object.keys(data).length - 1) { // Si no es la última hoja
+                if (yOffset > pageHeight - 30) { // Si queda poco espacio
+                    doc.addPage();
+                    yOffset = 20; // Reiniciar yOffset para la nueva página
+                }
             }
         }
     }
@@ -300,7 +352,14 @@ async function importarDatosDesdeJSON() {
         return;
     }
 
-    if (!confirm("ADVERTENCIA: Importar datos reemplazará toda tu información actual. ¿Estás seguro de que quieres continuar? ¡Asegúrate de tener una copia de seguridad!")) {
+    // Usar mostrarConfirmacion en lugar de confirm para mejor UI
+    const confirmar = await mostrarConfirmacion(
+        "ADVERTENCIA: Importar datos reemplazará toda tu información actual. ¿Estás seguro de que quieres continuar? ¡Asegúrate de tener una copia de seguridad!",
+        "Confirmar Importación"
+    );
+
+    if (!confirmar) {
+        mostrarToast("Importación cancelada.", "info");
         return;
     }
 
@@ -334,4 +393,15 @@ async function importarDatosDesdeJSON() {
     };
 
     reader.readAsText(file);
+}
+
+// Asegurarse de que mostrarConfirmacion esté disponible (asumiendo que está en db.js o en un archivo global)
+// Si no la tienes definida, puedes añadir una versión básica aquí:
+if (typeof mostrarConfirmacion !== 'function') {
+    window.mostrarConfirmacion = async (message, title = "Confirmar") => {
+        return new Promise(resolve => {
+            const result = confirm(`${title}\n\n${message}`); // Fallback to native confirm
+            resolve(result);
+        });
+    };
 }
