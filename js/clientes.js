@@ -17,28 +17,36 @@ function mostrarToast(mensaje) {
     }, 3000);
 }
 
-// Nueva función para renderizar clientes (evita duplicados)
+// Nueva función para renderizar clientes (ahora usando modern-card)
 function renderizarClientes(listaClientes) {
-    const lista = document.getElementById("listaClientes");
+    const lista = document.getElementById("listaClientes"); // Este es ahora un <div> con clase 'clientes-grid'
     lista.innerHTML = ""; // Limpia la lista antes de mostrar
 
     if (!listaClientes || listaClientes.length === 0) {
-        lista.innerHTML = "<p>No hay clientes registrados.</p>";
+        lista.innerHTML = `<p class="mensaje-lista">No hay clientes registrados.</p>`; // Usamos la clase para el mensaje de lista vacía
         return;
     }
 
     listaClientes.forEach(cliente => {
         const card = document.createElement("div");
-        card.className = "cliente-card";
+        card.className = "modern-card"; // Aplica la clase general de tarjeta
 
         card.innerHTML = `
-            <h3>${cliente.nombre}</h3>
-            <p><strong>Dirección:</strong> ${cliente.direccion || "No especificada"}</p>
-            <p><strong>Teléfono:</strong> ${cliente.telefono || "No especificado"}</p>
-            <p><strong>Email:</strong> ${cliente.email || "No especificado"}</p>
-            ${cliente.nota ? `<p class="nota-cliente">📝 ${cliente.nota}</p>` : ''}
-            <button onclick="editarCliente(${cliente.id})" class="btn-editar">✏️ Editar</button>
-            <button onclick="eliminarClienteDesdeUI(${cliente.id})" class="btn-eliminar">🗑️ Eliminar</button>
+            <div class="card-header">
+                <h3 title="${cliente.nombre}">${cliente.nombre}</h3>
+                <!-- Aquí podrías añadir una "card-meta" si tuvieras una fecha de registro, o algo corto -->
+                <!-- <span class="card-meta">Registrado: ${cliente.fechaRegistro || 'N/D'}</span> -->
+            </div>
+            <div class="card-content">
+                <p><strong>Dirección:</strong> ${cliente.direccion || "No especificada"}</p>
+                <p><strong>Teléfono:</strong> ${cliente.telefono || "No especificado"}</p>
+                <p><strong>Email:</strong> ${cliente.email || "No especificado"}</p>
+                ${cliente.nota ? `<p class="nota-cliente">📝 <strong>Nota:</strong> ${cliente.nota}</p>` : ''}
+            </div>
+            <div class="card-actions">
+                <button onclick="editarCliente(${cliente.id})" class="btn-edit">✏️ Editar</button>
+                <button onclick="eliminarClienteDesdeUI(${cliente.id})" class="btn-delete">🗑️ Eliminar</button>
+            </div>
         `;
         lista.appendChild(card);
     });
@@ -125,7 +133,13 @@ async function mostrarClientes() {
 }
 
 async function eliminarClienteDesdeUI(id) {
-    if (confirm("¿Eliminar este cliente?")) {
+    // Usamos el modal de confirmación personalizado en lugar del confirm() nativo
+    const confirmacion = await mostrarConfirmacion(
+        "¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.",
+        "Eliminar Cliente" // Título del modal
+    );
+
+    if (confirmacion) {
         try {
             await eliminarCliente(id);
             mostrarToast("Cliente eliminado 🗑️");
@@ -133,7 +147,9 @@ async function eliminarClienteDesdeUI(id) {
             console.error("Error al eliminar cliente:", error);
             mostrarToast("Error al eliminar cliente. 😔");
         }
-        await mostrarClientes();
+        await mostrarClientes(); // Vuelve a cargar y renderizar la lista
+    } else {
+        mostrarToast("Eliminación de cliente cancelada.", "info");
     }
 }
 
