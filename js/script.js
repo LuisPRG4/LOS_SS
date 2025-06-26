@@ -1,20 +1,13 @@
-// script.js adaptado para usar IndexedDB
-
-// --- Configuración ---
-// Puedes ajustar este valor. Por ejemplo, 5 significa que si el stock es 5 o menos, se considera "bajo".
 const STOCK_BAJO_UMBRAL = 0;
 
 // --- Funciones del Dashboard ---
-
 async function cargarDashboard() {
     // 1. Asegurarse de que la base de datos esté abierta.
-    // Esto es crucial para que las funciones de db.js como obtenerTodosLosProductos() funcionen.
     await abrirDB(); // Asegúrate de que abrirDB() esté definido en db.js
 
     // 2. Cargar datos desde IndexedDB
-    // Usamos las funciones que vienen de tu archivo db.js
     const productos = await obtenerTodosLosProductos(); // Asegúrate de que obtenerTodosLosProductos() esté definido en db.js
-    const ventas = await obtenerTodasLasVentas();     // Asegúrate de que obtenerTodasLasVentas() esté definido en db.js
+    const ventas = await obtenerTodasLasVentas();     // Asegúrate de que obtenerTodasLasVentas() esté definido en db.js
 
     // --- Lógica para Ventas Hoy y Ventas Semana ---
     // Verificar si los elementos existen antes de intentar manipularlos
@@ -22,20 +15,28 @@ async function cargarDashboard() {
     const ventasSemanaElement = document.getElementById("ventasSemana");
 
     if (ventasHoyElement || ventasSemanaElement) { // Solo ejecuta si al menos uno de los elementos existe
-        const hoy = new Date().toISOString().slice(0, 10);
+        const hoy = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+        
         const hace7Dias = new Date();
         hace7Dias.setDate(hace7Dias.getDate() - 7);
-        const fecha7dias = hace7Dias.toISOString().slice(0, 10);
+        const fecha7dias = hace7Dias.toISOString().slice(0, 10); // "YYYY-MM-DD"
 
         let totalHoy = 0;
         let totalSemana = 0;
 
         ventas.forEach((venta) => {
             // Asegurarse de que 'monto' o 'ingreso' existan y sean numéricos.
-            // Las ventas de IndexedDB deberían tener 'ingreso'.
             const monto = parseFloat(venta.monto ?? venta.ingreso) || 0; // Usar 'ingreso' como fallback para 'monto'
-            if (venta.fecha === hoy) totalHoy += monto;
-            if (venta.fecha >= fecha7dias) totalSemana += monto;
+            
+            // ¡MODIFICADO! Extraer solo la parte de la fecha (YYYY-MM-DD) de la venta
+            const ventaFechaDia = venta.fecha ? venta.fecha.slice(0, 10) : ''; 
+
+            if (ventaFechaDia === hoy) { // Comparar solo la parte del día con 'hoy'
+                totalHoy += monto;
+            }
+            if (ventaFechaDia >= fecha7dias) { // Comparar solo la parte del día con 'fecha7dias'
+                totalSemana += monto;
+            }
         });
 
         if (ventasHoyElement) {
@@ -77,6 +78,7 @@ async function cargarDashboard() {
         // He unificado la lógica de filtro para usar 'stockMin' si está presente, o 'STOCK_BAJO_UMBRAL' como fallback.
         const productosBajoStock = productos.filter(p => {
             const umbral = (p.stockMin !== undefined && p.stockMin !== null) ? p.stockMin : STOCK_BAJO_UMBRAL;
+            // ¡MODIFICADO! Incluir unidad de medida en el mensaje de alerta
             return p.stock <= umbral;
         });
 
@@ -88,7 +90,7 @@ async function cargarDashboard() {
             productosBajoStock.forEach((p) => {
                 let li = document.createElement("li");
                 const minText = (p.stockMin !== undefined && p.stockMin !== null) ? `Mín: ${p.stockMin}` : `Umbral: ${STOCK_BAJO_UMBRAL}`;
-                li.textContent = `🚨 ${p.nombre} - Stock bajo: ${p.stock} unidades (${minText})`;
+                li.textContent = `🚨 ${p.nombre} - Stock bajo: ${p.stock} ${p.unidadMedida || 'unidad(es)'} (${minText})`; // ¡UNIDAD DE MEDIDA AÑADIDA AQUÍ!
                 ul.appendChild(li);
             });
             alertaStockContainer.appendChild(ul);
@@ -99,7 +101,6 @@ async function cargarDashboard() {
     }
 
     // --- Lógica para Total Productos, Total Stock, Total Vendidos, Total Ganancia Bruta (añadido previamente) ---
-    // Estas se mantienen como las habías corregido con las verificaciones de 'if (elemento)'
     const totalProductosElement = document.getElementById('totalProductos');
     const totalStockElement = document.getElementById('totalStock');
     const totalVendidosElement = document.getElementById('totalVendidos');
@@ -134,15 +135,5 @@ function toggleMenu() {
 
 // Estos dos listeners aseguran que `cargarDashboard` se ejecute cuando la página esté lista
 // (DOMContentLoaded) o cuando se regrese a ella desde la caché del navegador (pageshow).
-// Importante: `cargarDashboard` ahora maneja internamente la ausencia de elementos del dashboard,
-// por lo que es seguro llamarla en todas las páginas.
 window.addEventListener("pageshow", cargarDashboard);
 document.addEventListener("DOMContentLoaded", cargarDashboard);
-
-// Opcional: Funciones de sesión si las tienes aquí
-/*
-function cerrarSesion() {
-    sessionStorage.removeItem("sesionIniciada");
-    window.location.href = "login.html";
-}
-*/
