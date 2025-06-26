@@ -106,26 +106,34 @@ function toggleFechaManual() {
     document.getElementById("opcionFechaManual").style.display = mostrar ? "block" : "none";
 }
 
-
 //Formatear fecha y hora
 function obtenerFechaHoraFormateada() {
     const usarManual = document.getElementById("activarFechaManual")?.checked;
 
     if (usarManual) {
-        const fechaInput = document.getElementById("fechaVentaPersonalizada")?.value;
-        const horaInput = document.getElementById("horaVentaPersonalizada")?.value;
+        const fecha = document.getElementById("fechaVentaPersonalizada")?.value;
+        const hora = document.getElementById("horaVentaPersonalizada")?.value;
 
-        if (fechaInput) {
-            const fechaStr = horaInput ? `${fechaInput}T${horaInput}` : `${fechaInput}T00:00`;
-            const fecha = new Date(fechaStr);
-            return fecha.toISOString().slice(0, 16).replace("T", " ");
+        if (fecha) {
+            // Dividimos la fecha en partes
+            const [año, mes, día] = fecha.split("-").map(Number);
+            let horas = 0;
+            let minutos = 0;
+
+            if (hora) {
+                [horas, minutos] = hora.split(":").map(Number);
+            }
+
+            const fechaLocal = new Date(año, mes - 1, día, horas, minutos); // ← Esto es hora local
+            return fechaLocal.toLocaleString('sv-SE').replace("T", " "); // Formato: "2025-06-25 10:30"
         }
     }
 
-    // Si no se usa manual, devolver fecha actual con hora
+    // Si no se usa fecha manual, usar actual
     const ahora = new Date();
-    return ahora.toISOString().slice(0, 16).replace("T", " ");
+    return ahora.toLocaleString('sv-SE').replace("T", " ");
 }
+
 
 async function registrarVenta() {
     const clienteNombre = document.getElementById("clienteVenta").value.trim();
@@ -433,7 +441,8 @@ function crearCardVenta(venta, id) {
     card.innerHTML = `
         <div class="flex justify-between items-center mb-2">
             <h3 class="text-lg font-semibold text-purple-700">${venta.cliente}</h3>
-            <span class="card-date">🕒 ${venta.fecha}</span>
+            <span class="text-sm text-gray-500">${formatearFechaHoraBonita(venta.fecha)}</span>
+
         </div>
         <p class="text-sm text-gray-800"><strong>Productos:</strong> ${productosTexto}</p>
         <p class="text-sm text-gray-800"><strong>Total:</strong> $${venta.ingreso.toFixed(2)}</p>
@@ -1094,3 +1103,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarToast("Error grave al cargar datos 😥");
     }
 });
+
+function formatearFechaHoraBonita(fechaString) {
+    const fecha = new Date(fechaString);
+    if (isNaN(fecha)) return fechaString; // En caso de error
+
+    const opciones = {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+    };
+
+    return fecha.toLocaleString('es-MX', opciones); // Ej: "25 jun 2025, 10:00 a. m."
+}
