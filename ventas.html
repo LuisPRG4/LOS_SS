@@ -7,9 +7,11 @@
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
   <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/ventas.css"/> <!-- ¡NUEVA LÍNEA AQUÍ! -->
   <link rel="stylesheet" href="css/ayuda.css">
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css" />
+  <link rel="stylesheet" href="css/tablaVentas.css" />
 
 </head>
 <body>
@@ -63,18 +65,21 @@
 
   <button onclick="agregarProductoAVenta()">➕ Agregar Producto</button>
 
-  <table>
+  <!--TABLA-->
+  <table class="productos-venta-table"> <!-- ¡NUEVA CLASE AQUI! -->
     <thead>
-      <tr>
-        <th>Producto</th>
-        <th>Cantidad</th>
-        <th>Precio Unitario</th>
-        <th>Subtotal</th>
-        <th>Acción</th>
-      </tr>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+            <th>Acción</th>
+        </tr>
     </thead>
-    <tbody id="tablaProductosVenta"></tbody>
-  </table>
+    <tbody id="tablaProductosVenta">
+        <!-- Las filas se llenarán dinámicamente con JS -->
+    </tbody>
+</table>
 
   <p><strong>Total:</strong> $<span id="totalVenta">0.00</span></p>
 
