@@ -93,8 +93,26 @@ function obtenerFechaVenta() {
         return horaPersonalizada ? `${fechaPersonalizada}T${horaPersonalizada}:00` : `${fechaPersonalizada}T00:00:00`;
     }
 
-    // Si no, usamos la fecha y hora actuales en formato ISO
-    return new Date().toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+    
+    function obtenerFechaVenta() {
+    const usarFechaPersonalizada = document.getElementById("activarFechaManual")?.checked;
+    const fechaPersonalizada = document.getElementById("fechaVentaPersonalizada")?.value;
+    const horaPersonalizada = document.getElementById("horaVentaPersonalizada")?.value;
+
+    if (usarFechaPersonalizada && fechaPersonalizada) {
+        return horaPersonalizada ? `${fechaPersonalizada}T${horaPersonalizada}:00` : `${fechaPersonalizada}T00:00:00`;
+    }
+
+    const ahora = new Date();
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const horas = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+
+    return `${año}-${mes}-${dia}T${horas}:${minutos}:00`;
+}
+
 }
 
 // Nueva función para el toggle de fecha manual
@@ -379,58 +397,67 @@ async function mostrarVentas(filtradas) {
 
 // Function to create the HTML card for each sale in the history
 function crearCardVenta(venta, id) {
-    // Generate product text with quantity and unit of measure
-    // ¡CORRECCIÓN CRUCIAL AQUÍ! Aseguramos que venta.productos sea un array antes de usar .map()
     let productosTexto = "";
 
     try {
-    const productosVentaArray = Array.isArray(venta.productos)
-        ? venta.productos
-        : JSON.parse(venta.productos || '[]');
+        const productosVentaArray = Array.isArray(venta.productos)
+            ? venta.productos
+            : JSON.parse(venta.productos || '[]');
 
-    productosTexto = productosVentaArray.map(p => {
-        const unidad = p.unidadMedida || 'unidad(es)';
-        return `${p.nombre} x${p.cantidad} ${unidad}`;
-    }).join(", ");
+        productosTexto = productosVentaArray.map(p => {
+            const unidad = p.unidadMedida || 'unidad(es)';
+            return `${p.nombre} x${p.cantidad} ${unidad}`;
+        }).join(", ");
     } catch (e) {
-    console.warn("⚠️ Error procesando productos de la venta:", e);
-    mostrarToast("¡Elimina ese estúpido caché! 🤬🔥", "error");
-    productosTexto = "Error al cargar productos";
+        console.warn("⚠️ Error procesando productos de la venta:", e);
+        mostrarToast("¡Elimina ese estúpido caché! 🤬🔥", "error");
+        productosTexto = "Error al cargar productos";
     }
 
-    // Format the sale date and time
-    const fechaVenta = new Date(venta.fecha).toLocaleDateString('es-ES', {
+    // ✅ NUEVO bloque para manejar la fecha correctamente
+    let fechaObj;
+    try {
+        fechaObj = new Date(venta.fecha);
+        if (isNaN(fechaObj)) {
+            const [fecha, hora] = venta.fecha.split("T");
+            const [anio, mes, dia] = fecha.split("-");
+            const [horas, minutos, segundos = "00"] = (hora || "00:00").split(":");
+            fechaObj = new Date(anio, mes - 1, dia, horas, minutos, segundos);
+        }
+    } catch (e) {
+        fechaObj = new Date();
+    }
+
+    const fechaVenta = fechaObj.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
     });
-    const horaVenta = new Date(venta.fecha).toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit'
+    const horaVenta = fechaObj.toLocaleTimeString('es-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
     });
+
 
     let detallePagoHTML = '';
     let estadoPagoHTML = '';
-    let estadoClase = ''; // For applying color classes to payment status
+    let estadoClase = '';
 
     if (venta.tipoPago === "contado") {
-        // Verificación de seguridad para detallePago y metodo
         detallePagoHTML = `<p><strong>Método:</strong> ${venta.detallePago?.metodo || 'N/A'}</p>`;
-        estadoPagoHTML = `<span class="estado-pago pagado-total">(Pagado)</span>`; // Always "Pagado" for cash
-    } else { // Credit
-        // For credit sales
-        // Verificación de seguridad para detallePago y fechaVencimiento
+        estadoPagoHTML = `<span class="estado-pago pagado-total">(Pagado)</span>`;
+    } else {
         const fechaVencimiento = venta.detallePago?.fechaVencimiento || "N/A";
         detallePagoHTML = `
             <p><strong>Acreedor:</strong> ${venta.detallePago?.acreedor || "N/A"}</p>
             <p><strong>Vence:</strong> ${fechaVencimiento}</p>
         `;
 
-        // Logic to determine the color class for payment status
         switch (venta.estadoPago) {
             case 'Pendiente':
                 estadoPagoHTML = `<span class="estado-pago pendiente">(Pendiente: $${venta.montoPendiente?.toFixed(2) || '0.00'})</span>`;
-                estadoClase = 'border-red-400'; // Defines the border color for the card
+                estadoClase = 'border-red-400';
                 break;
             case 'Pagado Parcial':
                 estadoPagoHTML = `<span class="estado-pago parcial">(Parcial: $${venta.montoPendiente?.toFixed(2) || '0.00'} restantes)</span>`;
@@ -445,10 +472,9 @@ function crearCardVenta(venta, id) {
                 estadoClase = 'border-gray-300';
         }
 
-        // Highlight if the due date has passed and it's still pending
         if (venta.tipoPago === 'credito' && venta.estadoPago !== 'Pagado Total' && fechaVencimiento && new Date(fechaVencimiento) < new Date()) {
-            estadoClase = 'border-red-700 ring-2 ring-red-500'; // More striking for overdue
-            estadoPagoHTML = `<span class="estado-pago vencido">(OVERDUE: $${venta.montoPendiente?.toFixed(2) || '0.00'})</span>`; // Stronger text
+            estadoClase = 'border-red-700 ring-2 ring-red-500';
+            estadoPagoHTML = `<span class="estado-pago vencido">(OVERDUE: $${venta.montoPendiente?.toFixed(2) || '0.00'})</span>`;
         }
     }
 
@@ -470,9 +496,8 @@ function crearCardVenta(venta, id) {
             <button onclick="cargarVenta(${id})" class="btn-editar">✏️ Editar</button>
             <button onclick="revertirVenta(${id})" class="btn-revertir">↩️ Revertir</button>
             <button onclick="eliminarVentaPermanente(${id})" class="btn-eliminar">🗑 Eliminar</button>
-            ${venta.tipoPago === 'credito' && venta.montoPendiente > 0 ?
-                `<button onclick="abrirModalAbono(${id})" class="btn-abonar">💰 Abonar</button>`
-                : ''}
+            ${venta.tipoPago === 'credito' && venta.montoPendiente > 0
+                ? `<button onclick="abrirModalAbono(${id})" class="btn-abonar">💰 Abonar</button>` : ''}
         </div>
     `;
 
