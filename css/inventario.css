@@ -1,0 +1,25 @@
+/* Estilos para la cuadrícula de productos en Inventario */
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Columnas responsivas */
+    gap: 25px; /* Espacio entre las tarjetas */
+    padding: 20px 0;
+    justify-content: center; /* Centra las tarjetas si no llenan todo el ancho */
+}
+
+/* Media query para pantallas más pequeñas, apilando las tarjetas */
+@media (max-width: 768px) {
+    .productos-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+        gap: 15px; /* Menos espacio en móvil */
+    }
+}
+
+/* Estilo básico para el mensaje si no hay productos */
+.mensaje-lista {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    margin-top: 30px;
+    font-size: 1.1em;
+}

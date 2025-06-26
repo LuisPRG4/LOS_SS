@@ -1,0 +1,204 @@
+/*
+ * Estilos generales para tarjetas reutilizables en toda la aplicación (Inventario, Clientes, Mermas, etc.)
+ */
+
+.modern-card {
+    background: linear-gradient(145deg, #fffaf0, #fefefe); /* Degradado suave, casi blanco/crema */
+    border-radius: 18px; /* Bordes más redondeados */
+    padding: 25px; /* Buen padding interno */
+    margin-bottom: 20px; /* Espacio entre tarjetas */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), /* Sombra pronunciada */
+                0 0 15px rgba(255, 215, 0, 0.2); /* Sutil resplandor dorado */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease; /* Transiciones suaves */
+    border: 2px solid #f0e68c; /* Borde dorado suave */
+    display: flex; /* Usamos flexbox para la estructura interna */
+    flex-direction: column; /* Apilamos los elementos internamente */
+    justify-content: space-between; /* Espacio entre header, detalles y acciones */
+    min-height: 150px; /* Para que las tarjetas tengan un tamaño mínimo uniforme */
+}
+
+.modern-card:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2),
+                0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+/* Estilos para el encabezado de las tarjetas (ej: nombre del producto/cliente) */
+.modern-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #e0e0e0; /* Línea divisoria suave */
+    flex-wrap: wrap; /* Permite que los elementos del header se envuelvan */
+    gap: 10px; /* Espacio entre elementos del header */
+}
+
+.modern-card .card-header h3 {
+    font-size: 1.5em; /* Título principal más grande */
+    color: #5b2d90; /* Tu color púrpura principal */
+    margin: 0;
+    flex-grow: 1; /* Permite que el título crezca */
+}
+
+.modern-card .card-header .card-meta { /* Para información secundaria como fecha, categoría */
+    font-size: 0.9em;
+    color: #888;
+    white-space: nowrap; /* Evita que la información de meta se rompa en varias líneas */
+}
+
+/* Contenido principal de los detalles de la tarjeta */
+.modern-card .card-content {
+    margin-bottom: 15px;
+    flex-grow: 1; /* Permite que el contenido crezca y ocupe espacio */
+}
+
+.modern-card .card-content p {
+    margin-bottom: 8px;
+    font-size: 1em;
+    color: #333;
+    display: flex;
+    align-items: baseline;
+    line-height: 1.4;
+}
+
+.modern-card .card-content strong {
+    color: #666;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+/* Contenedor de acciones/botones en la parte inferior de la tarjeta */
+.modern-card .card-actions {
+    margin-top: auto; /* Empuja las acciones al final de la tarjeta */
+    padding-top: 15px;
+    border-top: 1px dashed #e0e0e0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Espacio entre botones */
+    justify-content: flex-start; /* Alinea los botones a la izquierda por defecto */
+}
+
+/* Estilos generales para botones dentro de las tarjetas */
+.modern-card .card-actions button {
+    padding: 8px 15px; /* Menos padding que los botones de formulario para que quepan más */
+    border: none;
+    border-radius: 8px; /* Bordes más redondeados */
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    min-width: 80px; /* Ancho mínimo para que no se vean demasiado pequeños */
+    text-align: center;
+}
+
+.modern-card .card-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Colores de ejemplo para botones dentro de tarjetas */
+.modern-card .btn-edit { background-color: #ffc107; /* Amarillo para Editar */ }
+.modern-card .btn-edit:hover { background-color: #e0a800; }
+
+.modern-card .btn-delete { background-color: #dc3545; /* Rojo para Eliminar */ }
+.modern-card .btn-delete:hover { background-color: #c82333; }
+
+.modern-card .btn-view { background-color: #17a2b8; /* Azul claro para Ver/Detalles */ }
+.modern-card .btn-view:hover { background-color: #138496; }
+
+.modern-card .btn-success { background-color: #28a745; /* Verde para Acciones Positivas */ }
+.modern-card .btn-success:hover { background-color: #218838; }
+
+.modern-card .btn-info { background-color: #6c757d; /* Gris para Información/Secundario */ }
+.modern-card .btn-info:hover { background-color: #5a6268; }
+
+
+/* Media Queries para Responsividad de Tarjetas */
+@media (max-width: 768px) {
+    .modern-card {
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+    }
+
+    .modern-card .card-header {
+        flex-direction: column; /* Apila el título y la meta */
+        align-items: flex-start;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
+    .modern-card .card-header h3 {
+        font-size: 1.3em;
+        margin-bottom: 5px;
+    }
+
+    .modern-card .card-header .card-meta {
+        font-size: 0.85em;
+    }
+
+    .modern-card .card-content p {
+        flex-direction: column; /* Apila la etiqueta y el valor */
+        align-items: flex-start;
+        margin-bottom: 8px;
+        font-size: 0.95em;
+    }
+
+    .modern-card .card-content strong {
+        margin-bottom: 3px; /* Espacio entre etiqueta y valor apilados */
+    }
+
+    .modern-card .card-actions {
+        flex-direction: column; /* Apila los botones verticalmente */
+        gap: 8px; /* Menos espacio entre botones apilados */
+    }
+
+    .modern-card .card-actions button {
+        width: 100%; /* Botones de ancho completo en móvil */
+        padding: 10px 15px;
+        font-size: 0.9em;
+        min-width: unset; /* Resetea el ancho mínimo */
+    }
+}
+
+/* Mermas */
+/* Estilos para la cuadrícula de mermas */
+.mermas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Columnas responsivas */
+    gap: 25px; /* Espacio entre las tarjetas */
+    padding: 20px 0;
+    justify-content: center; /* Centra las tarjetas si no llenan todo el ancho */
+}
+
+/* Media query para pantallas más pequeñas, apilando las tarjetas */
+@media (max-width: 768px) {
+    .mermas-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+        gap: 15px; /* Menos espacio en móvil */
+    }
+}
+
+/* Clientes */
+/* Estilos para la cuadrícula de clientes */
+.clientes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Columnas responsivas */
+    gap: 25px; /* Espacio entre las tarjetas */
+    padding: 20px 0;
+    justify-content: center; /* Centra las tarjetas si no llenan todo el ancho */
+}
+
+/* Media query para pantallas más pequeñas, apilando las tarjetas */
+@media (max-width: 768px) {
+    .clientes-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+        gap: 15px; /* Menos espacio en móvil */
+    }
+}
