@@ -1,4 +1,4 @@
-// js/mermas.js (CÓDIGO CORREGIDO)
+// js/mermas.js (CÓDIGO COMPLETO Y RECOMENDADO - MIGRADO A INDEXEDDB Y CON MODERN-CARD)
 
 // Almacenaremos las mermas en una variable local, pero su fuente principal será IndexedDB
 let mermas = []; 
@@ -6,10 +6,16 @@ let productosDisponibles = []; // Para almacenar los productos del inventario
 let editMermaId = null; // Usaremos el ID único de la merma para la edición
 
 // --- IMPORTANTE: Asegúrate de que las siguientes funciones estén disponibles globalmente desde db.js ---
-//    - obtenerTodosLosProductos()
-//    - obtenerProductoPorId(id)  <-- ESTA FUNCIÓN ES CLAVE Y DEBE VENIR DE db.js
-//    - actualizarProducto(id, producto)
-//    - abrirDB() // Para asegurar que la DB esté abierta al inicio
+//     - obtenerTodosLosProductos()
+//     - obtenerProductoPorId(id)
+//     - actualizarProducto(id, producto)
+//     - abrirDB()
+//     - agregarMermaDB(merma) // NUEVA FUNCIÓN PARA AÑADIR A MERMAS_DB EN db.js
+//     - obtenerTodasLasMermasDB() // NUEVA FUNCIÓN PARA OBTENER DESDE MERMAS_DB EN db.js
+//     - actualizarMermaDB(id, merma) // NUEVA FUNCIÓN PARA ACTUALIZAR EN MERMAS_DB EN db.js
+//     - eliminarMermaDB(id) // NUEVA FUNCIÓN PARA ELIMINAR EN MERMAS_DB EN db.js
+//     - mostrarConfirmacion(mensaje, titulo) // Para modals bonitos en lugar de confirm()
+//     - mostrarToast(mensaje, tipo) // Para notificaciones
 
 // --- Elementos del DOM ---
 const selectProductoMerma = document.getElementById("productoMerma");
@@ -18,35 +24,40 @@ const selectMotivoMerma = document.getElementById("motivoMerma");
 const inputOtroMotivo = document.getElementById("otroMotivoInput");
 const btnGuardarMerma = document.getElementById("btnGuardarMerma");
 const btnCancelarEdicionMerma = document.getElementById("btnCancelarEdicionMerma");
-const listaMermas = document.getElementById("listaMermas");
+const listaMermas = document.getElementById("listaMermas"); // Ahora un div con clase 'mermas-grid'
 const buscadorMerma = document.getElementById("buscadorMerma");
-const toastContainer = document.getElementById("toastContainer");
+// const toastContainer = document.getElementById("toastContainer"); // Asumimos que mostrarToast ya lo maneja
 
 // --- Inicialización al cargar la página ---
 document.addEventListener("DOMContentLoaded", async () => {
-    // Asegurarse de que la base de datos esté abierta ANTES de intentar obtener productos
-    await abrirDB(); // <-- Asegúrate de que esta función exista en db.js y se llame aquí.
+    try {
+        // Asegurarse de que la base de datos esté abierta ANTES de intentar obtener productos
+        await abrirDB(); 
 
-    // 1. Cargar productos en el select de mermas desde IndexedDB
-    await cargarProductosParaSelectMerma();
-    
-    // 2. Cargar historial de mermas (por ahora desde localStorage, te recomiendo migrar a IndexedDB)
-    mermas = JSON.parse(localStorage.getItem("mermas")) || [];
-    mostrarMermas(); 
+        // 1. Cargar productos en el select de mermas desde IndexedDB
+        await cargarProductosParaSelectMerma();
+        
+        // 2. Cargar historial de mermas desde IndexedDB
+        mermas = await obtenerTodasLasMermasDB(); // <-- AHORA DESDE INDEXEDDB
+        mostrarMermas(); 
 
-    // Añadir listener para el botón de guardar merma
-    btnGuardarMerma.addEventListener('click', guardarMerma);
-    btnCancelarEdicionMerma.addEventListener('click', cancelarEdicionMerma);
-    buscadorMerma.addEventListener('input', filtrarMermas);
-    selectMotivoMerma.addEventListener('change', () => {
-        if (selectMotivoMerma.value === 'Otro') {
-            inputOtroMotivo.style.display = 'block';
-            inputOtroMotivo.focus();
-        } else {
-            inputOtroMotivo.style.display = 'none';
-            inputOtroMotivo.value = '';
-        }
-    });
+        // Añadir listeners para los botones y campos
+        btnGuardarMerma.addEventListener('click', guardarMerma);
+        btnCancelarEdicionMerma.addEventListener('click', cancelarEdicionMerma);
+        buscadorMerma.addEventListener('input', filtrarMermas);
+        selectMotivoMerma.addEventListener('change', () => {
+            if (selectMotivoMerma.value === 'Otro') {
+                inputOtroMotivo.style.display = 'block';
+                inputOtroMotivo.focus();
+            } else {
+                inputOtroMotivo.style.display = 'none';
+                inputOtroMotivo.value = '';
+            }
+        });
+    } catch (error) {
+        console.error("Error al inicializar la aplicación de mermas:", error);
+        mostrarToast("Error grave al cargar datos de mermas 😥", "error");
+    }
 });
 
 // --- Funciones del Módulo de Mermas ---
@@ -56,10 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
  */
 async function cargarProductosParaSelectMerma() {
     try {
-        // Usamos la función de db.js para obtener los productos
         productosDisponibles = await obtenerTodosLosProductos(); 
-
-        // Limpiamos el select y añadimos la opción por defecto
         selectProductoMerma.innerHTML = '<option value="">Selecciona un producto</option>';
 
         if (productosDisponibles.length === 0) {
@@ -67,22 +75,20 @@ async function cargarProductosParaSelectMerma() {
             option.value = "";
             option.textContent = "No hay productos disponibles en inventario";
             selectProductoMerma.appendChild(option);
-            selectProductoMerma.disabled = true; // Deshabilita el select si no hay productos
+            selectProductoMerma.disabled = true;
             mostrarToast("No hay productos en el inventario para registrar mermas.", "info");
             return;
         }
 
-        // Llenamos el select con los productos obtenidos de IndexedDB
         productosDisponibles.forEach(producto => {
             const option = document.createElement("option");
-            option.value = producto.id; // ¡Importante! Usamos el ID de IndexedDB del producto
-            option.textContent = `${producto.nombre} (Stock: ${producto.stock ?? 0})`; // Muestra stock actual
-            // Guardamos el stock actual en un atributo de datos para validación rápida
+            option.value = producto.id; // Usamos el ID de IndexedDB del producto
+            option.textContent = `${producto.nombre} (Stock: ${producto.stock ?? 0} ${producto.unidadMedida || 'unidad(es)'})`; // Muestra stock actual y unidad
             option.dataset.stockActual = producto.stock ?? 0; 
             selectProductoMerma.appendChild(option);
         });
 
-        selectProductoMerma.disabled = false; // Asegura que el select esté habilitado
+        selectProductoMerma.disabled = false;
         console.log("Productos cargados en el select de mermas desde IndexedDB.");
 
     } catch (error) {
@@ -95,7 +101,7 @@ async function cargarProductosParaSelectMerma() {
  * Guarda una nueva merma o actualiza una existente.
  */
 async function guardarMerma() {
-    const productoId = selectProductoMerma.value; // Ahora obtenemos el ID del producto
+    const productoId = selectProductoMerma.value;
     const cantidad = parseInt(inputCantidadMerma.value);
     const motivoSeleccionado = selectMotivoMerma.value;
     const motivoPersonalizado = inputOtroMotivo.value.trim();
@@ -116,66 +122,58 @@ async function guardarMerma() {
         return mostrarToast("Por favor, especifica el otro motivo. 📝", "error");
     }
 
-    // Obtener el producto completo de IndexedDB por su ID para validar y actualizar stock
-    // **CORRECCIÓN:** Asegúrate de que obtenerProductoPorId esté globalmente disponible desde db.js
-    const productoAfectado = await obtenerProductoPorId(Number(productoId)); // <-- Aseguramos que el ID es numérico
+    const productoAfectado = await obtenerProductoPorId(Number(productoId));
 
     if (!productoAfectado) {
-        // console.error("Producto no encontrado en el inventario con ID:", productoId); // Para depuración
         return mostrarToast("Producto no encontrado en el inventario. 😢", "error");
     }
 
     // Validación de stock
     if (productoAfectado.stock < cantidad) {
-        return mostrarToast(`No hay suficiente stock (${productoAfectado.stock}) para esa merma (${cantidad}). 😢`, "error");
+        return mostrarToast(`No hay suficiente stock (${productoAfectado.stock} ${productoAfectado.unidadMedida || 'unidad(es)'}) para esa merma (${cantidad}). 😢`, "error");
     }
 
-    // Determinar el nombre del producto para la merma (para mostrar en la lista)
-    const nombreProductoMerma = productoAfectado.nombre;
-
     const mermaData = {
-        id: editMermaId || Date.now(), // Usamos Date.now() como ID temporal si es nuevo
-        productoId: productoId, // Guardamos el ID del producto (string si vino del select)
-        nombreProducto: nombreProductoMerma, // Guardamos el nombre para mostrarlo fácil en el historial
+        productoId: Number(productoId), // Aseguramos que el ID es numérico
+        nombreProducto: productoAfectado.nombre,
         cantidad: cantidad,
         motivo: motivoFinal,
-        fecha: new Date().toISOString().split("T")[0] // Formato YYYY-MM-DD
+        fecha: new Date().toISOString().slice(0, 10), // Formato YYYY-MM-DD
+        hora: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }), // Formato HH:MM
+        unidadMedida: productoAfectado.unidadMedida || 'unidad(es)' // Incluir unidad de medida
     };
 
     try {
         if (editMermaId) {
-            // Lógica para actualizar merma existente
-            const index = mermas.findIndex(m => m.id == editMermaId);
-            if (index !== -1) {
-                // Para una edición robusta:
-                // 1. Revertir el stock de la merma anterior antes de aplicar la nueva cantidad
-                const mermaAnterior = mermas[index];
-                const productoParaRevertir = await obtenerProductoPorId(Number(mermaAnterior.productoId)); // Asegura numérico
-                if (productoParaRevertir) {
-                    await actualizarProducto(productoParaRevertir.id, {
-                        ...productoParaRevertir,
-                        stock: productoParaRevertir.stock + mermaAnterior.cantidad
-                    });
+            // Edición de merma existente
+            const mermaAnterior = mermas.find(m => m.id === editMermaId); // Encontrar la merma original en el array local
+            if (mermaAnterior) {
+                // Revertir el stock del producto de la merma anterior antes de aplicar la nueva cantidad
+                const productoOriginalAlEditar = await obtenerProductoPorId(Number(mermaAnterior.productoId));
+                if (productoOriginalAlEditar) {
+                    const stockRevertido = productoOriginalAlEditar.stock + mermaAnterior.cantidad;
+                    await actualizarProducto(productoOriginalAlEditar.id, { ...productoOriginalAlEditar, stock: stockRevertido });
                 }
-                
-                mermas[index] = mermaData; // Actualiza el objeto merma en el array local
             }
+            
+            // Asignar el ID de edición a los datos de la merma para la actualización
+            mermaData.id = editMermaId; 
+            await actualizarMermaDB(editMermaId, mermaData); // Actualizar en IndexedDB
             mostrarToast("Merma actualizada ✅", "success");
         } else {
-            // Lógica para nueva merma
-            mermas.push(mermaData); // Añade al array local
+            // Nueva merma
+            await agregarMermaDB(mermaData); // Añadir a IndexedDB
             mostrarToast("Merma registrada 📉", "success");
         }
 
-        // --- Actualizar el stock del producto en IndexedDB ---
+        // --- Actualizar el stock del producto en IndexedDB (con la nueva cantidad de merma) ---
         const nuevoStock = Math.max(0, productoAfectado.stock - cantidad);
         await actualizarProducto(productoAfectado.id, { ...productoAfectado, stock: nuevoStock });
 
-        // Guardar mermas en localStorage (¡Idealmente esto también debería ir a IndexedDB!)
-        localStorage.setItem("mermas", JSON.stringify(mermas));
-
-        mostrarMermas(); // Refrescar la lista de mermas
-        limpiarFormularioMerma(); // Limpiar el formulario
+        // Recargar las mermas desde la DB y actualizar UI
+        mermas = await obtenerTodasLasMermasDB(); 
+        mostrarMermas(); 
+        limpiarFormularioMerma(); 
         await cargarProductosParaSelectMerma(); // Recargar el select para mostrar stock actualizado
     } catch (error) {
         console.error("Error al guardar/actualizar merma y stock:", error);
@@ -184,42 +182,72 @@ async function guardarMerma() {
 }
 
 /**
- * Muestra el historial de mermas.
+ * Muestra el historial de mermas en el DOM.
  * @param {Array} mermasAMostrar - La lista de mermas a renderizar (puede ser filtrada).
  */
 function mostrarMermas(mermasAMostrar = mermas) {
-    listaMermas.innerHTML = "";
+    listaMermas.innerHTML = ""; // Limpia la lista antes de volver a renderizar
 
     if (mermasAMostrar.length === 0) {
-        listaMermas.innerHTML = '<p>No hay mermas registradas.</p>';
+        listaMermas.innerHTML = `<p class="mensaje-lista">No hay mermas registradas.</p>`;
         return;
     }
 
-    mermasAMostrar.forEach(merma => {
-        const li = document.createElement("li");
-        li.className = "merma-card"; // Usa una clase específica para mermas
-        li.innerHTML = `
-            <div>
-                <strong>Producto:</strong> ${merma.nombreProducto}<br>
-                <strong>Cantidad:</strong> ${merma.cantidad} <br>
-                <strong>Motivo:</strong> ${merma.motivo} <br>
-                <strong>Fecha:</strong> ${merma.fecha}
-            </div>
-            <div class="merma-acciones">
-                <button onclick="editarMerma('${merma.id}')" class="boton-editar">✏️ Editar</button>
-                <button onclick="eliminarMerma('${merma.id}')" class="boton-eliminar">🗑️ Eliminar</button>
-            </div>
-        `;
-        listaMermas.appendChild(li);
+    // Ordenar mermas por fecha más reciente primero
+    mermasAMostrar.sort((a, b) => {
+        // Combinar fecha y hora para una ordenación precisa si ambos existen
+        const dateTimeA = a.fecha + (a.hora ? `T${a.hora}` : '');
+        const dateTimeB = b.fecha + (b.hora ? `T${b.hora}` : '');
+        return new Date(dateTimeB) - new Date(dateTimeA);
+    });
+
+    mermasAMostrar.forEach((merma) => {
+        const card = crearCardMerma(merma); // Llama a la nueva función crearCardMerma
+        listaMermas.appendChild(card);
     });
 }
+
+/**
+ * Función para crear la tarjeta HTML de una merma con el estilo "modern-card"
+ */
+function crearCardMerma(merma) {
+    const card = document.createElement("div");
+    card.className = "modern-card"; // Aplica la clase general de tarjeta
+
+    // Formatear la fecha para que se vea bien
+    const fechaMerma = new Date(merma.fecha).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    // La hora se guarda por separado en 'merma.hora'
+    const horaMerma = merma.hora || 'N/D'; 
+
+    card.innerHTML = `
+        <div class="card-header">
+            <h3 title="${merma.nombreProducto}">${merma.nombreProducto}</h3>
+            <span class="card-meta">Fecha: ${fechaMerma}</span>
+        </div>
+        <div class="card-content">
+            <p><strong>Cantidad:</strong> ${merma.cantidad} ${merma.unidadMedida || 'unidad(es)'}</p>
+            <p><strong>Motivo:</strong> ${merma.motivo}</p>
+            <p><strong>Hora:</strong> ${horaMerma}</p>
+        </div>
+        <div class="card-actions">
+            <button onclick="editarMerma(${merma.id})" class="btn-edit">✏️ Editar</button>
+            <button onclick="eliminarMerma(${merma.id})" class="btn-delete">🗑️ Eliminar</button>
+        </div>
+    `;
+    return card;
+}
+
 
 /**
  * Carga los datos de una merma para su edición.
  * Ahora usa el ID de la merma, no el índice.
  */
 async function editarMerma(idMerma) {
-    const merma = mermas.find(m => m.id == idMerma);
+    const merma = mermas.find(m => m.id === idMerma); // Asegúrate de comparar con === para tipo
     if (!merma) {
         mostrarToast("Merma no encontrada para editar.", "error");
         return;
@@ -227,8 +255,7 @@ async function editarMerma(idMerma) {
 
     editMermaId = merma.id; // Guarda el ID de la merma que se está editando
 
-    // Cargar el producto en el select
-    // Esto asegura que el select se seleccione correctamente incluso si los productos se recargaron
+    // Cargar el producto en el select (necesitamos cargarlos todos primero)
     await cargarProductosParaSelectMerma(); 
     selectProductoMerma.value = merma.productoId; // Selecciona el producto correcto por su ID
     
@@ -238,7 +265,7 @@ async function editarMerma(idMerma) {
     const otroMotivoInput = document.getElementById("otroMotivoInput");
 
     // Verificar si el motivo es uno de los predefinidos
-    const predefinedMotives = ["Vencido", "Dañado", "Roto"];
+    const predefinedMotives = ["Vencido", "Dañado", "Roto"]; // Asegúrate de que esto coincide con tus <option>
     if (predefinedMotives.includes(merma.motivo)) {
         motivoSelect.value = merma.motivo;
         otroMotivoInput.style.display = "none";
@@ -273,34 +300,41 @@ function cancelarEdicionMerma() {
  * Elimina una merma y revierte el stock del producto.
  */
 async function eliminarMerma(idMerma) {
-    if (!confirm("¿Estás seguro de eliminar esta merma? El stock del producto será revertido.")) {
+    const confirmacion = await mostrarConfirmacion(
+        "¿Estás seguro de eliminar esta merma? El stock del producto será revertido.",
+        "Eliminar Merma"
+    );
+
+    if (!confirmacion) {
+        mostrarToast("Eliminación cancelada.", "info");
         return;
     }
 
     try {
-        const mermaAEliminar = mermas.find(m => m.id == idMerma);
+        const mermaAEliminar = mermas.find(m => m.id === idMerma); // Buscar por ID
         if (!mermaAEliminar) {
             mostrarToast("Merma no encontrada para eliminar.", "error");
             return;
         }
 
         // Revertir el stock del producto
-        const productoOriginal = await obtenerProductoPorId(Number(mermaAEliminar.productoId)); // Asegura numérico
+        const productoOriginal = await obtenerProductoPorId(Number(mermaAEliminar.productoId)); 
         if (productoOriginal) {
             const nuevoStock = productoOriginal.stock + mermaAEliminar.cantidad;
             await actualizarProducto(productoOriginal.id, { ...productoOriginal, stock: nuevoStock });
             await cargarProductosParaSelectMerma(); // Recargar el select para reflejar el stock revertido
         }
 
-        // Eliminar la merma del array local
-        mermas = mermas.filter(m => m.id != idMerma);
-        localStorage.setItem("mermas", JSON.stringify(mermas)); // Actualizar localStorage
+        // Eliminar la merma de IndexedDB
+        await eliminarMermaDB(idMerma); // USAR ELIMINARMERMADB DE db.js
 
+        // Recargar mermas desde la DB y actualizar UI
+        mermas = await obtenerTodasLasMermasDB(); 
         mostrarMermas();
         mostrarToast("Merma eliminada y stock revertido ✅", "success");
     } catch (error) {
         console.error("Error al eliminar merma o revertir stock:", error);
-        mostrarToast("Hubo un error al eliminar la merma.", "error");
+        mostrarToast("Hubo un error al eliminar la merma. 😔", "error");
     }
 }
 
@@ -312,34 +346,13 @@ function filtrarMermas() {
     const mermasFiltradas = mermas.filter(merma => 
         merma.nombreProducto.toLowerCase().includes(textoBusqueda) ||
         merma.motivo.toLowerCase().includes(textoBusqueda) ||
-        (merma.otroMotivo && merma.otroMotivo.toLowerCase().includes(textoBusqueda))
+        (merma.otroMotivo && merma.otroMotivo.toLowerCase().includes(textoBusqueda)) ||
+        merma.fecha.includes(textoBusqueda) // Permitir buscar por fecha
     );
     mostrarMermas(mermasFiltradas);
 }
 
 // --- Funciones de Utilidad ---
-
-/**
- * Muestra mensajes de notificación (toast).
- * @param {string} mensaje - El mensaje a mostrar.
- * @param {string} tipo - El tipo de mensaje (e.g., 'success', 'error', 'info').
- */
-function mostrarToast(mensaje, tipo = 'info') {
-    if (!toastContainer) {
-        console.warn("toastContainer no encontrado. No se puede mostrar el toast.");
-        return;
-    }
-    const toast = document.createElement("div");
-    toast.className = `toast ${tipo}`; 
-    toast.textContent = mensaje;
-    toastContainer.appendChild(toast);
-
-    setTimeout(() => toast.classList.add("show"), 100);
-    setTimeout(() => {
-        toast.classList.remove("show");
-        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-    }, 3000);
-}
 
 /**
  * Limpia el formulario de registro de mermas.
@@ -363,46 +376,99 @@ function toggleOpcionesExport() {
     opciones.style.display = opciones.style.display === "none" ? "block" : "none";
 }
 
-// --- Funciones de exportación (ejemplos, requieren librerías externas) ---
-// Mantenemos estas funciones como estaban, ya que no dependen directamente de la DB
-function exportarMermasExcel() {
-    mostrarToast("Funcionalidad de exportar a Excel en desarrollo...", "info");
-    let tabla = [["Producto", "Cantidad", "Motivo", "Fecha"]];
-    mermas.forEach(m => tabla.push([m.nombreProducto, m.cantidad, m.motivo, m.fecha])); // Usar nombreProducto
+// --- Funciones de exportación (requieren librerías como jsPDF y SheetJS) ---
+// Asegúrate de tener estas librerías cargadas en tu HTML (ejemplo en mermas.html):
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.autotable.min.js"></script>
 
-    let csv = tabla.map(fila => fila.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" }); // Añadir charset
-    const url = URL.createObjectURL(blob);
+async function exportarMermasExcel() {
+    try {
+        const mermasData = await obtenerTodasLasMermasDB();
+        if (mermasData.length === 0) {
+            mostrarToast("No hay mermas para exportar a Excel.", "info");
+            return;
+        }
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "mermas.csv";
-    document.body.appendChild(a); // Es buena práctica añadirlo al DOM antes de hacer click
-    a.click();
-    document.body.removeChild(a); // Limpiar después de la descarga
-    URL.revokeObjectURL(url); // Liberar la URL del objeto
+        const dataForExcel = mermasData.map(m => ({
+            "Producto": m.nombreProducto,
+            "Cantidad": m.cantidad,
+            "Unidad de Medida": m.unidadMedida || 'unidad(es)',
+            "Motivo": m.motivo,
+            "Fecha": m.fecha,
+            "Hora": m.hora
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(dataForExcel);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Mermas");
+        
+        const fecha = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, `Reporte_Mermas_${fecha}.xlsx`);
+        mostrarToast("📊 Mermas exportadas a Excel con éxito!", "success");
+    } catch (error) {
+        console.error("Error al exportar mermas a Excel:", error);
+        mostrarToast("Error al exportar mermas a Excel. 😔", "error");
+    }
 }
 
-function exportarMermasPDF() {
-    mostrarToast("Funcionalidad de exportar a PDF en desarrollo...", "info");
-    const ventana = window.open("", "_blank");
-    ventana.document.write("<!DOCTYPE html><html lang='es'><head><title>Historial de Mermas</title>");
-    ventana.document.write("<style>table {width:100%; border-collapse:collapse;} th, td {border:1px solid black; padding: 8px; text-align: left;}</style>");
-    ventana.document.write("</head><body><h1>Historial de Mermas</h1>");
-    ventana.document.write("<table>");
-    ventana.document.write("<tr><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>");
+async function exportarMermasPDF() {
+    try {
+        const mermasData = await obtenerTodasLasMermasDB();
+        if (mermasData.length === 0) {
+            mostrarToast("No hay mermas para exportar a PDF.", "info");
+            return;
+        }
 
-    mermas.forEach(m => {
-        ventana.document.write(`<tr>
-            <td>${m.nombreProducto}</td>
-            <td>${m.cantidad}</td>
-            <td>${m.motivo}</td>
-            <td>${m.fecha}</td>
-        </tr>`);
-    });
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFontSize(18);
+        doc.text("Reporte de Mermas", doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text(`Fecha de Reporte: ${new Date().toLocaleString()}`, doc.internal.pageSize.getWidth() / 2, 30, { align: 'center' });
 
-    ventana.document.write("</table></body></html>");
-    ventana.document.close(); // Cierra el flujo de escritura
-    ventana.print();
-    // ventana.close(); // Comentar o usar con precaución, algunos navegadores bloquean el cierre automático
+        const tableColumn = ["Producto", "Cantidad", "Unidad", "Motivo", "Fecha", "Hora"];
+        const tableRows = mermasData.map(m => [
+            m.nombreProducto,
+            m.cantidad,
+            m.unidadMedida || 'unidad(es)',
+            m.motivo,
+            m.fecha,
+            m.hora
+        ]);
+
+        doc.autoTable({
+            startY: 40,
+            head: [tableColumn],
+            body: tableRows,
+            theme: 'striped',
+            styles: { fontSize: 8, cellPadding: 2 },
+            headStyles: { fillColor: [218, 165, 32], textColor: [255, 255, 255], fontStyle: 'bold' },
+            didDrawPage: function (data) {
+                let str = "Página " + doc.internal.getNumberOfPages();
+                doc.setFontSize(10);
+                doc.text(str, doc.internal.pageSize.getWidth() - 10, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
+            }
+        });
+
+        const fecha = new Date().toISOString().slice(0, 10);
+        doc.save(`Reporte_Mermas_${fecha}.pdf`);
+        mostrarToast("📄 Mermas exportadas a PDF con éxito!", "success");
+
+    } catch (error) {
+        console.error("Error al exportar mermas a PDF:", error);
+        mostrarToast("Error al exportar mermas a PDF. 😔", "error");
+    }
+}
+
+// Asegurarse de que mostrarConfirmacion esté disponible (asumiendo que está en db.js o en un archivo global)
+// Si no la tienes definida, puedes añadir una versión básica aquí:
+if (typeof mostrarConfirmacion !== 'function') {
+    window.mostrarConfirmacion = async (message, title = "Confirmar") => {
+        return new Promise(resolve => {
+            const result = confirm(`${title}\n\n${message}`); // Fallback to native confirm
+            resolve(result);
+        });
+    };
 }
