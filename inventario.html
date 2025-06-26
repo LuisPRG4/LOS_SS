@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/ayuda.css" />
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/cards-general.css"/>
 
 </head>
 <body>
@@ -47,6 +48,25 @@
       <h2>➕ Agregar / Editar Producto</h2>
         <label>Producto:</label>
       <input type="text" id="nombre" placeholder="Nombre del producto" />
+
+            <label>Categoría:</label> <!-- ¡NUEVO CAMPO DE CATEGORÍA! -->
+          <select id="categoriaProducto">
+            <option value="">Selecciona una categoría</option>
+            <option value="Lácteos">Lácteos</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Snacks">Snacks</option>
+            <option value="Cereales">Cereales</option>
+            <option value="Carnes">Carnes</option>
+            <option value="Vegetales">Vegetales</option>
+            <option value="Frutas">Frutas</option>
+            <option value="Limpieza">Limpieza</option>
+            <option value="Panadería">Panadería</option>
+            <option value="Abarrotes">Abarrotes</option>
+            <option value="Congelados">Congelados</option>
+            <option value="Refrigerados">Refrigerados</option>
+            <option value="Otros">Otros</option>
+          </select>
+
         <label>Ingresa el stock:</label>
       <input type="number" id="stock" placeholder="Stock" />
 
@@ -55,6 +75,7 @@
           <option value="unidad">Selecciona</option>
          <option value="unidad">Unidad(es)</option>
          <option value="kg">Kilogramo(s)</option>
+         <option value="kg">Gramo(s)</option>
          <option value="litro">Litro(s)</option>
          <option value="metro">Metro(s)</option>
          <option value="pack">Paquete(s)</option>
@@ -96,9 +117,11 @@
 
     <section>
       <h2>📃 Lista de Productos</h2>
-      <ul id="listaProductos"></ul>
+      <!-- Cambiado de <ul> a <div> y añadida clase para layout de cuadrícula -->
+      <div id="listaProductos" class="productos-grid"></div>
     </section>
 
+    <!-- Ayuda contextual para Inventario -->
   <section id="ayuda">
     <div class="h2title"> 
       <h2>🧃 Módulo Inventario</h2>
@@ -138,6 +161,7 @@
   <div id="respuestaChatbot" style="margin-top: 10px;"></div>
 </div>
 
+
 <!-- Mini menú lateral con botón de flechita -->
 <div id="miniMenuLateral" class="expandido">
   <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
@@ -145,12 +169,14 @@
   <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
 </div>
 
+
   </main>
 
   <script src="js/db.js"></script>
   <script src="js/inventario.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
   <script src="js/chatbot-ayuda.js"></script>
+
 
     <script>
       function toggleMenu() {
@@ -164,6 +190,7 @@
   }
 </script>
 
+<!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
 <script>
   function mostrarAyuda() {
     const ayuda = document.getElementById("ayuda");
@@ -174,6 +201,22 @@
   document.getElementById("cerrarAyuda").addEventListener("click", () => {
     document.getElementById("ayuda").classList.remove("visible");
   });
+</script>
+
+<!-- SERVICE WORKER-->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Fallo el registro del Service Worker:', error);
+        });
+    });
+  }
 </script>
 
 </body>
