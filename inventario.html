@@ -50,6 +50,18 @@
         <label>Ingresa el stock:</label>
       <input type="number" id="stock" placeholder="Stock" />
 
+      <label>Unidad de Medida:</label> <!-- ¡NUEVO CAMPO! -->
+        <select id="unidadMedida">
+          <option value="unidad">Selecciona</option>
+         <option value="unidad">Unidad(es)</option>
+         <option value="kg">Kilogramo(s)</option>
+         <option value="litro">Litro(s)</option>
+         <option value="metro">Metro(s)</option>
+         <option value="pack">Paquete(s)</option>
+         <option value="caja">Caja(s)</option>
+         <option value="pieza">Pieza(s)</option>
+        </select>
+
         <label>Stock mínimo (opcional):</label>
       <input type="number" id="stockMin" placeholder="Mínimo permitido" />
 
@@ -87,7 +99,6 @@
       <ul id="listaProductos"></ul>
     </section>
 
-    <!-- Ayuda contextual para Inventario -->
   <section id="ayuda">
     <div class="h2title"> 
       <h2>🧃 Módulo Inventario</h2>
@@ -127,7 +138,6 @@
   <div id="respuestaChatbot" style="margin-top: 10px;"></div>
 </div>
 
-
 <!-- Mini menú lateral con botón de flechita -->
 <div id="miniMenuLateral" class="expandido">
   <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
@@ -135,14 +145,12 @@
   <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
 </div>
 
-
   </main>
 
   <script src="js/db.js"></script>
   <script src="js/inventario.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
   <script src="js/chatbot-ayuda.js"></script>
-
 
     <script>
       function toggleMenu() {
@@ -156,7 +164,6 @@
   }
 </script>
 
-<!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
 <script>
   function mostrarAyuda() {
     const ayuda = document.getElementById("ayuda");
@@ -167,22 +174,6 @@
   document.getElementById("cerrarAyuda").addEventListener("click", () => {
     document.getElementById("ayuda").classList.remove("visible");
   });
-</script>
-
-<!-- SERVICE WORKER-->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
-      navigator.serviceWorker.register('sw.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
-        })
-        .catch(error => {
-          console.error('Fallo el registro del Service Worker:', error);
-        });
-    });
-  }
 </script>
 
 </body>
