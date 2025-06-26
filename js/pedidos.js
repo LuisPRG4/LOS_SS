@@ -1,10 +1,11 @@
-// pedidos.js
+// js/pedidos.js
 
-// Importar funciones de db.js (asegúrate de que db.js esté cargado antes en el HTML)
-// No es necesario "import" si db.js ya está incluido como un script normal antes de este.
-// Las funciones de db.js son globales porque no están dentro de un módulo ES.
+// Las funciones de db.js son globales y se asume que están cargadas antes de este script.
+// (e.g., abrirDB, obtenerTodosLosProductos, obtenerProductoPorId, actualizarProducto,
+// agregarPedidoDB, obtenerTodosLosPedidosDB, actualizarPedidoDB, eliminarPedidoDB,
+// limpiarTodosLosPedidosDB, mostrarToast, mostrarConfirmacion)
 
-let editPedidoId = null; // Cambiamos de index a ID para edición
+let editPedidoId = null; // Mantiene el ID del pedido en modo edición
 
 // Arrays temporales para almacenar datos de IndexedDB en memoria para fácil acceso.
 // Se cargarán al inicio.
@@ -12,20 +13,8 @@ let pedidos = [];
 let productos = [];
 let clientes = [];
 
-// Función para mostrar toast (notificación) - ya la tenías
-function mostrarToast(mensaje) {
-    const toastContainer = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.textContent = mensaje;
-    toastContainer.appendChild(toast);
-
-    setTimeout(() => toast.classList.add("show"), 100);
-    setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 400);
-    }, 3000);
-}
+// --- Función mostrarToast ELIMINADA de aquí, se usa la global de db.js ---
+// function mostrarToast(mensaje) { ... } // ¡Esta función ya no debería estar aquí!
 
 // Cargar productos para el <select> de productos desde IndexedDB
 async function cargarProductosSelect() {
@@ -37,15 +26,15 @@ async function cargarProductosSelect() {
             productos.forEach(p => {
                 let option = document.createElement("option");
                 option.value = p.id; // Usamos el ID del producto como valor
-                option.textContent = `${p.nombre} (Stock: ${p.stock})`;
+                option.textContent = `${p.nombre} (Stock: ${p.stock} ${p.unidadMedida || 'unidad(es)'})`;
                 select.appendChild(option);
             });
         } else {
-            mostrarToast("No hay productos en el inventario. Agrega productos primero. 🚫");
+            mostrarToast("No hay productos en el inventario. Agrega productos primero. 🚫", "info");
         }
     } catch (error) {
         console.error("Error al cargar productos:", error);
-        mostrarToast("Error al cargar productos. 😔");
+        mostrarToast("Error al cargar productos. 😔", "error");
     }
 }
 
@@ -62,7 +51,7 @@ async function cargarClientesDatalist() {
         });
     } catch (error) {
         console.error("Error al cargar clientes:", error);
-        mostrarToast("Error al cargar clientes. 😔");
+        mostrarToast("Error al cargar clientes. 😔", "error");
     }
 }
 
@@ -83,7 +72,7 @@ async function agregarPedido() {
     const cantidad = parseInt(document.getElementById("cantidad").value);
 
     if (!clienteNombre || isNaN(productoId) || isNaN(cantidad) || cantidad <= 0) {
-        mostrarToast("Completa todos los campos correctamente ⚠️");
+        mostrarToast("Completa todos los campos correctamente ⚠️", "error");
         return;
     }
 
@@ -91,12 +80,12 @@ async function agregarPedido() {
     try {
         productoSeleccionado = await obtenerProductoPorId(productoId); // Obtener producto por su ID
         if (!productoSeleccionado) {
-            mostrarToast("Producto no encontrado en el inventario. 😢");
+            mostrarToast("Producto no encontrado en el inventario. 😢", "error");
             return;
         }
     } catch (error) {
         console.error("Error al obtener producto por ID:", error);
-        mostrarToast("Error al procesar el producto. 😔");
+        mostrarToast("Error al procesar el producto. 😔", "error");
         return;
     }
 
@@ -104,10 +93,7 @@ async function agregarPedido() {
     let clienteExistente = clientes.find(c => c.nombre === clienteNombre);
     if (!clienteExistente) {
         // Podríamos preguntar al usuario si desea agregar este nuevo cliente
-        // Por ahora, asumimos que se usará un cliente existente o uno que se agregará en el módulo de clientes
-        // Si no existe, podemos crear un cliente "temporal" o mostrar un error.
-        // Para este ejercicio, mostraremos un toast si no existe y no lo agregamos automáticamente.
-        mostrarToast(`Cliente "${clienteNombre}" no encontrado. Considera agregarlo en el módulo de Clientes. 🤔`);
+        mostrarToast(`Cliente "${clienteNombre}" no encontrado. Considera agregarlo en el módulo de Clientes. 🤔`, "info");
         // Opcionalmente: return; si el cliente debe existir previamente
     }
 
@@ -117,49 +103,51 @@ async function agregarPedido() {
         // Modo edición
         const pedidoAnterior = pedidos.find(p => p.id === editPedidoId);
         if (!pedidoAnterior) {
-            mostrarToast("Error: Pedido anterior no encontrado para edición. 😢");
+            mostrarToast("Error: Pedido anterior no encontrado para edición. 😢", "error");
             return;
         }
 
-        // Restaurar stock del pedido anterior antes de calcular el nuevo
+        // Restaurar stock del producto original del pedido anterior
         let productoAnterior;
         try {
-            productoAnterior = await obtenerProductoPorId(pedidoAnterior.productoId); // Usar ID
+            productoAnterior = await obtenerProductoPorId(pedidoAnterior.productoId);
             if (productoAnterior) {
-                productoAnterior.stock += pedidoAnterior.cantidad; // Revertir stock
-                await actualizarProducto(productoAnterior.id, productoAnterior); // Guardar en DB
+                productoAnterior.stock += pedidoAnterior.cantidad; // Revertir stock original
+                await actualizarProducto(productoAnterior.id, productoAnterior);
+                // Actualizar la lista global de productos para reflejar el stock revertido
+                productos = await obtenerTodosLosProductos(); 
             }
         } catch (error) {
             console.error("Error al revertir stock de producto anterior:", error);
-            mostrarToast("Error al revertir stock del pedido anterior. 😔");
+            mostrarToast("Error al revertir stock del pedido anterior. 😔", "error");
             return;
         }
 
-        // Verificar stock disponible para el NUEVO pedido
-        if (productoSeleccionado.id === productoAnterior.id) {
-            // Si es el mismo producto, el stock disponible ya incluye el stock revertido
-            if (productoSeleccionado.stock < cantidad) { // Comparar con el stock ya ajustado
-                 mostrarToast(`No hay suficiente stock (${productoSeleccionado.stock}) para la cantidad solicitada (${cantidad}) 😢`);
-                 // Si el stock no es suficiente, necesitamos revertir el stock de nuevo
-                 productoAnterior.stock -= pedidoAnterior.cantidad; // Re-descontar lo que habíamos revertido
-                 await actualizarProducto(productoAnterior.id, productoAnterior);
-                 return;
+        // Verificar stock disponible para el NUEVO pedido con el stock actualizado
+        // Es importante re-obtener el producto seleccionado si su stock pudo haber sido afectado
+        // por la reversión del producto anterior (en caso de que sea el mismo producto).
+        const productoActualizado = await obtenerProductoPorId(productoSeleccionado.id);
+
+        if (productoActualizado.stock < cantidad) {
+            mostrarToast(`No hay suficiente stock (${productoActualizado.stock} ${productoActualizado.unidadMedida || 'unidad(es)'}) para la cantidad solicitada (${cantidad}) 😢`, "error");
+            // Si el stock no es suficiente, revertimos el stock del producto afectado por este intento de edición
+            if(productoAnterior && productoAnterior.id === productoActualizado.id) {
+                // Si es el mismo producto, necesitamos volver a descontar el stock revertido
+                productoActualizado.stock -= pedidoAnterior.cantidad;
+                await actualizarProducto(productoActualizado.id, productoActualizado);
             }
-        } else {
-            // Si se cambió el producto, el stock de productoSeleccionado NO incluye el revertido
-            if (productoSeleccionado.stock < cantidad) {
-                mostrarToast(`No hay suficiente stock (${productoSeleccionado.stock}) para la cantidad solicitada (${cantidad}) 😢`);
-                return;
-            }
+            return;
         }
 
         // Descontar stock para el nuevo pedido
-        productoSeleccionado.stock -= cantidad;
+        productoActualizado.stock -= cantidad;
         try {
-            await actualizarProducto(productoSeleccionado.id, productoSeleccionado); // Guardar en DB
+            await actualizarProducto(productoActualizado.id, productoActualizado);
+            // Actualizar la lista global de productos
+            productos = await obtenerTodosLosProductos();
         } catch (error) {
             console.error("Error al actualizar stock de producto:", error);
-            mostrarToast("Error al actualizar stock del producto. 😔");
+            mostrarToast("Error al actualizar stock del producto. 😔", "error");
             return;
         }
 
@@ -167,19 +155,19 @@ async function agregarPedido() {
         const pedidoActualizado = {
             id: editPedidoId, // Mantenemos el mismo ID
             cliente: clienteNombre,
-            producto: productoSeleccionado.nombre, // Guardamos el nombre para mostrar
-            productoId: productoSeleccionado.id, // Guardamos el ID para futuras referencias
+            producto: productoActualizado.nombre, // Usar el nombre del producto actualizado
+            productoId: productoActualizado.id, // Guardamos el ID para futuras referencias
             cantidad,
             precioUnitario: precioUnitarioProducto,
             total: precioUnitarioProducto * cantidad,
-            estado: pedidoAnterior.estado || "Pendiente" // Mantiene el estado anterior si existe
+            estado: pedidoAnterior.estado // Mantiene el estado anterior
         };
         try {
             await actualizarPedidoDB(editPedidoId, pedidoActualizado);
-            mostrarToast("Pedido actualizado ✏️");
+            mostrarToast("Pedido actualizado ✏️", "success");
         } catch (error) {
             console.error("Error al actualizar pedido en DB:", error);
-            mostrarToast("Error al actualizar el pedido. 😔");
+            mostrarToast("Error al actualizar el pedido. 😔", "error");
             return;
         }
 
@@ -189,16 +177,18 @@ async function agregarPedido() {
     } else {
         // Modo nuevo pedido
         if (productoSeleccionado.stock < cantidad) {
-            mostrarToast(`No hay suficiente stock (${productoSeleccionado.stock}) para la cantidad solicitada (${cantidad}) 😢`);
+            mostrarToast(`No hay suficiente stock (${productoSeleccionado.stock} ${productoSeleccionado.unidadMedida || 'unidad(es)'}) para la cantidad solicitada (${cantidad}) 😢`, "error");
             return;
         }
 
         productoSeleccionado.stock -= cantidad;
         try {
-            await actualizarProducto(productoSeleccionado.id, productoSeleccionado); // Guardar en DB
+            await actualizarProducto(productoSeleccionado.id, productoSeleccionado);
+            // Actualizar la lista global de productos
+            productos = await obtenerTodosLosProductos();
         } catch (error) {
             console.error("Error al actualizar stock de producto:", error);
-            mostrarToast("Error al actualizar stock del producto. 😔");
+            mostrarToast("Error al actualizar stock del producto. 😔", "error");
             return;
         }
 
@@ -213,10 +203,10 @@ async function agregarPedido() {
         };
         try {
             await agregarPedidoDB(nuevoPedido);
-            mostrarToast("Pedido agregado y stock actualizado 🧾");
+            mostrarToast("Pedido agregado y stock actualizado 🧾", "success");
         } catch (error) {
             console.error("Error al agregar pedido en DB:", error);
-            mostrarToast("Error al agregar el pedido. 😔");
+            mostrarToast("Error al agregar el pedido. 😔", "error");
             return;
         }
     }
@@ -226,65 +216,71 @@ async function agregarPedido() {
 }
 
 // Eliminar pedido y revertir stock solo si NO está entregado
-async function eliminarPedido(id) { // Ahora recibe ID, no index
+async function eliminarPedido(id) { 
     const pedido = pedidos.find(p => p.id === id);
     if (!pedido) {
-        mostrarToast("Pedido no encontrado para eliminar. ❌");
+        mostrarToast("Pedido no encontrado para eliminar. ❌", "error");
         return;
     }
 
-    if (confirm(`¿Seguro que quieres eliminar el pedido de ${pedido.cliente} para ${pedido.producto}?`)) {
+    // Usar mostrarConfirmacion en lugar de confirm() nativo
+    const confirmacion = await mostrarConfirmacion(
+        `¿Seguro que quieres eliminar el pedido de ${pedido.cliente} para ${pedido.producto}?`,
+        "Eliminar Pedido"
+    );
+
+    if (confirmacion) {
         if (pedido.estado !== "Entregado") {
             try {
-                let productoEncontrado = await obtenerProductoPorId(pedido.productoId); // Usar ID
+                let productoEncontrado = await obtenerProductoPorId(pedido.productoId); 
                 if (productoEncontrado) {
                     productoEncontrado.stock += pedido.cantidad;
-                    await actualizarProducto(productoEncontrado.id, productoEncontrado); // Guardar en DB
-                    mostrarToast("Stock del producto revertido. ✅");
+                    await actualizarProducto(productoEncontrado.id, productoEncontrado); 
+                    productos = await obtenerTodosLosProductos(); // Recargar productos para actualizar stock visual
+                    mostrarToast("Stock del producto revertido. ✅", "info");
                 }
             } catch (error) {
                 console.error("Error al revertir stock al eliminar pedido:", error);
-                mostrarToast("Error al revertir stock. 😔");
+                mostrarToast("Error al revertir stock. 😔", "error");
             }
         }
 
         try {
             await eliminarPedidoDB(id); // Eliminar de IndexedDB
-            mostrarToast("Pedido eliminado" + (pedido.estado !== "Entregado" ? " y stock revertido ❌" : " ❌"));
+            mostrarToast("Pedido eliminado" + (pedido.estado !== "Entregado" ? " y stock revertido ❌" : " ❌"), "success");
         } catch (error) {
             console.error("Error al eliminar pedido en DB:", error);
-            mostrarToast("Error al eliminar el pedido. 😔");
+            mostrarToast("Error al eliminar el pedido. 😔", "error");
             return;
         }
         await mostrarPedidos(); // Refrescar lista de pedidos
+    } else {
+        mostrarToast("Eliminación de pedido cancelada.", "info");
     }
 }
 
 // Editar pedido: rellena formulario, cambia botones, y sube scroll
-async function editarPedido(id) { // Ahora recibe ID, no index
+async function editarPedido(id) { 
     const pedido = pedidos.find(p => p.id === id);
     if (!pedido) {
-        mostrarToast("Pedido no encontrado para edición. 😢");
+        mostrarToast("Pedido no encontrado para edición. 😢", "error");
         return;
     }
 
     document.getElementById("cliente").value = pedido.cliente;
     document.getElementById("cantidad").value = pedido.cantidad;
 
-    // Seleccionar el producto correcto en el select
-    // Necesitamos que el <select> tenga las opciones cargadas con los IDs de los productos
     const selectProducto = document.getElementById("producto");
-    selectProducto.value = pedido.productoId; // Asigna el ID del producto
+    selectProducto.value = pedido.productoId; 
 
     // Actualizar el precio unitario y total al cargar el pedido
     document.getElementById("precioUnitario").value = (pedido.precioUnitario * pedido.cantidad).toFixed(2);
-    document.getElementById("precioUnitario").setAttribute('readonly', true); // Bloquear edición
+    document.getElementById("precioUnitario").setAttribute('readonly', true); 
 
     editPedidoId = id; // Guardamos el ID del pedido que estamos editando
     document.getElementById("btnAgregarPedido").textContent = "Actualizar Pedido";
     document.getElementById("btnCancelarEdicion").style.display = "inline-block";
 
-    // Subir el formulario suavemente
     document.querySelector('section').scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -294,87 +290,148 @@ function cancelarEdicion() {
     limpiarCampos();
     document.getElementById("btnAgregarPedido").textContent = "Agregar Pedido";
     document.getElementById("btnCancelarEdicion").style.display = "none";
-    mostrarToast("Edición cancelada ❌");
+    mostrarToast("Edición cancelada ❌", "info");
 }
 
-// Mostrar pedidos en lista desde IndexedDB
+// Función para crear la tarjeta HTML de un pedido con el estilo "modern-card"
+function crearCardPedido(pedido) {
+    const card = document.createElement("div");
+    card.className = "modern-card"; // Aplica la clase general de tarjeta
+
+    // Determinar la clase de color para el estado
+    let estadoClass = '';
+    switch (pedido.estado) {
+        case 'Pendiente':
+            estadoClass = 'text-red-600 font-bold'; // Rojo para pendiente
+            break;
+        case 'Preparado':
+            estadoClass = 'text-yellow-600 font-bold'; // Amarillo/naranja para preparado
+            break;
+        case 'Entregado':
+            estadoClass = 'text-green-600 font-bold'; // Verde para entregado
+            break;
+        default:
+            estadoClass = 'text-gray-600 font-bold'; // Gris por defecto
+    }
+
+    card.innerHTML = `
+        <div class="card-header">
+            <h3 title="Pedido de ${pedido.cliente}">Pedido de ${pedido.cliente}</h3>
+            <span class="card-meta">Total: $${pedido.total?.toFixed(2) || '0.00'}</span>
+        </div>
+        <div class="card-content">
+            <p><strong>Producto:</strong> ${pedido.producto} (${pedido.cantidad} unid.)</p>
+            <p><strong>Precio Unitario:</strong> $${pedido.precioUnitario?.toFixed(2) || '0.00'}</p>
+            <p><strong>Estado:</strong> 
+                <select class="estado-select ${estadoClass}" onchange="cambiarEstado(${pedido.id}, this.value)">
+                    <option value="Pendiente" ${pedido.estado === "Pendiente" ? "selected" : ""}>Pendiente</option>
+                    <option value="Preparado" ${pedido.estado === "Preparado" ? "selected" : ""}>Preparado</option>
+                    <option value="Entregado" ${pedido.estado === "Entregado" ? "selected" : ""}>Entregado</option>
+                </select>
+            </p>
+        </div>
+        <div class="card-actions">
+            <button onclick="editarPedido(${pedido.id})" class="btn-edit">✏️ Editar</button> 
+            <button onclick="eliminarPedido(${pedido.id})" class="btn-delete">🗑️ Eliminar</button>
+        </div>
+    `;
+    return card;
+}
+
+// Mostrar pedidos en lista desde IndexedDB (ahora usa crearCardPedido)
 async function mostrarPedidos() {
     const lista = document.getElementById("listaPedidos");
     lista.innerHTML = "";
     try {
         pedidos = await obtenerTodosLosPedidosDB(); // Obtiene todos los pedidos de IndexedDB
         if (pedidos && pedidos.length > 0) {
-            pedidos.forEach(p => {
-                const li = document.createElement("li");
-                li.className = "pedido-card";
+            // Opcional: Ordenar pedidos por estado o fecha para una mejor visualización
+            pedidos.sort((a, b) => {
+                // Priorizar pendientes > preparados > entregados
+                const estadoOrder = { "Pendiente": 1, "Preparado": 2, "Entregado": 3 };
+                return estadoOrder[a.estado] - estadoOrder[b.estado];
+            });
 
-                // Asegúrate de que los botones de editar y eliminar usen el ID
-                li.innerHTML = `
-                    <strong>${p.cliente}</strong><br>
-                    ${p.producto} x ${p.cantidad} = <strong>$${p.total.toFixed(2)}</strong>
-                    <br>
-                    Estado: 
-                    <select class="estado-select" onchange="cambiarEstado(${p.id}, this.value)">
-                        <option ${p.estado === "Pendiente" ? "selected" : ""}>Pendiente</option>
-                        <option ${p.estado === "Preparado" ? "selected" : ""}>Preparado</option>
-                        <option ${p.estado === "Entregado" ? "selected" : ""}>Entregado</option>
-                    </select>
-                    <button onclick="editarPedido(${p.id})" class="boton-editar">✏️ Editar</button> 
-                    <button onclick="eliminarPedido(${p.id})" class="boton-eliminar">🗑️ Eliminar</button>
-                `;
-                lista.appendChild(li);
+            pedidos.forEach(p => {
+                const card = crearCardPedido(p); // Crea la tarjeta usando la nueva función
+                lista.appendChild(card);
             });
         } else {
-            lista.innerHTML = "<p>No hay pedidos registrados.</p>";
+            lista.innerHTML = `<p class="mensaje-lista">No hay pedidos registrados.</p>`;
         }
     } catch (error) {
         console.error("Error al mostrar pedidos:", error);
-        mostrarToast("Error al mostrar la lista de pedidos. 😔");
+        mostrarToast("Error al mostrar la lista de pedidos. 😔", "error");
     }
 }
 
 // Cambiar estado del pedido
-async function cambiarEstado(id, nuevoEstado) { // Ahora recibe ID
+async function cambiarEstado(id, nuevoEstado) { 
     const pedido = pedidos.find(p => p.id === id);
     if (pedido) {
         pedido.estado = nuevoEstado;
         try {
             await actualizarPedidoDB(id, pedido); // Actualizar en IndexedDB
-            mostrarToast(`Estado actualizado a "${nuevoEstado}" 🔄`);
-            // No es necesario llamar a mostrarPedidos() de nuevo si solo actualizamos el estado,
-            // ya que la lista en memoria se actualiza y la interfaz no necesita un redibujado completo.
-            // Si el estado tiene impacto en otros datos (ej: finanzas), se manejaría en otro módulo.
+            mostrarToast(`Estado actualizado a "${nuevoEstado}" 🔄`, "info");
+            // Re-renderizar solo el estado de la tarjeta si quieres un feedback visual instantáneo del color
+            // o simplemente confía en que el onchange ya lo actualizó.
+            // Para asegurar el color del texto del estado, el select debería tener clases dinámicas
+            // que se actualicen con el nuevo estado. Esto ya lo manejamos en crearCardPedido.
+            // Una llamada a mostrarPedidos() completa aquí recargaría toda la lista, lo cual puede ser excesivo
+            // a menos que el orden de los pedidos cambie con el estado.
+            // Vamos a redibujar el pedido específico para que se actualice el color.
+            // Opción más eficiente: actualizar el elemento directamente
+            const cardElement = document.querySelector(`.modern-card .card-actions button[onclick="editarPedido(${id})"]`).closest('.modern-card');
+            if (cardElement) {
+                const estadoSelect = cardElement.querySelector('.estado-select');
+                if (estadoSelect) {
+                    estadoSelect.className = 'estado-select'; // Resetear clases
+                    let estadoClass = '';
+                    switch (nuevoEstado) {
+                        case 'Pendiente': estadoClass = 'text-red-600 font-bold'; break;
+                        case 'Preparado': estadoClass = 'text-yellow-600 font-bold'; break;
+                        case 'Entregado': estadoClass = 'text-green-600 font-bold'; break;
+                    }
+                    estadoSelect.classList.add(estadoClass);
+                }
+            }
         } catch (error) {
             console.error("Error al cambiar estado del pedido:", error);
-            mostrarToast("Error al actualizar el estado del pedido. 😔");
+            mostrarToast("Error al actualizar el estado del pedido. 😔", "error");
         }
     }
 }
 
 // Limpiar todos los pedidos de IndexedDB
 async function limpiarTodosLosPedidos() {
-    if (confirm("¿Seguro quieres borrar TODOS los pedidos? Esto no afectará el inventario.")) {
+    // Usar mostrarConfirmacion en lugar de confirm() nativo
+    const confirmacion = await mostrarConfirmacion(
+        "¿Seguro quieres borrar TODOS los pedidos? Esta acción no afectará el inventario pero es IRREVERSIBLE.",
+        "Limpiar Todos los Pedidos"
+    );
+
+    if (confirmacion) {
         try {
             await limpiarTodosLosPedidosDB(); // Función en db.js
             pedidos = []; // Limpiar el array en memoria
             mostrarPedidos(); // Actualizar la vista
-            mostrarToast("Todos los pedidos borrados sin afectar inventario 🧹");
+            mostrarToast("Todos los pedidos borrados sin afectar inventario 🧹", "success");
         } catch (error) {
             console.error("Error al limpiar todos los pedidos:", error);
-            mostrarToast("Error al limpiar todos los pedidos. 😔");
+            mostrarToast("Error al limpiar todos los pedidos. 😔", "error");
         }
+    } else {
+        mostrarToast("Limpieza de pedidos cancelada.", "info");
     }
 }
 
 // Función para actualizar el precio unitario en el formulario
-// (Ya la tenías, solo necesita que 'productos' esté cargado desde DB)
 async function actualizarPrecioUnitario() {
     const productoId = parseInt(document.getElementById("producto").value);
     const cantidad = parseInt(document.getElementById("cantidad").value);
     const precioInput = document.getElementById("precioUnitario");
 
     if (!isNaN(productoId) && !isNaN(cantidad) && cantidad > 0) {
-        // Asegúrate de que 'productos' global esté cargado y contenga los productos de IndexedDB
         const producto = productos.find(p => p.id === productoId);
         if (producto) {
             const total = producto.precio * cantidad;
@@ -392,7 +449,6 @@ async function actualizarPrecioUnitario() {
 
 // Código que corre cuando la página termina de cargar (inicialización)
 document.addEventListener("DOMContentLoaded", async () => {
-    // Asegurarse de que la DB esté abierta y stores creados antes de intentar usarla
     await abrirDB(); 
 
     // Cargar datos iniciales
@@ -401,7 +457,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await mostrarPedidos();
 
     // Event Listeners
-    document.getElementById("btnLimpiarPedidos").addEventListener("click", limpiarTodosLosPedidos); // Usar la nueva función
+    document.getElementById("btnLimpiarPedidos").addEventListener("click", limpiarTodosLosPedidos); 
     document.getElementById("producto").addEventListener("change", actualizarPrecioUnitario);
     document.getElementById("cantidad").addEventListener("input", actualizarPrecioUnitario);
 });
