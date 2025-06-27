@@ -1,0 +1,33 @@
+/* Estilos para el icono de alerta de stock */
+.stock-alert-icon {
+    width: 25px; /* Tamaño del icono */
+    height: 25px; 
+    vertical-align: middle; /* Alinea con el texto */
+    margin-right: 5px; /* Espacio a la derecha del icono */
+    /* Puedes ajustar más estilos si lo deseas */
+}
+
+/* Estilos para el botón "Ir a Inventario" */
+.btn-ir-inventario {
+    background-color: #A0A0A0; /* Un gris/plateado bonito */
+    color: white;
+    border: none;
+    padding: 4px 8px; /* Relleno más pequeño para un botón compacto */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em; /* Tamaño de fuente más pequeño */
+    margin-left: 10px; /* Espacio a la izquierda para separar del texto de la alerta */
+    display: inline-flex; /* Para alinear el icono y el texto */
+    align-items: center; /* Centrar verticalmente el contenido */
+    gap: 5px; /* Espacio entre el icono y el texto dentro del botón */
+    transition: background-color 0.2s ease; /* Transición suave al pasar el ratón */
+}
+
+.btn-ir-inventario:hover {
+    background-color: #808080; /* Un gris un poco más oscuro al pasar el ratón */
+}
+
+/* Estilo para el icono dentro del botón (si usas Font Awesome) */
+.btn-ir-inventario .fas {
+    font-size: 1em; /* Ajusta el tamaño del icono dentro del botón si es necesario */
+}
