@@ -1,52 +1,55 @@
-// js/inventario.js (CÓDIGO MODIFICADO: SIN AUTO-ASIGNACIÓN DE IMÁGENES)
+// js/inventario.js
 
 let productos = [];
-let editIndex = null; 
-let editId = null;    
-
-// --- Eliminada la lista de imágenes predefinidas para auto-asignación ---
-// const predefinedImages = [...]; // Ya no está aquí
+let editIndex = null;
+let editId = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    await abrirDB(); 
-    productos = await obtenerTodosLosProductos(); 
+    await abrirDB(); // Asegúrate de que abrirDB() esté definido en db.js y funcione correctamente.
+    productos = await obtenerTodosLosProductos();
     mostrarProductos();
     cargarProveedores();
     setupPreview();
+
+    // *** NUEVO: Event Listeners para los botones de Exportar/Importar/Plantilla (ahora JSON) ***
+    document.getElementById('exportarInventarioBtn').addEventListener('click', exportarInventarioJSON); // Cambiado a JSON
+    document.getElementById('importarInventarioInput').addEventListener('change', importarInventarioJSON); // Cambiado a JSON
+    document.getElementById('descargarPlantillaBtn').addEventListener('click', descargarPlantillaInventarioJSON); // Cambiado a JSON
 });
 
 function mostrarProductos(filtrados = productos) {
     const lista = document.getElementById("listaProductos");
-    lista.innerHTML = ""; 
+    lista.innerHTML = "";
 
     if (filtrados.length === 0) {
-        lista.innerHTML = `<p class="mensaje-lista">No hay productos registrados.</p>`; 
+        lista.innerHTML = `<p class="mensaje-lista">No hay productos registrados.</p>`;
         return;
     }
 
     filtrados.forEach((producto) => {
-        const card = crearCardProducto(producto); 
+        const card = crearCardProducto(producto);
         lista.appendChild(card);
     });
 }
 
-// Función para crear la tarjeta HTML de un producto con el estilo "modern-card"
 function crearCardProducto(producto) {
     const card = document.createElement("div");
-    card.className = "modern-card"; 
+    card.className = "modern-card";
 
-    // Prepara la URL de la imagen del producto. Si no hay imagen, usa un placeholder genérico.
     const imagenProductoUrl = producto.imagen || 'https://placehold.co/100x100/e0e0e0/5B2D90?text=Producto';
+
+    const stockMinDisplay = producto.stockMin ?? 'N/D';
+    const stockMaxDisplay = producto.stockMax ?? 'N/D';
 
     card.innerHTML = `
         <div class="card-header">
             <h3 title="${producto.nombre}">${producto.nombre}</h3>
-            <span class="card-meta">Categoría: ${producto.categoria || 'Sin Categoría'}</span> 
+            <span class="card-meta">Categoría: ${producto.categoria || 'Sin Categoría'}</span>
         </div>
         <div class="card-content">
             <p>
-                <img src="${imagenProductoUrl}" 
-                     alt="Imagen de ${producto.nombre}" 
+                <img src="${imagenProductoUrl}"
+                     alt="Imagen de ${producto.nombre}"
                      style="width: 50px; height: 50px; border-radius: 8px; margin-right: 10px; object-fit: cover; vertical-align: middle; display: inline-block;">
                 <strong>Stock:</strong> ${producto.stock} ${producto.unidadMedida || 'unidad(es)'}
             </p>
@@ -54,8 +57,8 @@ function crearCardProducto(producto) {
             <p><strong>Proveedor:</strong> ${producto.proveedor || "Propio"}</p>
             <p><strong>Costo:</strong> $${producto.costo?.toFixed(2) || '0.00'}</p>
             <p><strong>Precio Venta:</strong> $${producto.precio?.toFixed(2) || '0.00'}</p>
-            <p><strong>Stock Mínimo:</strong> ${producto.stockMin !== undefined && producto.stockMin !== null ? producto.minStock : 'N/D'}</p>
-            <p><strong>Stock Máximo:</strong> ${producto.stockMax !== undefined && producto.stockMax !== null ? producto.maxStock : 'N/D'}</p>
+            <p><strong>Stock Mínimo:</strong> ${stockMinDisplay}</p>
+            <p><strong>Stock Máximo:</strong> ${stockMaxDisplay}</p>
         </div>
         <div class="card-actions">
             <button onclick="cargarProductoParaEdicion(${producto.id})" class="btn-edit">✏️ Editar</button>
@@ -65,9 +68,9 @@ function crearCardProducto(producto) {
     return card;
 }
 
-async function cargarProductoParaEdicion(idProducto) { 
+async function cargarProductoParaEdicion(idProducto) {
     const producto = productos.find(p => p.id === idProducto);
-    
+
     if (!producto) {
         mostrarToast("Error: Producto no encontrado para edición.", "error");
         console.error("Producto con ID", idProducto, "no encontrado en el array local de productos.");
@@ -83,14 +86,14 @@ async function cargarProductoParaEdicion(idProducto) {
     document.getElementById("stockMin").value = producto.stockMin ?? "";
     document.getElementById("stockMax").value = producto.stockMax ?? "";
     document.getElementById("unidadMedida").value = producto.unidadMedida || "unidad";
-    document.getElementById("categoriaProducto").value = producto.categoria || ""; 
+    document.getElementById("categoriaProducto").value = producto.categoria || "";
 
     const preview = document.getElementById("imagenPreview");
     preview.src = producto.imagen || "";
     preview.style.display = producto.imagen ? "block" : "none";
 
     editId = producto.id;
-    editIndex = productos.indexOf(producto); 
+    editIndex = productos.indexOf(producto);
 
     document.getElementById("btnGuardar").textContent = "Actualizar";
     document.getElementById("btnCancelar").style.display = "inline-block";
@@ -121,36 +124,38 @@ function guardarProducto() {
     const nombre = document.getElementById("nombre").value.trim();
     const stock = parseInt(document.getElementById("stock").value) || 0;
     const unidadMedida = document.getElementById("unidadMedida").value.trim();
-    const stockMin = parseInt(document.getElementById("stockMin").value) || null;
-    const stockMax = parseInt(document.getElementById("stockMax").value) || null;
+    const stockMin = document.getElementById("stockMin").value ? parseInt(document.getElementById("stockMin").value) : null;
+    const stockMax = document.getElementById("stockMax").value ? parseInt(document.getElementById("stockMax").value) : null;
     const vendidos = parseInt(document.getElementById("vendidos").value) || 0;
     const costo = parseFloat(document.getElementById("costo").value) || 0;
     const precio = parseFloat(document.getElementById("precio").value) || 0;
     const proveedor = document.getElementById("proveedor").value.trim();
-    const categoria = document.getElementById("categoriaProducto").value.trim(); 
+    const categoria = document.getElementById("categoriaProducto").value.trim();
     const imagenInput = document.getElementById("imagen");
-    const archivo = imagenInput.files[0]; 
+    const archivo = imagenInput.files[0];
 
     if (!nombre) return mostrarToast("El nombre del producto es obligatorio ⚠️", "error");
-    if (stock < 0 || vendidos < 0 || costo < 0 || precio < 0)
+    if (stock < 0 || vendidos < 0 || costo < 0 || precio < 0 || (stockMin !== null && stockMin < 0) || (stockMax !== null && stockMax < 0)) {
         return mostrarToast("Los valores no pueden ser negativos ⚠️", "error");
+    }
+    if (stockMin !== null && stockMax !== null && stockMin > stockMax) {
+        return mostrarToast("El stock mínimo no puede ser mayor que el stock máximo ⚠️", "error");
+    }
 
-    const productoData = { nombre, stock, unidadMedida, vendidos, costo, precio, proveedor, stockMin, stockMax, categoria }; 
+    const productoData = { nombre, stock, unidadMedida, vendidos, costo, precio, proveedor, stockMin, stockMax, categoria };
 
     if (archivo) {
-        // Si el usuario sube un archivo, esa imagen tiene prioridad
         const lector = new FileReader();
         lector.onload = function (e) {
-            productoData.imagen = e.target.result;
+            productoData.imagen = e.target.result; // Base64 de la imagen
             guardarProductoFinal(productoData);
         };
         lector.readAsDataURL(archivo);
     } else {
-        // Si no hay archivo nuevo, mantener la imagen existente si es edición, o dejar vacía si es nuevo.
         if (editId !== null) {
             const productoExistente = productos.find(p => p.id === editId);
             if (productoExistente && productoExistente.imagen) {
-                productoData.imagen = productoExistente.imagen;
+                productoData.imagen = productoExistente.imagen; // Mantener la imagen existente
             } else {
                 productoData.imagen = ""; // Si no hay imagen previa en edición, queda vacía
             }
@@ -162,16 +167,16 @@ function guardarProducto() {
 }
 
 async function guardarProductoFinal(producto) {
-    if (editId === null) { 
-        await agregarProducto(producto); 
+    if (editId === null) {
+        await agregarProducto(producto);
         mostrarToast("Producto guardado ✅");
-    } else { 
-        producto.id = editId; 
-        await actualizarProducto(editId, producto); 
+    } else {
+        producto.id = editId;
+        await actualizarProducto(editId, producto);
         mostrarToast("Producto actualizado ✏️");
-        
-        editId = null; 
-        editIndex = null; 
+
+        editId = null;
+        editIndex = null;
         document.getElementById("btnGuardar").textContent = "Guardar";
         document.getElementById("btnCancelar").style.display = "none";
     }
@@ -181,11 +186,10 @@ async function guardarProductoFinal(producto) {
     limpiarCampos();
 }
 
-
 function limpiarCampos() {
     document.getElementById("nombre").value = "";
     document.getElementById("stock").value = "";
-    document.getElementById("unidadMedida").value = "unidad"; 
+    document.getElementById("unidadMedida").value = "unidad";
     document.getElementById("stockMin").value = "";
     document.getElementById("stockMax").value = "";
     document.getElementById("vendidos").value = "";
@@ -193,7 +197,7 @@ function limpiarCampos() {
     document.getElementById("precio").value = "";
     document.getElementById("imagen").value = "";
     document.getElementById("proveedor").value = "";
-    document.getElementById("categoriaProducto").value = ""; 
+    document.getElementById("categoriaProducto").value = "";
     document.getElementById("btnGuardar").textContent = "Guardar";
     document.getElementById("btnCancelar").style.display = "none";
     editIndex = null;
@@ -204,15 +208,15 @@ function limpiarCampos() {
     preview.style.display = "none";
 }
 
-function mostrarToast(mensaje, tipo = "info") { 
+function mostrarToast(mensaje, tipo = "info") {
     const toastContainer = document.getElementById("toastContainer");
-    if (!toastContainer) { 
+    if (!toastContainer) {
         console.warn("No se encontró el contenedor de toasts. Mensaje:", mensaje);
         return;
     }
 
     const toast = document.createElement("div");
-    toast.className = `toast ${tipo}`; 
+    toast.className = `toast ${tipo}`;
     toast.textContent = mensaje;
     toastContainer.appendChild(toast);
 
@@ -223,19 +227,28 @@ function mostrarToast(mensaje, tipo = "info") {
     }, 3000);
 }
 
-function cargarProveedores() {
+// Se asume que mostrarConfirmacion viene de db.js ahora
+// async function mostrarConfirmacion(mensaje, titulo = "Confirmar") {
+//     return new Promise(resolve => {
+//         const resultado = window.confirm(mensaje);
+//         resolve(resultado);
+//     });
+// }
+
+
+async function cargarProveedores() {
     const select = document.getElementById("proveedor");
-    const proveedoresGuardados = JSON.parse(localStorage.getItem("proveedores")) || [];
+    const proveedoresGuardados = await obtenerTodosLosProveedoresDB(); // Obtener desde IndexedDB
 
     select.innerHTML = '<option value="">Seleccione un proveedor</option>';
     const optionSS = document.createElement("option");
-    optionSS.value = "propio";
+    optionSS.value = "Propio";
     optionSS.textContent = "Propio";
     select.appendChild(optionSS);
 
     proveedoresGuardados.forEach(p => {
         const option = document.createElement("option");
-        option.value = p.nombre;
+        option.value = p.nombre; // Asumo que el proveedor tiene una propiedad 'nombre'
         option.textContent = p.nombre;
         select.appendChild(option);
     });
@@ -263,4 +276,184 @@ function setupPreview() {
             preview.style.display = "none";
         }
     });
+}
+
+// --- FUNCIONES DE EXPORTACIÓN / IMPORTACIÓN (SÓLO JSON) ---
+
+async function exportarInventarioJSON() {
+    const productosAExportar = await obtenerTodosLosProductos(); // Obtiene productos directamente de IndexedDB
+    if (productosAExportar.length === 0) {
+        mostrarToast('No hay productos en el inventario para exportar.', "info");
+        return;
+    }
+
+    const jsonContent = JSON.stringify(productosAExportar, null, 2); // Formatea el JSON con indentación para legibilidad
+
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'inventario_productos.json'); // Cambiado a .json
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    mostrarToast('Inventario exportado a inventario_productos.json ✅');
+}
+
+async function importarInventarioJSON(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+
+    if (file.type !== 'application/json') { // Validar tipo de archivo
+        mostrarToast('Por favor, selecciona un archivo JSON válido.', "error");
+        event.target.value = ''; // Limpiar el input file
+        return;
+    }
+
+    const confirmacion = await mostrarConfirmacion(
+        "¿Estás seguro de importar estos datos? Esto puede agregar o actualizar productos existentes.",
+        "Confirmar Importación JSON"
+    );
+    if (!confirmacion) {
+        mostrarToast("Importación cancelada ❌");
+        event.target.value = ''; // Limpiar el input file
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const jsonContent = e.target.result;
+        let productosImportados = [];
+        try {
+            productosImportados = JSON.parse(jsonContent);
+            if (!Array.isArray(productosImportados)) {
+                throw new Error("El archivo JSON no contiene un array de productos válido.");
+            }
+        } catch (error) {
+            console.error('Error al parsear el archivo JSON:', error);
+            mostrarToast('Error al procesar el archivo JSON. Asegúrate de que el formato sea correcto. ' + error.message, "error");
+            event.target.value = '';
+            return;
+        }
+
+        if (productosImportados.length === 0) {
+            mostrarToast('El archivo JSON no contiene datos de productos.', "info");
+            event.target.value = '';
+            return;
+        }
+
+        const productosActuales = await obtenerTodosLosProductos();
+        let productosAgregados = 0;
+        let productosActualizados = 0;
+        const erroresImportacion = [];
+
+        for (const nuevoProducto of productosImportados) {
+            // Validación básica de datos importados (puedes ajustar según sea necesario)
+            if (!nuevoProducto || typeof nuevoProducto !== 'object' || !nuevoProducto.nombre) {
+                erroresImportacion.push(`Objeto de producto inválido o sin nombre. Saltando.`);
+                continue;
+            }
+
+            // Asegurar que los tipos de datos sean correctos (JSON.parse no garantiza tipos numéricos)
+            nuevoProducto.stock = typeof nuevoProducto.stock === 'number' ? nuevoProducto.stock : (parseInt(nuevoProducto.stock) || 0);
+            nuevoProducto.stockMin = typeof nuevoProducto.stockMin === 'number' ? nuevoProducto.stockMin : (nuevoProducto.stockMin ? parseInt(nuevoProducto.stockMin) : null);
+            nuevoProducto.stockMax = typeof nuevoProducto.stockMax === 'number' ? nuevoProducto.stockMax : (nuevoProducto.stockMax ? parseInt(nuevoProducto.stockMax) : null);
+            nuevoProducto.vendidos = typeof nuevoProducto.vendidos === 'number' ? nuevoProducto.vendidos : (parseInt(nuevoProducto.vendidos) || 0);
+            nuevoProducto.costo = typeof nuevoProducto.costo === 'number' ? nuevoProducto.costo : (parseFloat(nuevoProducto.costo) || 0);
+            nuevoProducto.precio = typeof nuevoProducto.precio === 'number' ? nuevoProducto.precio : (parseFloat(nuevoProducto.precio) || 0);
+
+            // Asegurar que las cadenas no sean "null" o "undefined" literales si vienen del JSON
+            nuevoProducto.categoria = nuevoProducto.categoria === null || nuevoProducto.categoria === undefined ? '' : String(nuevoProducto.categoria);
+            nuevoProducto.unidadMedida = nuevoProducto.unidadMedida === null || nuevoProducto.unidadMedida === undefined ? 'unidad' : String(nuevoProducto.unidadMedida);
+            nuevoProducto.proveedor = nuevoProducto.proveedor === null || nuevoProducto.proveedor === undefined ? '' : String(nuevoProducto.proveedor);
+            nuevoProducto.imagen = nuevoProducto.imagen === null || nuevoProducto.imagen === undefined ? '' : String(nuevoProducto.imagen);
+
+            let productoExistenteDB = null;
+            if (nuevoProducto.id) {
+                productoExistenteDB = productosActuales.find(p => p.id === parseInt(nuevoProducto.id));
+            }
+            if (!productoExistenteDB) {
+                productoExistenteDB = productosActuales.find(p => p.nombre === nuevoProducto.nombre);
+            }
+
+            if (productoExistenteDB) {
+                const productoActualizado = { ...productoExistenteDB, ...nuevoProducto };
+                productoActualizado.id = productoExistenteDB.id; // Mantener el ID original de IndexedDB
+                await actualizarProducto(productoActualizado.id, productoActualizado);
+                productosActualizados++;
+            } else {
+                const productoParaAgregar = { ...nuevoProducto };
+                // Eliminar el ID si el producto es nuevo y el ID importado podría generar conflicto
+                // IndexedDB asignará su propio ID autoIncrement.
+                delete productoParaAgregar.id; 
+                await agregarProducto(productoParaAgregar);
+                productosAgregados++;
+            }
+        }
+
+        productos = await obtenerTodosLosProductos();
+        mostrarProductos();
+
+        let mensajeFinal = `Importación completada:\n${productosAgregados} productos agregados.\n${productosActualizados} productos actualizados.`;
+        if (erroresImportacion.length > 0) {
+            mensajeFinal += `\n\nErrores (${erroresImportacion.length}):\n${erroresImportacion.join('\n')}`;
+            mostrarToast(mensajeFinal, "error", 5000); // Duración extendida para errores
+        } else {
+            mostrarToast(mensajeFinal, "success");
+        }
+
+    };
+    reader.readAsText(file);
+}
+
+
+async function descargarPlantillaInventarioJSON() {
+    const plantillaProductos = [
+        {
+            "id": null, // Dejar en null para que IndexedDB asigne un nuevo ID
+            "nombre": "Ejemplo Producto A",
+            "categoria": "Electrónica",
+            "stock": 100,
+            "unidadMedida": "unidad",
+            "stockMin": 10,
+            "stockMax": 200,
+            "vendidos": 50,
+            "costo": 150.75,
+            "precio": 220.50,
+            "imagen": "https://placehold.co/100x100/e0e0e0/5B2D90?text=ProductoA",
+            "proveedor": "Tech Supplies Inc."
+        },
+        {
+            "id": null,
+            "nombre": "Ejemplo Producto B",
+            "categoria": "Hogar",
+            "stock": 25,
+            "unidadMedida": "unidad",
+            "stockMin": 5,
+            "stockMax": 50,
+            "vendidos": 10,
+            "costo": 25.00,
+            "precio": 40.00,
+            "imagen": "", // Imagen vacía
+            "proveedor": "Propio"
+        }
+    ];
+
+    const jsonContent = JSON.stringify(plantillaProductos, null, 2);
+
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'plantilla_inventario.json');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    mostrarToast('Plantilla de inventario JSON descargada ✅');
 }
