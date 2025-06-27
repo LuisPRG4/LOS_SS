@@ -472,3 +472,87 @@ if (typeof mostrarConfirmacion !== 'function') {
         });
     };
 }
+
+// FUNCIONES PARA EXPORTAR DATOS DE MERMAS 
+
+// === Exportar mermas ===
+document.getElementById('exportarMermasBtn').addEventListener('click', async () => {
+    const mermas = await obtenerTodasLasMermasDB(); // usa tu función existente
+    if (mermas.length === 0) {
+        mostrarToast('No hay mermas registradas.', "info");
+        return;
+    }
+
+    const jsonContent = JSON.stringify(mermas, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mermas.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    mostrarToast('Mermas exportadas ✅');
+});
+
+// === Importar mermas ===
+document.getElementById('importarMermasInput').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file || file.type !== 'application/json') {
+        mostrarToast('Archivo inválido. Solo se acepta JSON.', "error");
+        return;
+    }
+
+    const confirmacion = await mostrarConfirmacion("¿Importar estas mermas?", "Confirmar");
+    if (!confirmacion) {
+        mostrarToast("Importación cancelada ❌");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const mermasImportadas = JSON.parse(e.target.result);
+            let agregadas = 0;
+            for (const merma of mermasImportadas) {
+                if (!merma || !merma.nombreProducto) continue;
+                delete merma.id;
+                await agregarMermaDB(merma);
+                agregadas++;
+            }
+            mostrarToast(`${agregadas} mermas importadas ✅`);
+
+            // --- ACTUALIZAR VARIABLE LOCAL Y UI ---
+            mermas = await obtenerTodasLasMermasDB(); // Recarga desde IndexedDB
+            mostrarMermas(); // Actualiza la lista visible en la página
+
+        } catch (err) {
+            mostrarToast("Error al importar JSON ❌", "error");
+            console.error(err);
+        }
+    };
+    reader.readAsText(file);
+});
+
+// === Descargar plantilla de mermas ===
+document.getElementById('descargarPlantillaMermasBtn').addEventListener('click', () => {
+        const ejemplo = [
+        {
+            productoId: 1,
+            nombreProducto: "Ejemplo Producto",
+            motivo: "Producto vencido",
+            cantidad: 5,
+            unidadMedida: "unidad",
+            fecha: new Date().toISOString().slice(0, 10),
+            hora: "12:00"
+            }
+        ];
+
+    const blob = new Blob([JSON.stringify(ejemplo, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla_mermas.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    mostrarToast("Plantilla descargada ✅");
+});
