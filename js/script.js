@@ -95,7 +95,7 @@ async function cargarDashboard() {
                     <img src="icons/advertencia.png" alt="Alerta de Stock Bajo" class="stock-alert-icon"> 
                     ${p.nombre} - Stock bajo: ${p.stock} ${p.unidadMedida || 'unidad(es)'} (${minText})
                     <button class="btn-ir-inventario" onclick="irAInventario('${p.id}')">
-                        <i class="fas fa-box"></i> Ir a Inventario
+                        <i class="fas fa-box"></i> Reponer
                     </button>
                 `;
                 // *** FIN DE CAMBIO IMPORTANTE AQUI ***
