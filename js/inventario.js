@@ -15,6 +15,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('exportarInventarioBtn').addEventListener('click', exportarInventarioJSON); // Cambiado a JSON
     document.getElementById('importarInventarioInput').addEventListener('change', importarInventarioJSON); // Cambiado a JSON
     document.getElementById('descargarPlantillaBtn').addEventListener('click', descargarPlantillaInventarioJSON); // Cambiado a JSON
+
+    //ESTO ES PARA IR DE INICIO AL INVENTARIO A REPONER EL STOCK DEL PRODUCTO BAJO ALERTA
+    // --- INICIO: CÓDIGO AÑADIDO PARA LA NAVEGACIÓN DESDE DASHBOARD ---
+    const productoIdParaEditar = sessionStorage.getItem('productoParaEditar');
+    if (productoIdParaEditar) {
+        // Limpiar el sessionStorage inmediatamente para que no se active de nuevo al recargar
+        sessionStorage.removeItem('productoParaEditar'); 
+        
+        // Llamar a tu función existente para cargar el producto en el formulario
+        // Asegúrate de convertir el ID a número porque sessionStorage lo guarda como string
+        await cargarProductoParaEdicion(Number(productoIdParaEditar)); 
+    }
+    // --- FIN: CÓDIGO AÑADIDO ---
+
+    // --- INICIO: Asegurar que el botón de Cancelar tenga su evento ---
+    // Ya tienes la función cancelarEdicion(), solo falta el listener si no lo tienes en tu HTML
+    const btnCancelar = document.getElementById("btnCancelar");
+    if (btnCancelar) { // Verifica que el botón existe en el DOM
+        btnCancelar.addEventListener("click", cancelarEdicion);
+    }
+    // --- FIN: Asegurar que el botón de Cancelar tenga su evento ---
 });
 
 function mostrarProductos(filtrados = productos) {
