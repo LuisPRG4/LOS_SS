@@ -82,6 +82,7 @@
         </button>
     </div>
 </section>
+
     <section>
   <h2>📋 Lista de Clientes</h2>
 
@@ -186,22 +187,6 @@
   document.getElementById("cerrarAyuda").addEventListener("click", () => {
     document.getElementById("ayuda").classList.remove("visible");
   });
-</script>
-
-<!-- SERVICE WORKER-->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
-      navigator.serviceWorker.register('sw.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
-        })
-        .catch(error => {
-          console.error('Fallo el registro del Service Worker:', error);
-        });
-    });
-  }
 </script>
 
 </body>
