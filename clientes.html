@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/chatbot-ayuda.css">
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
   <link rel="stylesheet" href="css/cards-general.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
 
 </head>
 <body>
@@ -64,6 +65,26 @@
         <button onclick="cancelarEdicionCliente()" id="btnCancelarEdicionCliente" class="btn-cancelar" style="display:none;">Cancelar</button>
       </div>
 
+    </section>
+
+    <section class="inventory-utilities">
+    <h2>Herramientas de Clientes</h2>
+    <div class="utility-buttons">
+        <button id="exportarClientesBtn" class="btn btn-utility">
+            <i class="fas fa-file-export"></i> Exportar Clientes (JSON)
+        </button>
+        <label for="importarClientesInput" class="btn btn-utility file-upload-label">
+            <i class="fas fa-file-import"></i> Importar Clientes (JSON)
+            <input type="file" id="importarClientesInput" accept=".json" style="display: none;">
+        </label>
+        <button id="descargarPlantillaClientesBtn" class="btn btn-utility">
+            <i class="fas fa-download"></i> Descargar Plantilla (JSON)
+        </button>
+    </div>
+</section>
+
+<section>
+    <h2>📋 Lista de Clientes</h2>
     </section>
 
     <section>
