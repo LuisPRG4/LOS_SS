@@ -6,8 +6,8 @@
   <title>Los SS - Proveedores</title>
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
-  <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/ayuda.css"/>
+  <link rel="stylesheet" href="css/style.css"/> <!--REFERENCIA A STYLE.CSS-->
+  <link rel="stylesheet" href="css/ayuda.css"/> 
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
   <link rel="stylesheet" href="css/cards-general.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
@@ -76,6 +76,7 @@
         </button>
     </div>
 </section>
+
          <section>
           <h2>📋 Lista de Proveedores</h2>
           <input type="text" id="buscadorProveedores" placeholder="🔍 Buscar proveedores..." oninput="filtrarProveedores()" />
@@ -155,33 +156,6 @@
 
   document.getElementById("cerrarAyuda").addEventListener("click", () => {
     document.getElementById("ayuda").classList.remove("visible");
-  });
-</script>
-
-<!-- SERVICE WORKER-->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
-      navigator.serviceWorker.register('sw.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
-        })
-        .catch(error => {
-          console.error('Fallo el registro del Service Worker:', error);
-        });
-    });
-  }
-</script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      await abrirDB();
-      console.log("IndexedDB lista en proveedores.html ✅");
-    } catch (e) {
-      console.error("Error al abrir IndexedDB desde proveedores.html:", e);
-    }
   });
 </script>
 
