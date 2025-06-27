@@ -159,3 +159,165 @@
     transform: translateY(-2px);
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* INVENTARIO BOTÓN EXPORTAR E IMPORTAR */
+/* Estilos para la nueva sección de utilidades */
+/* --- Estilos para la sección de Herramientas de Inventario (inventory-utilities) --- */
+/* --- Estilos para la sección de Herramientas de Inventario --- */
+
+.inventory-utilities {
+    background-color: #f8f8f8;
+    border-radius: 15px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 2px solid #D4AF37; /* Borde dorado en la sección */
+    position: relative;
+    overflow: hidden;
+}
+
+.inventory-utilities h2 {
+    font-size: 2em;
+    color: #333; /* Un gris oscuro en lugar de morado para el título */
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.inventory-utilities h2::after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(to right, #D4AF37, #FFD700); /* Degradado dorado para la línea */
+    margin: 8px auto 0;
+    border-radius: 5px;
+}
+
+.utility-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* --- Estilos base para los botones de utilidad (re-definiendo .btn-utility) --- */
+.btn-utility {
+    flex: 1 1 auto;
+    min-width: 250px;
+    max-width: 300px;
+    padding: 16px 24px; /* Ajuste el padding para la nueva forma */
+    font-size: 1.05em; /* Un poco más pequeño para el nuevo look */
+    font-weight: 600; /* Más peso para el texto */
+    border: none; /* Quitamos el borde por defecto */
+    border-radius: 25px; /* ¡Forma ovalada/pill! */
+    cursor: pointer;
+    transition: all 0.3s ease-in-out; /* Transición más moderna */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #333; /* Color de texto oscuro por defecto para los nuevos botones */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    white-space: nowrap; /* Evita saltos de línea inesperados */
+}
+
+/* Iconos dentro de los botones */
+.btn-utility .fas {
+    margin-right: 12px; /* Más espacio para el icono */
+    font-size: 1.3em; /* Tamaño del icono ligeramente más grande */
+    color: inherit; /* El icono hereda el color del texto del botón */
+}
+
+
+/* --- Estilos específicos para cada botón (sin morado, con oro y plata modernos) --- */
+
+/* Exportar Inventario (Dorado vibrante) */
+#exportarInventarioBtn.btn-utility { /* Selectores más específicos */
+    background: linear-gradient(145deg, #FFD700, #DAA520); /* Oro más vibrante */
+    color: #333; /* Texto oscuro */
+    border: 2px solid #B8860B; /* Borde de oro más oscuro */
+}
+
+#exportarInventarioBtn.btn-utility:hover {
+    background: linear-gradient(145deg, #DAA520, #FFD700); /* Invertir degradado al hover */
+    transform: translateY(-3px) scale(1.02); /* Pequeño levantamiento y agrandamiento */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    border-color: #C0C0C0; /* Toque plateado en el borde al hover */
+}
+
+/* Importar Inventario (Plata elegante) */
+.file-upload-label.btn-utility { /* Es vital mantener .file-upload-label y .btn-utility */
+    background: linear-gradient(145deg, #E0E0E0, #C0C0C0); /* Degradado plateado */
+    color: #333; /* Texto oscuro */
+    border: 2px solid #A9A9A9; /* Borde gris medio */
+}
+
+.file-upload-label.btn-utility:hover {
+    background: linear-gradient(145deg, #C0C0C0, #E0E0E0); /* Invertir degradado al hover */
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-color: #FFD700; /* Toque dorado en el borde al hover */
+}
+
+/* Descargar Plantilla (Dorado claro/suave) */
+#descargarPlantillaBtn.btn-utility {
+    background: linear-gradient(145deg, #FFFACD, #FFEFD5); /* Dorado muy pálido, casi crema */
+    color: #555; /* Texto gris más suave */
+    border: 2px solid #FFD700; /* Borde dorado */
+}
+
+#descargarPlantillaBtn.btn-utility:hover {
+    background: linear-gradient(145deg, #FFEFD5, #FFFACD); /* Invertir degradado al hover */
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-color: #A9A9A9; /* Toque plateado en el borde al hover */
+}
+
+
+/* --- Pequeños detalles decorativos (manteniéndolos) --- */
+.inventory-utilities::before,
+.inventory-utilities::after {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    opacity: 0.7;
+}
+
+.inventory-utilities::before {
+    top: 0;
+    left: 0;
+    border-top: 5px solid #FFD700;
+    border-left: 5px solid #FFD700;
+    border-top-left-radius: 10px;
+}
+
+.inventory-utilities::after {
+    bottom: 0;
+    right: 0;
+    border-bottom: 5px solid #FFD700;
+    border-right: 5px solid #FFD700;
+    border-bottom-right-radius: 10px;
+}
+
+/* Para responsividad básica */
+@media (max-width: 768px) {
+    .utility-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    .btn-utility { /* Asegúrate de que este selector sea correcto para tus botones */
+        width: 80%;
+        max-width: 90%;
+    }
+    .inventory-utilities {
+        padding: 20px;
+    }
+    .inventory-utilities h2 {
+        font-size: 1.7em;
+    }
+}
