@@ -1378,3 +1378,186 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarToast("Error grave al cargar datos 😥");
     }
 });
+
+// ====== NUEVAS FUNCIONES PARA EXPORTAR, IMPORTAR Y PLANTILLA JSON ======
+
+/**
+ * Exporta todas las ventas a un archivo JSON.
+ */
+async function exportarJSON() {
+    try {
+        const todasLasVentas = await obtenerTodasLasVentas();
+        const dataStr = JSON.stringify(todasLasVentas, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ventas-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        mostrarToast("Ventas exportadas a JSON con éxito ✅", "success");
+    } catch (error) {
+        console.error("Error al exportar ventas a JSON:", error);
+        mostrarToast("Error al exportar ventas a JSON ❌", "error");
+    }
+}
+
+/**
+ * Maneja la selección del archivo para la importación.
+ */
+async function importarJSONConArchivo(event) {
+    const confirmacion = await mostrarConfirmacion(
+        "Al importar ventas, se añadirán nuevas ventas o se actualizarán existentes (si tienen el mismo ID). ¿Deseas continuar?",
+        "Confirmar Importación"
+    );
+    if (!confirmacion) {
+        mostrarToast("Importación de ventas cancelada.", "info");
+        // Limpiar el input file para que se pueda seleccionar el mismo archivo de nuevo
+        event.target.value = null; 
+        return;
+    }
+
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+
+    try {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const importedVentas = JSON.parse(e.target.result);
+
+                if (!Array.isArray(importedVentas)) {
+                    mostrarToast("El archivo JSON no contiene un array de ventas válido. 🚫", "error");
+                    return;
+                }
+
+                let nuevasVentas = 0;
+                let ventasActualizadas = 0;
+                let errores = 0;
+
+                for (const venta of importedVentas) {
+                    try {
+                        // Validar estructura básica de la venta
+                        // Ajusta esta validación según los campos mínimos que esperas en una venta
+                        if (!venta.cliente || !venta.productos || !Array.isArray(venta.productos) || !venta.tipoPago || typeof venta.ingreso === 'undefined') {
+                            console.warn("Venta importada con formato inválido, omitiendo:", venta);
+                            errores++;
+                            continue;
+                        }
+
+                        // Comprobar si la venta ya existe por ID para actualizarla
+                        // Si tu `db.js` maneja IDs autoincrementales, esta lógica de `venta.id` es clave.
+                        // Si los IDs son generados por ti (UUID, etc.), asegúrate de que sean únicos.
+                        if (venta.id) { // Solo si la venta importada tiene un ID
+                            const ventaExistente = await obtenerVentaPorId(venta.id); 
+                            if (ventaExistente) {
+                                // Conservar la fecha de creación original si no se especifica una nueva
+                                if (!venta.fecha && ventaExistente.fecha) {
+                                    venta.fecha = ventaExistente.fecha;
+                                }
+                                await actualizarVenta(venta.id, venta); 
+                                ventasActualizadas++;
+                            } else {
+                                // Si tiene ID pero no existe, agrégala (esto puede pasar si se exportó con ID pero se borró luego)
+                                await agregarVenta(venta);
+                                nuevasVentas++;
+                            }
+                        } else {
+                            // Si no tiene ID, agrégala como nueva (IndexedDB le asignará uno)
+                            await agregarVenta(venta);
+                            nuevasVentas++;
+                        }
+
+                        // *** IMPORTANTE: Si la importación debe afectar el stock,
+                        // necesitas una lógica aquí o asegurarte que 'agregarVenta' / 'actualizarVenta'
+                        // manejen el ajuste de stock.
+                        // Lo más seguro es que al agregar/actualizar la venta en DB, 
+                        // se dispare una función que ajuste el stock.
+                        // Por ahora, asumimos que tu lógica principal de venta ya lo hace.
+
+                    } catch (itemError) {
+                        console.error("Error al procesar una venta importada:", venta, itemError);
+                        errores++;
+                    }
+                }
+
+                // Recargar todos los datos y la UI después de la importación masiva
+                ventas = await obtenerTodasLasVentas();
+                productos = await obtenerTodosLosProductos(); // Si el stock se afecta
+                movimientos = await obtenerTodosLosMovimientos(); // Si se generan movimientos de stock/finanzas
+                abonos = await obtenerTodosLosAbonos(); // Si las ventas de crédito tienen abonos asociados
+
+                mostrarVentas(); // Redibuja la lista de ventas
+                guardarVentas(); // Para asegurar que cualquier función relacionada con gráficos/reportes se actualice
+
+                mostrarToast(`Importación completada: ${nuevasVentas} nuevas, ${ventasActualizadas} actualizadas, ${errores} con errores. ✨`, "success");
+
+            } catch (parseError) {
+                mostrarToast("Error al parsear el archivo JSON. Asegúrate de que sea un JSON válido. 🚫", "error");
+                console.error("Error al parsear JSON:", parseError);
+            }
+        };
+        reader.readAsText(file);
+    } catch (error) {
+        console.error("Error al leer el archivo:", error);
+        mostrarToast("Error al leer el archivo. 🚫", "error");
+    } finally {
+        // Limpiar el input file después de procesar
+        event.target.value = null; 
+    }
+}
+
+/**
+ * Descarga una plantilla JSON de ventas para guiar la importación.
+ */
+function descargarPlantillaJSON() {
+    const plantilla = [
+        {
+            // 'id' es opcional, si la importación es de ventas completamente nuevas, IndexedDB lo generará.
+            // Si importas ventas previamente exportadas con ID, se usarán para actualizar.
+            "id": "VENTA_ABCD-1234", // Ejemplo de ID si lo manejas manualmente
+            "cliente": "Nombre del Cliente",
+            "productos": [
+                {
+                    "nombre": "Nombre del Producto",
+                    "cantidad": 1,
+                    "precio": 10.00, // Precio unitario de venta
+                    "costo": 5.00, // Costo unitario del producto (para cálculo de ganancia)
+                    "subtotal": 10.00, // Cantidad * Precio
+                    "unidadMedida": "unidad" // u "kg", "litro", etc.
+                }
+                // Puedes agregar más productos aquí si la venta es multiproducto
+            ],
+            "tipoPago": "contado", // Valores posibles: "contado", "credito"
+            "detallePago": {
+                // Si tipoPago es "contado":
+                "metodo": "efectivo" // Valores posibles: "efectivo", "transferencia", "pago_movil"
+                // Si tipoPago es "credito":
+                // "fechaVencimiento": "YYYY-MM-DD" // Ejemplo: "2024-12-31"
+            },
+            "ingreso": 10.00, // Suma de todos los subtotales de productos
+            "ganancia": 5.00, // Suma de (precio - costo) * cantidad de todos los productos
+            "fecha": new Date().toISOString(), // Fecha y hora de la venta en formato ISO 8601 (ej: "2024-06-27T12:30:00.000Z")
+            "montoPendiente": 0, // Si tipoPago es "contado", siempre 0. Si "credito", igual a "ingreso" inicialmente.
+            "estadoPago": "Pagado Total", // Valores posibles: "Pagado Total" (para contado), "Pendiente", "Pagado Parcial"
+            "abonos": [] // Array de objetos de abonos si es crédito y ya tiene abonos. Ej: [{"monto": 5.00, "fecha": "2024-07-01T10:00:00.000Z"}]
+        }
+        // Puedes añadir más objetos de venta para ejemplos si lo consideras útil.
+    ];
+
+    const dataStr = JSON.stringify(plantilla, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "plantilla_ventas.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    mostrarToast("Plantilla de ventas JSON descargada ✅", "success");
+}
