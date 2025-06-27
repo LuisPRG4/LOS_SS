@@ -250,23 +250,7 @@
     document.getElementById("ayuda").classList.remove("visible");
   });
  </script>
-
- <!-- SERVICE WORKER-->
- <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
-      navigator.serviceWorker.register('sw.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
-        })
-        .catch(error => {
-          console.error('Fallo el registro del Service Worker:', error);
-        });
-    });
-  }
- </script>
-
+ 
  <div id="modalAbono" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50" style="display: none;">
     <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
