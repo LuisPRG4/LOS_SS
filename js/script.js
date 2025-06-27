@@ -7,7 +7,7 @@ async function cargarDashboard() {
 
     // 2. Cargar datos desde IndexedDB
     const productos = await obtenerTodosLosProductos(); // Asegúrate de que obtenerTodosLosProductos() esté definido en db.js
-    const ventas = await obtenerTodasLasVentas();     // Asegúrate de que obtenerTodasLasVentas() esté definido en db.js
+    const ventas = await obtenerTodasLasVentas();     // Asegúrate de que obtenerTodasLasVentas() esté definido en db.js
 
     // --- Lógica para Ventas Hoy y Ventas Semana ---
     // Verificar si los elementos existen antes de intentar manipularlos
@@ -78,19 +78,28 @@ async function cargarDashboard() {
         // He unificado la lógica de filtro para usar 'stockMin' si está presente, o 'STOCK_BAJO_UMBRAL' como fallback.
         const productosBajoStock = productos.filter(p => {
             const umbral = (p.stockMin !== undefined && p.stockMin !== null) ? p.stockMin : STOCK_BAJO_UMBRAL;
-            // ¡MODIFICADO! Incluir unidad de medida en el mensaje de alerta
             return p.stock <= umbral;
         });
 
         if (productosBajoStock.length > 0) {
             // Si hay productos con stock bajo, creamos una lista para mostrarlos
             const ul = document.createElement("ul");
-            ul.className = "list-disc list-inside text-red-700"; // Clases para un estilo de lista básico y color rojo
+            ul.className = "list-disc list-inside text-red-700"; 
 
             productosBajoStock.forEach((p) => {
                 let li = document.createElement("li");
                 const minText = (p.stockMin !== undefined && p.stockMin !== null) ? `Mín: ${p.stockMin}` : `Umbral: ${STOCK_BAJO_UMBRAL}`;
-                li.textContent = `🚨 ${p.nombre} - Stock bajo: ${p.stock} ${p.unidadMedida || 'unidad(es)'} (${minText})`; // ¡UNIDAD DE MEDIDA AÑADIDA AQUÍ!
+                
+                // *** INICIO DE CAMBIO IMPORTANTE AQUI ***
+                li.innerHTML = `
+                    <img src="icons/advertencia.png" alt="Alerta de Stock Bajo" class="stock-alert-icon"> 
+                    ${p.nombre} - Stock bajo: ${p.stock} ${p.unidadMedida || 'unidad(es)'} (${minText})
+                    <button class="btn-ir-inventario" onclick="irAInventario('${p.id}')">
+                        <i class="fas fa-box"></i> Ir a Inventario
+                    </button>
+                `;
+                // *** FIN DE CAMBIO IMPORTANTE AQUI ***
+
                 ul.appendChild(li);
             });
             alertaStockContainer.appendChild(ul);
@@ -124,6 +133,17 @@ async function cargarDashboard() {
         const totalGananciaBruta = productos.reduce((sum, p) => sum + (p.vendidos * (p.precio - p.costo)), 0);
         totalGananciaBrutaElement.textContent = totalGananciaBruta.toFixed(2);
     }
+}
+
+// *** NUEVA FUNCIÓN PARA IR A INVENTARIO ***
+function irAInventario(productoId = null) {
+    // Guarda el ID del producto en el sessionStorage para recuperarlo en el módulo de Inventario
+    if (productoId) {
+        sessionStorage.setItem('productoParaEditar', productoId);
+    } else {
+        sessionStorage.removeItem('productoParaEditar'); // Limpiar si no se pasa un ID
+    }
+    window.location.href = "inventario.html";
 }
 
 // --- Funciones Globales de Navegación y Sesión ---
