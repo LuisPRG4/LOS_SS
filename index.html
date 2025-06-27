@@ -8,17 +8,12 @@
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
   <link rel="manifest" href="manifest.json">
-
   <link rel="stylesheet" href="css/style.css" />
-
   <link rel="stylesheet" href="css/exportData.css" />
-
   <link rel="stylesheet" href="css/form-decoration.css" /> <!-- ¡NUEVA LÍNEA CLAVE! -->
-  
   <link rel="stylesheet" href="css/index.css"/>
-
   <link rel="stylesheet" href="css/stockAlert.css"/>
-  
+  <link rel="stylesheet" href="css/update-button.css" />
   
 </head>
 <body>
@@ -116,6 +111,7 @@
   </main>
 
   <script src="js/db.js"></script>
+  <script src="js/sw-register.js"></script>
   <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -140,23 +136,12 @@
     }
   </script>
 
+    <!-- FORZAR ACTUALIZACIÓN DEL SERVICE-WORKER-->
+    <button id="update-app-button">Actualizar Aplicación</button>
+
   <div id="button" class="button-sesion">
     <button onclick="cerrarSesion()">Cerrar sesión</button>
   </div>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(registration => {
-            console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
-          })
-          .catch(error => {
-            console.error('Fallo el registro del Service Worker:', error);
-          });
-      });
-    }
-  </script>
 
 </body>
 </html>
