@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
   <link rel="stylesheet" href="css/cards-general.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
 
 </head>
 <body>
@@ -56,9 +57,28 @@
       <input type="text" id="productos" placeholder="Productos" />
 
       <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-        <button onclick="agregarProveedor()" id="btnGuardarProveedor" class="btn-primario">Guardar Proveedor</button>
+        <button id="btnGuardarProveedor" class="btn-primario">Guardar Proveedor</button>
         <button onclick="cancelarEdicionProveedor()" id="btnCancelarProveedor" class="btn-cancelar" style="display:none;">Cancelar</button>
       </div>
+    </section>
+
+    <section class="inventory-utilities"> <h2>Herramientas de Proveedores</h2>
+    <div class="utility-buttons">
+        <button id="exportarProveedoresBtn" class="btn btn-utility">
+            <i class="fas fa-file-export"></i> Exportar Proveedores (JSON)
+        </button>
+        <label for="importarProveedoresInput" class="btn btn-utility file-upload-label">
+            <i class="fas fa-file-import"></i> Importar Proveedores (JSON)
+            <input type="file" id="importarProveedoresInput" accept=".json" style="display: none;">
+        </label>
+        <button id="descargarPlantillaProveedoresBtn" class="btn btn-utility">
+            <i class="fas fa-download"></i> Descargar Plantilla (JSON)
+        </button>
+    </div>
+</section>
+
+<section>
+    <h2>📋 Lista de Proveedores</h2>
     </section>
 
          <section>
