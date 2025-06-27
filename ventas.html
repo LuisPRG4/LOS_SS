@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css" />
   <link rel="stylesheet" href="css/tablaVentas.css" />
+  <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
 
 </head>
 <body>
@@ -135,6 +136,22 @@
 
 </section>
 
+<section class="inventory-utilities">
+    <h2>Herramientas de Ventas</h2>
+    <div class="utility-buttons">
+        <button id="exportarVentasBtn" class="btn btn-utility" onclick="exportarJSON()">
+            <i class="fas fa-file-export"></i> Exportar Ventas (JSON)
+        </button>
+        <label for="importarVentasInput" class="btn btn-utility file-upload-label">
+            <i class="fas fa-file-import"></i> Importar Ventas (JSON)
+            <input type="file" id="importarVentasInput" accept=".json" style="display: none;" onchange="importarJSONConArchivo(event)">
+        </label>
+        <button id="descargarPlantillaVentasBtn" class="btn btn-utility" onclick="descargarPlantillaJSON()">
+            <i class="fas fa-download"></i> Descargar Plantilla (JSON)
+        </button>
+    </div>
+</section>
+
     <section>
       <h2>📋 Historial de Ventas</h2>
       <input type="text" id="buscadorVentas" placeholder="🔍 Buscar ventas..." oninput="filtrarVentas()" />
@@ -181,13 +198,13 @@
   </section>
 
     <!-- Mini menú lateral con botón de flechita -->
-<div id="miniMenuLateral" class="expandido">
+ <div id="miniMenuLateral" class="expandido">
   <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
   <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
   <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
-</div>
+ </div>
 
-<div id="panelChatbot">
+ <div id="panelChatbot">
   <button class="cerrarBtn" id="cerrarChatbot">×</button>
   <h3>Chatbot - Ventas</h3>
   <div id="chatbotContenido">
@@ -200,7 +217,7 @@
 
   </div>
   <div id="respuestaChatbot" style="margin-top: 10px;"></div>
-</div>
+ </div>
 
   </main>
 
@@ -219,10 +236,10 @@
   if (sessionStorage.getItem("sesionIniciada") !== "true") {
     window.location.href = "login.html";
   }
-</script>
+ </script>
 
   <!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
-<script>
+ <script>
   function mostrarAyuda() {
     const ayuda = document.getElementById("ayuda");
     ayuda.classList.add("visible");
@@ -232,10 +249,10 @@
   document.getElementById("cerrarAyuda").addEventListener("click", () => {
     document.getElementById("ayuda").classList.remove("visible");
   });
-</script>
+ </script>
 
-<!-- SERVICE WORKER-->
-<script>
+ <!-- SERVICE WORKER-->
+ <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // La ruta del Service Worker es simplemente '/sw.js' porque está en la raíz
@@ -248,9 +265,9 @@
         });
     });
   }
-</script>
+ </script>
 
-<div id="modalAbono" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50" style="display: none;">
+ <div id="modalAbono" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50" style="display: none;">
     <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
             <h2 class="text-2xl font-bold text-blue-700">💰 Registrar Abono</h2>
@@ -281,9 +298,9 @@
             <button type="button" onclick="cerrarModalAbono()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md transition">Cancelar</button>
         </div>
     </div>
-</div>
+ </div>
 
-<div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50"></div>
+ <div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50"></div>
 
-</body>
-</html>
+ </body>
+ </html>
