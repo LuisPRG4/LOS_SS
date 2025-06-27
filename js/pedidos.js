@@ -3,7 +3,7 @@
 // Las funciones de db.js son globales y se asume que están cargadas antes de este script.
 // (e.g., abrirDB, obtenerTodosLosProductos, obtenerProductoPorId, actualizarProducto,
 // agregarPedidoDB, obtenerTodosLosPedidosDB, actualizarPedidoDB, eliminarPedidoDB,
-// limpiarTodosLosPedidosDB, mostrarToast, mostrarConfirmacion)
+// limpiarTodosLosPedidosDB, mostrarToast, mostrarConfirmacion, reemplazarTodosLosDatos)
 
 let editPedidoId = null; // Mantiene el ID del pedido en modo edición
 
@@ -12,9 +12,6 @@ let editPedidoId = null; // Mantiene el ID del pedido en modo edición
 let pedidos = [];
 let productos = [];
 let clientes = [];
-
-// --- Función mostrarToast ELIMINADA de aquí, se usa la global de db.js ---
-// function mostrarToast(mensaje) { ... } // ¡Esta función ya no debería estar aquí!
 
 // Cargar productos para el <select> de productos desde IndexedDB
 async function cargarProductosSelect() {
@@ -41,6 +38,13 @@ async function cargarProductosSelect() {
 // Cargar lista de clientes para autocompletar input desde IndexedDB
 async function cargarClientesDatalist() {
     const dataList = document.getElementById("clientesList");
+    // Asegúrate de que el datalist existe en tu HTML. Si no, necesitarías añadirlo:
+    // <input type="text" id="cliente" list="clientesList" placeholder="Selecciona o escribe el nombre..." />
+    // <datalist id="clientesList"></datalist>
+    if (!dataList) {
+        console.warn("Datalist con ID 'clientesList' no encontrado. La función de autocompletar clientes no funcionará.");
+        return;
+    }
     dataList.innerHTML = "";
     try {
         clientes = await obtenerTodosLosClientes(); // Obtiene todos los clientes de IndexedDB
@@ -366,38 +370,62 @@ async function mostrarPedidos() {
 }
 
 // Cambiar estado del pedido
-async function cambiarEstado(id, nuevoEstado) { 
+async function cambiarEstado(id, nuevoEstado) {
     const pedido = pedidos.find(p => p.id === id);
-    if (pedido) {
+    if (!pedido) { // Agregamos esta verificación para evitar errores si el pedido no se encuentra
+        mostrarToast("Pedido no encontrado para actualizar estado. 😢", "error");
+        return;
+    }
+
+    // Guardar el estado anterior para revertir si hay un error
+    const estadoAnterior = pedido.estado;
+
+    try {
+        // Actualizar el estado en el objeto local (pedidos array)
         pedido.estado = nuevoEstado;
-        try {
-            await actualizarPedidoDB(id, pedido); // Actualizar en IndexedDB
-            mostrarToast(`Estado actualizado a "${nuevoEstado}" 🔄`, "info");
-            // Re-renderizar solo el estado de la tarjeta si quieres un feedback visual instantáneo del color
-            // o simplemente confía en que el onchange ya lo actualizó.
-            // Para asegurar el color del texto del estado, el select debería tener clases dinámicas
-            // que se actualicen con el nuevo estado. Esto ya lo manejamos en crearCardPedido.
-            // Una llamada a mostrarPedidos() completa aquí recargaría toda la lista, lo cual puede ser excesivo
-            // a menos que el orden de los pedidos cambie con el estado.
-            // Vamos a redibujar el pedido específico para que se actualice el color.
-            // Opción más eficiente: actualizar el elemento directamente
-            const cardElement = document.querySelector(`.modern-card .card-actions button[onclick="editarPedido(${id})"]`).closest('.modern-card');
-            if (cardElement) {
-                const estadoSelect = cardElement.querySelector('.estado-select');
-                if (estadoSelect) {
-                    estadoSelect.className = 'estado-select'; // Resetear clases
-                    let estadoClass = '';
-                    switch (nuevoEstado) {
-                        case 'Pendiente': estadoClass = 'text-red-600 font-bold'; break;
-                        case 'Preparado': estadoClass = 'text-yellow-600 font-bold'; break;
-                        case 'Entregado': estadoClass = 'text-green-600 font-bold'; break;
-                    }
+        
+        // Actualizar en IndexedDB
+        await actualizarPedidoDB(id, pedido);
+
+        // Actualizar el array global 'pedidos' para que refleje el cambio
+        // Esto es importante si otras funciones dependen de este array actualizado sin recargar toda la lista
+        pedidos = await obtenerTodosLosPedidosDB(); 
+
+        mostrarToast(`Estado actualizado a "${nuevoEstado}" ✅`, "success"); // Primer toast de éxito
+
+        // Actualizar las clases CSS directamente en el elemento SELECT en el DOM
+        // Sin que esto provoque un nuevo 'onchange'
+        const cardElement = document.querySelector(`.modern-card .card-actions button[onclick="editarPedido(${id})"]`).closest('.modern-card');
+        if (cardElement) {
+            const estadoSelect = cardElement.querySelector('.estado-select');
+            if (estadoSelect) {
+                // Eliminar todas las clases de estado previas
+                estadoSelect.classList.remove('text-red-600', 'text-yellow-600', 'text-green-600');
+                
+                // Añadir la clase de color basada en el nuevo estado
+                let estadoClass = '';
+                switch (nuevoEstado) {
+                    case 'Pendiente': estadoClass = 'text-red-600'; break;
+                    case 'Preparado': estadoClass = 'text-yellow-600'; break;
+                    case 'Entregado': estadoClass = 'text-green-600'; break;
+                }
+                if (estadoClass) {
                     estadoSelect.classList.add(estadoClass);
                 }
+                estadoSelect.classList.add('font-bold'); // Mantener la negrita
             }
-        } catch (error) {
-            console.error("Error al cambiar estado del pedido:", error);
-            mostrarToast("Error al actualizar el estado del pedido. 😔", "error");
+        }
+
+    } catch (error) {
+        console.error("Error al cambiar estado del pedido:", error);
+        mostrarToast("Error al actualizar el estado del pedido. 😔", "error");
+        // Opcional: Revertir el estado local si la actualización de la DB falla
+        const index = pedidos.findIndex(p => p.id === id);
+        if (index !== -1) {
+            pedidos[index].estado = estadoAnterior;
+            // Si también actualizaste el select visualmente, podrías necesitar revertirlo
+            // O simplemente hacer una llamada a mostrarPedidos() si el error es crítico y quieres forzar un redibujo.
+            // Para simplicidad, por ahora solo revertimos el estado local.
         }
     }
 }
@@ -447,6 +475,102 @@ async function actualizarPrecioUnitario() {
 }
 
 
+// --- Funciones de Exportación, Importación y Plantilla para Pedidos ---
+
+async function exportarPedidosJSON() {
+    try {
+        const allPedidos = await obtenerTodosLosPedidosDB();
+        if (allPedidos.length === 0) {
+            mostrarToast("No hay pedidos para exportar. 😔", "info");
+            return;
+        }
+        const dataStr = JSON.stringify(allPedidos, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "pedidos_registro.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        mostrarToast("Pedidos exportados con éxito. ✅", "success");
+    } catch (error) {
+        console.error("Error al exportar pedidos:", error);
+        mostrarToast("Error al exportar pedidos. 😔", "error");
+    }
+}
+
+async function importarPedidosJSON(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        mostrarToast("No se seleccionó ningún archivo. ❌", "info");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (!Array.isArray(importedData)) {
+                mostrarToast("El archivo JSON no contiene un array de pedidos válido. 🚫", "error");
+                return;
+            }
+
+            const confirmacion = await mostrarConfirmacion(
+                "¿Estás seguro de importar estos pedidos? Esto REEMPLAZARÁ todos los pedidos actuales en el sistema.",
+                "Confirmar Importación de Pedidos"
+            );
+
+            if (!confirmacion) {
+                mostrarToast("Importación de pedidos cancelada. ❌", "info");
+                return;
+            }
+
+            // Aquí llamamos a la función genérica de db.js para reemplazar datos
+            await reemplazarTodosLosDatos({ pedidos: importedData }); 
+            mostrarToast("Pedidos importados con éxito y base de datos actualizada. ✨", "success");
+            await mostrarPedidos(); // Recargar la lista de pedidos después de la importación
+            // Es importante también recargar clientes y productos si el archivo de respaldo contuviera esos datos,
+            // pero para esta importación específica de pedidos, solo recargamos la lista de pedidos.
+            // Si el cliente necesita importar todo (clientes, productos, etc.) debería ser a través de una función de respaldo/restauración global.
+
+        } catch (error) {
+            console.error("Error al importar pedidos:", error);
+            mostrarToast("Error al importar pedidos. Asegúrate de que el archivo es un JSON válido. 😔", "error");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function descargarPlantillaPedidos() {
+    const plantilla = [
+        {
+            id: 1, // Auto-generado por IndexedDB si keyPath es autoIncrement
+            cliente: "Nombre del Cliente",
+            producto: "Nombre del Producto",
+            productoId: 101, // ID del producto de tu inventario
+            cantidad: 5,
+            precioUnitario: 10.50,
+            total: 52.50,
+            estado: "Pendiente" // o "Preparado", "Entregado"
+        },
+        // Puedes añadir más ejemplos aquí
+    ];
+    const dataStr = JSON.stringify(plantilla, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "plantilla_pedidos.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    mostrarToast("Plantilla de pedidos descargada. 📝", "info");
+}
+
+
 // Código que corre cuando la página termina de cargar (inicialización)
 document.addEventListener("DOMContentLoaded", async () => {
     await abrirDB(); 
@@ -456,10 +580,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     await cargarClientesDatalist();
     await mostrarPedidos();
 
-    // Event Listeners
+    // Event Listeners para el formulario principal y los selectores
+    document.getElementById("btnAgregarPedido").addEventListener("click", agregarPedido); // Asegúrate de que este ID coincida con tu HTML
+    document.getElementById("btnCancelarEdicion").addEventListener("click", cancelarEdicion); // Asegúrate de que este ID coincida con tu HTML
     document.getElementById("btnLimpiarPedidos").addEventListener("click", limpiarTodosLosPedidos); 
     document.getElementById("producto").addEventListener("change", actualizarPrecioUnitario);
     document.getElementById("cantidad").addEventListener("input", actualizarPrecioUnitario);
+
+    // Event Listeners para las nuevas herramientas de pedidos (Exportar/Importar/Plantilla)
+    const exportarPedidosBtn = document.getElementById("exportarPedidosBtn");
+    if (exportarPedidosBtn) {
+        exportarPedidosBtn.addEventListener("click", exportarPedidosJSON);
+    } else {
+        console.warn("Botón 'exportarPedidosBtn' no encontrado. Asegúrate de que el HTML está actualizado.");
+    }
+
+    const importarPedidosInput = document.getElementById("importarPedidosInput");
+    if (importarPedidosInput) {
+        importarPedidosInput.addEventListener("change", importarPedidosJSON);
+    } else {
+        console.warn("Input 'importarPedidosInput' no encontrado. Asegúrate de que el HTML está actualizado.");
+    }
+
+    const descargarPlantillaPedidosBtn = document.getElementById("descargarPlantillaPedidosBtn");
+    if (descargarPlantillaPedidosBtn) {
+        descargarPlantillaPedidosBtn.addEventListener("click", descargarPlantillaPedidos);
+    } else {
+        console.warn("Botón 'descargarPlantillaPedidosBtn' no encontrado. Asegúrate de que el HTML está actualizado.");
+    }
 });
 
 // Función para el menú móvil (ya la tenías en el HTML)
