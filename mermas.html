@@ -73,6 +73,22 @@
       
     </section>
 
+    <section class="inventory-utilities">
+    <h2>Herramientas de Mermas</h2>
+    <div class="utility-buttons">
+        <button id="exportarMermasBtn" class="btn btn-utility">
+            <i class="fas fa-file-export"></i> Exportar Mermas (JSON)
+        </button>
+        <label for="importarMermasInput" class="btn btn-utility file-upload-label">
+            <i class="fas fa-file-import"></i> Importar Mermas (JSON)
+            <input type="file" id="importarMermasInput" accept=".json" style="display: none;">
+        </label>
+        <button id="descargarPlantillaMermasBtn" class="btn btn-utility">
+            <i class="fas fa-download"></i> Descargar Plantilla (JSON)
+        </button>
+    </div>
+</section>
+
     <section>
       <h2>📋 Historial de Mermas</h2>
       <input type="text" id="buscadorMerma" placeholder="🔍 Buscar mermas..." oninput="filtrarMermas()" />
