@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/chatbot-ayuda.css">
   <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
   <link rel="stylesheet" href="css/cards-general.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
 
 </head>
 <body>
@@ -64,10 +65,26 @@
   <input type="number" id="precioUnitario" placeholder="Precio Unitario" readonly>
 
   <div class="form-buttons"> 
-    <button id="btnAgregarPedido" class="btn-agregar" onclick="agregarPedido()">Agregar Pedido</button>
+    <button id="btnAgregarPedido" class="btn-agregar">Agregar Pedido</button>
     <button id="btnCancelarEdicion" onclick="cancelarEdicion()" style="display: none;">Cancelar Edición</button>
   </div>
 
+</section>
+
+<section class="inventory-utilities">
+    <h2>Herramientas de Pedidos</h2>
+    <div class="utility-buttons">
+        <button id="exportarPedidosBtn" class="btn btn-utility">
+            <i class="fas fa-file-export"></i> Exportar Pedidos (JSON)
+        </button>
+        <label for="importarPedidosInput" class="btn btn-utility file-upload-label">
+            <i class="fas fa-file-import"></i> Importar Pedidos (JSON)
+            <input type="file" id="importarPedidosInput" accept=".json" style="display: none;">
+        </label>
+        <button id="descargarPlantillaPedidosBtn" class="btn btn-utility">
+            <i class="fas fa-download"></i> Descargar Plantilla (JSON)
+        </button>
+    </div>
 </section>
 
             <section>
