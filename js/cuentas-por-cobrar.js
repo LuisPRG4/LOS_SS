@@ -894,12 +894,31 @@ async function cargarYMostrarVentasPagadas() {
         ventasPagadas.forEach(venta => {
             const card = document.createElement("div");
             card.className = "venta-pagada-card"; // Clase CSS nueva para estas tarjetas
+            
+            // Determinar el método de pago y su etiqueta
+            let metodoPagoHTML = '';
+            if (venta.tipoPago === 'contado') {
+                metodoPagoHTML = `<p class="card-text">Método de pago: <strong>${venta.detallePago?.metodo || 'No especificado'}</strong></p>`;
+            } else {
+                metodoPagoHTML = `
+                    <p class="card-text">Método de pago: 
+                        <select class="metodo-pago-select" data-venta-id="${venta.id}">
+                            <option value="" ${!venta.detallePago?.metodo ? 'selected' : ''}>Seleccionar método</option>
+                            <option value="Efectivo" ${venta.detallePago?.metodo === 'Efectivo' ? 'selected' : ''}>Efectivo</option>
+                            <option value="Pago Móvil" ${venta.detallePago?.metodo === 'Pago Móvil' ? 'selected' : ''}>Pago Móvil</option>
+                            <option value="Transferencia" ${venta.detallePago?.metodo === 'Transferencia' ? 'selected' : ''}>Transferencia</option>
+                        </select>
+                    </p>`;
+            }
+
             card.innerHTML = `
                 <div class="card-header-flex">
                     <h4 class="card-title">Factura ${venta.id} - ${venta.cliente}</h4>
                     <span class="card-date">${venta.fecha}</span>
                 </div>
                 <p class="card-text">Total Venta: <strong>$${venta.ingreso.toFixed(2)}</strong></p>
+                <p class="card-text">Tipo de Venta: <strong>${venta.tipoPago.charAt(0).toUpperCase() + venta.tipoPago.slice(1)}</strong></p>
+                ${metodoPagoHTML}
                 <p class="card-text status-pagado">Estado: ${venta.estadoPago}</p>
                 <div class="card-actions">
                     <button class="btn-detail btn-ver-historial-pagada" data-venta-id="${venta.id}">Ver Historial</button>
@@ -907,6 +926,27 @@ async function cargarYMostrarVentasPagadas() {
                 <div class="historial-pagos" id="historial-${venta.id}" style="display:none; margin-top:10px;"></div>
             `;
             listaVentasPagadasDiv.appendChild(card);
+
+            // Si es venta a crédito, agregar el event listener para el select
+            if (venta.tipoPago === 'credito') {
+                const select = card.querySelector('.metodo-pago-select');
+                select.addEventListener('change', async (e) => {
+                    const nuevoMetodo = e.target.value;
+                    const ventaId = parseInt(e.target.dataset.ventaId);
+                    try {
+                        const ventaActualizada = {...venta};
+                        if (!ventaActualizada.detallePago) ventaActualizada.detallePago = {};
+                        ventaActualizada.detallePago.metodo = nuevoMetodo;
+                        await actualizarVenta(ventaId, ventaActualizada);
+                        mostrarToast('Método de pago actualizado correctamente', 'success');
+                    } catch (error) {
+                        console.error('Error al actualizar el método de pago:', error);
+                        mostrarToast('Error al actualizar el método de pago', 'error');
+                        // Revertir la selección en caso de error
+                        e.target.value = venta.detallePago?.metodo || '';
+                    }
+                });
+            }
         });
 
         // Esta línea ya estaba bien ubicada y se mantiene.
