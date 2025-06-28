@@ -15,6 +15,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         llenarDatalistClientes();
         abonos = await obtenerTodosLosAbonos();
 
+        // Inicializar la sección de ventas pagadas
+        const seccionVentasPagadas = document.getElementById("seccionVentasPagadas");
+        if (seccionVentasPagadas) {
+            seccionVentasPagadas.style.display = "none";
+        }
+
         // Forzar una carga inmediata
         await cargarYMostrarCuentasPorCobrar();
 
@@ -24,20 +30,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Error: renderCalendar() no está definido.");
         }
 
-        // Asignar eventos a los botones de filtro
-        document.getElementById("btnFiltrarCuentas").addEventListener("click", aplicarFiltros);
-        document.getElementById("btnLimpiarFiltros").addEventListener("click", limpiarFiltros);
-
-        // Asociar eventos del modal de abono
-        document.getElementById("btnRegistrarAbono").addEventListener("click", registrarAbono);
-        document.getElementById("cerrarModalAbono").addEventListener("click", cerrarModalAbono);
-        document.getElementById("modalAbono").addEventListener("click", (e) => {
-            if (e.target.id === "modalAbono") {
-                cerrarModalAbono();
+        // Función auxiliar para agregar event listeners de manera segura
+        const addSafeEventListener = (elementId, event, handler) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.addEventListener(event, handler);
+            } else {
+                console.error(`Elemento con ID '${elementId}' no encontrado`);
             }
-        });
+        };
 
-        document.getElementById("btnToggleVentasPagadas").addEventListener("click", toggleVentasPagadas);
+        // Asignar eventos a los botones de filtro de manera segura
+        addSafeEventListener("btnFiltrarCuentas", "click", aplicarFiltros);
+        addSafeEventListener("btnLimpiarFiltros", "click", limpiarFiltros);
+        addSafeEventListener("btnToggleVentasPagadas", "click", toggleVentasPagadas);
+
+        // Asociar eventos del modal de abono de manera segura
+        addSafeEventListener("btnRegistrarAbono", "click", registrarAbono);
+        addSafeEventListener("cerrarModalAbono", "click", cerrarModalAbono);
+
+        const modalAbono = document.getElementById("modalAbono");
+        if (modalAbono) {
+            modalAbono.addEventListener("click", (e) => {
+                if (e.target.id === "modalAbono") {
+                    cerrarModalAbono();
+                }
+            });
+        }
 
         // Lógica para cargar venta desde localStorage si se viene de "Cuentas por Cobrar"
         // (Esto es en ventas.js, pero lo mantengo aquí por si acaso lo colocaste aquí)
@@ -811,34 +830,40 @@ function mostrarRankingMorosos(ventas) {
 // --- NUEVAS FUNCIONES PARA VENTAS PAGADAS ---
 
 // Función para alternar la visibilidad de las ventas pagadas
-// Función para alternar la visibilidad de las ventas pagadas
 async function toggleVentasPagadas() {
     const seccionVentasPagadas = document.getElementById("seccionVentasPagadas");
     const btnToggle = document.getElementById("btnToggleVentasPagadas");
     const listaVentasPagadasDiv = document.getElementById("listaVentasPagadas");
     const noVentasPagadasMsg = document.getElementById("noVentasPagadasMsg");
 
+    // Verificar que todos los elementos necesarios existen
+    if (!seccionVentasPagadas || !btnToggle || !listaVentasPagadasDiv || !noVentasPagadasMsg) {
+        console.error("No se encontraron todos los elementos necesarios para mostrar las ventas pagadas");
+        return;
+    }
+
     if (seccionVentasPagadas.style.display === "none") {
         // Si está oculta, mostrarla
         seccionVentasPagadas.style.display = "block";
-        btnToggle.innerHTML = '<i class="fas fa-file-invoice-slash"></i> Ocultar Facturas Pagadas'; // Cambiar texto del botón
+        btnToggle.innerHTML = '<i class="fas fa-file-invoice-slash"></i> Ocultar Facturas Pagadas';
         
         // Limpiar y cargar las ventas pagadas
-        listaVentasPagadasDiv.innerHTML = '<p style="text-align: center;">Cargando facturas pagadas...</p>'; // Mensaje de carga
-        noVentasPagadasMsg.style.display = 'none'; // Ocultar mensaje de no hay ventas
+        listaVentasPagadasDiv.innerHTML = '<p style="text-align: center;">Cargando facturas pagadas...</p>';
+        noVentasPagadasMsg.style.display = 'none';
 
-        await cargarYMostrarVentasPagadas(); // Llamar a la función para cargar los datos
-
-        // --- AÑADE ESTA LÍNEA AQUÍ ---
-        seccionVentasPagadas.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // --- FIN DE LA LÍNEA A AÑADIR ---
-
+        try {
+            await cargarYMostrarVentasPagadas();
+            seccionVentasPagadas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+            console.error("Error al cargar las ventas pagadas:", error);
+            listaVentasPagadasDiv.innerHTML = '<p style="color: red;">Error al cargar las facturas pagadas. Por favor, intente de nuevo.</p>';
+        }
     } else {
         // Si está visible, ocultarla
         seccionVentasPagadas.style.display = "none";
-        btnToggle.innerHTML = '<i class="fas fa-file-invoice"></i> Ver Facturas Pagadas'; // Restaurar texto del botón
-        listaVentasPagadasDiv.innerHTML = ''; // Limpiar contenido al ocultar
-        noVentasPagadasMsg.style.display = 'none'; // Ocultar mensaje de no hay ventas
+        btnToggle.innerHTML = '<i class="fas fa-file-invoice"></i> Ver Facturas Pagadas';
+        listaVentasPagadasDiv.innerHTML = '';
+        noVentasPagadasMsg.style.display = 'none';
     }
 }
 
