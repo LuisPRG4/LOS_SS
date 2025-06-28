@@ -1,7 +1,16 @@
 // Archivo: service-worker.js
 
-const CACHE_NAME = "los-ss-v1.2"; // Incrementamos la versión
-const REPO_PREFIX = '/Los_SS/'; // ¡MUY IMPORTANTE! Asegúrate que coincide con el nombre de tu repositorio
+// Incrementamos la versión y agregamos timestamp para forzar actualización
+const CACHE_NAME = "los-ss-cache-v4";
+const APP_VERSION = "1.0.4"; // Incrementa esto cuando hagas cambios importantes
+const REPO_PREFIX = '/Los_SS/';
+
+// Archivos críticos que siempre deben actualizarse
+const CRITICAL_FILES = [
+    `${REPO_PREFIX}js/cuentas-por-cobrar.js`,
+    `${REPO_PREFIX}css/ventas-pagadas.css`,
+    `${REPO_PREFIX}cuentas-por-cobrar.html`
+];
 
 const urlsToCache = [
   `${REPO_PREFIX}`, // La raíz de tu aplicación en GitHub Pages
@@ -92,82 +101,105 @@ const urlsToCache = [
   `${REPO_PREFIX}resources/ICONO BOLSITA.png`,
 ];
 
+// Función para verificar si un archivo es crítico
+function isCriticalFile(url) {
+    return CRITICAL_FILES.some(file => url.includes(file));
+}
+
+// Función para limpiar cachés antiguas
+async function deleteOldCaches() {
+    const cacheNames = await caches.keys();
+    await Promise.all(
+        cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+                console.log('[Service Worker] Eliminando caché antigua:', cacheName);
+                return caches.delete(cacheName);
+            }
+        })
+    );
+}
+
 // Instalación del Service Worker
 self.addEventListener('install', event => {
-    console.log('[Service Worker] Instalando nuevo Service Worker...');
+    console.log('[Service Worker] Instalando nueva versión:', APP_VERSION);
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
+        Promise.all([
+            caches.open(CACHE_NAME).then(cache => {
                 console.log('[Service Worker] Cacheando archivos');
                 return cache.addAll(urlsToCache);
-            })
-            .then(() => {
-                console.log('[Service Worker] Todos los recursos han sido cacheados');
-                return self.skipWaiting(); // Fuerza la activación inmediata
-            })
+            }),
+            self.skipWaiting() // Fuerza la activación inmediata
+        ])
     );
 });
 
 // Activación del Service Worker
 self.addEventListener('activate', event => {
-    console.log('[Service Worker] Activando nuevo Service Worker...');
+    console.log('[Service Worker] Activando nueva versión:', APP_VERSION);
     event.waitUntil(
         Promise.all([
-            // Limpia las cachés antiguas
-            caches.keys().then(cacheNames => {
-                return Promise.all(
-                    cacheNames.map(cacheName => {
-                        if (cacheName !== CACHE_NAME) {
-                            console.log('[Service Worker] Eliminando caché antigua:', cacheName);
-                            return caches.delete(cacheName);
-                        }
-                    })
-                );
-            }),
-            // Toma el control inmediatamente
-            self.clients.claim()
+            deleteOldCaches(),
+            self.clients.claim() // Toma el control inmediatamente
         ])
     );
 });
 
 // Interceptación de peticiones
-self.addEventListener("fetch", event => {
+self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
 
     event.respondWith(
-        fetch(event.request)
-            .then(networkResponse => {
-                // Si la petición de red fue exitosa, actualiza la caché
+        (async () => {
+            const url = event.request.url;
+            
+            // Para archivos críticos, siempre intentar obtener la última versión
+            if (isCriticalFile(url)) {
+                try {
+                    console.log('[Service Worker] Obteniendo archivo crítico de la red:', url);
+                    const networkResponse = await fetch(event.request);
+                    const cache = await caches.open(CACHE_NAME);
+                    cache.put(event.request, networkResponse.clone());
+                    return networkResponse;
+                } catch (error) {
+                    console.log('[Service Worker] Error al obtener archivo crítico, usando caché:', url);
+                    const cachedResponse = await caches.match(event.request);
+                    return cachedResponse || new Response('Error de red', { status: 504 });
+                }
+            }
+
+            // Para otros archivos, intentar red primero, caché como respaldo
+            try {
+                const networkResponse = await fetch(event.request);
                 if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                    return caches.open(CACHE_NAME)
-                        .then(cache => {
-                            cache.put(event.request, networkResponse.clone());
-                            return networkResponse;
-                        });
+                    const cache = await caches.open(CACHE_NAME);
+                    cache.put(event.request, networkResponse.clone());
                 }
                 return networkResponse;
-            })
-            .catch(() => {
-                // Si la red falla, intenta servir desde la caché
-                return caches.match(event.request)
-                    .then(response => {
-                        if (response) {
-                            return response;
-                        }
-                        // Si no está en caché y es una navegación, muestra la página offline
-                        if (event.request.mode === 'navigate' || 
-                            (event.request.headers.get('accept') || '').includes('text/html')) {
-                            return caches.match(`${REPO_PREFIX}offline.html`);
-                        }
-                    });
-            })
+            } catch (error) {
+                const cachedResponse = await caches.match(event.request);
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+                
+                // Si es una navegación y no hay caché, mostrar página offline
+                if (event.request.mode === 'navigate') {
+                    return caches.match(`${REPO_PREFIX}offline.html`);
+                }
+                
+                return new Response('Error de red', { status: 504 });
+            }
+        })()
     );
 });
 
 // Manejo de mensajes
-self.addEventListener('message', (event) => {
+self.addEventListener('message', event => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         console.log('[Service Worker] Forzando activación inmediata');
         self.skipWaiting();
+    } else if (event.data && event.data.type === 'CHECK_VERSION') {
+        event.ports[0].postMessage({
+            version: APP_VERSION
+        });
     }
 });
