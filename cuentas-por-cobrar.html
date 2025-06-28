@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/calendar.css" />
     <link rel="stylesheet" href="css/whatsapp.css" />
     <link rel="stylesheet" href="css/chatbot-ayuda.css" />
+    <link rel="stylesheet" href="css/ventas-pagadas.css">
 
 </head>
 <body>
@@ -106,6 +107,23 @@
             </div>
         </section>
 
+        <!-- SECCIÓN PARA LAS DEUDAS SALDADAS -->
+        <div class="card-container-wrapper">
+            <div class="card-status-info">
+                <div class="card-header-flex">
+                    <h3 class="card-title text-info">Historial de Ventas Pagadas</h3>
+                    <button id="btnToggleVentasPagadas" class="btn-info btn-icon-text">
+                        <i class="fas fa-file-invoice"></i> Ver Facturas Pagadas
+                    </button>
+                </div>
+                <div id="seccionVentasPagadas" style="display:none;">
+                    <div id="listaVentasPagadas" class="lista-ventas-pagadas">
+                        <p>Cargando facturas pagadas...</p>
+                    </div>
+                    <p id="noVentasPagadasMsg" style="display:none;">No hay facturas pagadas registradas aún.</p>
+                </div>
+            </div>
+        </div>
 
          <!-- Ayuda contextual para Cuentas por Cobrar -->
     <section id="ayuda">
