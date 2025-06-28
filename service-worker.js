@@ -1,5 +1,6 @@
 // Archivo: service-worker.js
-const CACHE_NAME = "los-ss-cache_v4"; // Incrementa la versión si cambias algo aquí
+
+const CACHE_NAME = "los-ss-cache_v5"; // Incrementamos la versión
 const REPO_PREFIX = '/Los_SS/'; // ¡MUY IMPORTANTE! Asegúrate que coincide con el nombre de tu repositorio
 
 const urlsToCache = [
@@ -91,42 +92,82 @@ const urlsToCache = [
   `${REPO_PREFIX}resources/ICONO BOLSITA.png`,
 ];
 
-// ... (El resto de tu código del Service Worker sin cambios) ...
-
-self.addEventListener("fetch", event => {
-    if (event.request.method !== 'GET') {
-        return;
-    }
-
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            if (response) {
-                return response;
-            }
-
-            return fetch(event.request)
-                .then(networkResponse => {
-                    if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                        const responseToCache = networkResponse.clone();
-                        caches.open(CACHE_NAME).then(cache => {
-                            cache.put(event.request, responseToCache);
-                        });
-                    }
-                    return networkResponse;
-                })
-                .catch(() => {
-                    if (event.request.mode === 'navigate' || (event.request.headers.get('accept') || '').includes('text/html')) {
-                        console.log('[Service Worker] Red offline, sirviendo offline.html');
-                        return caches.match(`${REPO_PREFIX}offline.html`); // ¡Importante que esta ruta también use el prefijo!
-                    }
-                });
-        })
+// Instalación del Service Worker
+self.addEventListener('install', event => {
+    console.log('[Service Worker] Instalando nuevo Service Worker...');
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                console.log('[Service Worker] Cacheando archivos');
+                return cache.addAll(urlsToCache);
+            })
+            .then(() => {
+                console.log('[Service Worker] Todos los recursos han sido cacheados');
+                return self.skipWaiting(); // Fuerza la activación inmediata
+            })
     );
 });
 
+// Activación del Service Worker
+self.addEventListener('activate', event => {
+    console.log('[Service Worker] Activando nuevo Service Worker...');
+    event.waitUntil(
+        Promise.all([
+            // Limpia las cachés antiguas
+            caches.keys().then(cacheNames => {
+                return Promise.all(
+                    cacheNames.map(cacheName => {
+                        if (cacheName !== CACHE_NAME) {
+                            console.log('[Service Worker] Eliminando caché antigua:', cacheName);
+                            return caches.delete(cacheName);
+                        }
+                    })
+                );
+            }),
+            // Toma el control inmediatamente
+            self.clients.claim()
+        ])
+    );
+});
+
+// Interceptación de peticiones
+self.addEventListener("fetch", event => {
+    if (event.request.method !== 'GET') return;
+
+    event.respondWith(
+        fetch(event.request)
+            .then(networkResponse => {
+                // Si la petición de red fue exitosa, actualiza la caché
+                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                    return caches.open(CACHE_NAME)
+                        .then(cache => {
+                            cache.put(event.request, networkResponse.clone());
+                            return networkResponse;
+                        });
+                }
+                return networkResponse;
+            })
+            .catch(() => {
+                // Si la red falla, intenta servir desde la caché
+                return caches.match(event.request)
+                    .then(response => {
+                        if (response) {
+                            return response;
+                        }
+                        // Si no está en caché y es una navegación, muestra la página offline
+                        if (event.request.mode === 'navigate' || 
+                            (event.request.headers.get('accept') || '').includes('text/html')) {
+                            return caches.match(`${REPO_PREFIX}offline.html`);
+                        }
+                    });
+            })
+    );
+});
+
+// Manejo de mensajes
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
-        console.log('[Service Worker] Mensaje SKIP_WAITING recibido. Forzando activación.');
+        console.log('[Service Worker] Forzando activación inmediata');
         self.skipWaiting();
     }
 });
