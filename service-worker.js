@@ -1,6 +1,6 @@
 // Archivo: service-worker.js
 
-const CACHE_NAME = "los-ss-cache_v5"; // Incrementamos la versión
+const CACHE_NAME = "los-ss-cache_v6"; // Incrementamos la versión
 const REPO_PREFIX = '/Los_SS/'; // ¡MUY IMPORTANTE! Asegúrate que coincide con el nombre de tu repositorio
 
 const urlsToCache = [
