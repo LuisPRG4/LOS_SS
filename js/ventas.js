@@ -85,17 +85,6 @@ function mostrarOpcionesPago() {
 
 function obtenerFechaVenta() {
     const usarFechaPersonalizada = document.getElementById("activarFechaManual")?.checked;
-    const fechaPersonalizada = document.getElementById("fechaVentaPersonalizada")?.value; // Renombrado
-    const horaPersonalizada = document.getElementById("horaVentaPersonalizada")?.value; // Nuevo
-
-    if (usarFechaPersonalizada && fechaPersonalizada) {
-        // Combinar fecha y hora si hay hora personalizada, sino solo la fecha
-        return horaPersonalizada ? `${fechaPersonalizada}T${horaPersonalizada}:00` : `${fechaPersonalizada}T00:00:00`;
-    }
-
-    
-    function obtenerFechaVenta() {
-    const usarFechaPersonalizada = document.getElementById("activarFechaManual")?.checked;
     const fechaPersonalizada = document.getElementById("fechaVentaPersonalizada")?.value;
     const horaPersonalizada = document.getElementById("horaVentaPersonalizada")?.value;
 
@@ -103,30 +92,18 @@ function obtenerFechaVenta() {
         return horaPersonalizada ? `${fechaPersonalizada}T${horaPersonalizada}:00` : `${fechaPersonalizada}T00:00:00`;
     }
 
+    // Fijar la fecha actual al momento de crear la venta
     const ahora = new Date();
-    const año = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
-    const horas = String(ahora.getHours()).padStart(2, '0');
-    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+    const fechaStr = ahora.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+    const horaStr = ahora.toTimeString().split(' ')[0].slice(0, 8); // Formato HH:MM:SS
 
-    return `${año}-${mes}-${dia}T${horas}:${minutos}:00`;
-}
-
+    return `${fechaStr}T${horaStr}`;
 }
 
 // Nueva función para el toggle de fecha manual
 function toggleFechaManual() {
-    const opcionFechaManual = document.getElementById("opcionFechaManual");
-    const activarFechaManualCheckbox = document.getElementById("activarFechaManual");
-    if (activarFechaManualCheckbox.checked) {
-        opcionFechaManual.style.display = "block";
-    } else {
-        opcionFechaManual.style.display = "none";
-        // Opcional: limpiar los campos si se desactiva
-        document.getElementById("fechaVentaPersonalizada").value = "";
-        document.getElementById("horaVentaPersonalizada").value = "";
-    }
+    const mostrar = document.getElementById("activarFechaManual").checked;
+    document.getElementById("opcionFechaManual").style.display = mostrar ? "block" : "none";
 }
 
 async function registrarVenta() {
@@ -414,7 +391,7 @@ function crearCardVenta(venta, id) {
         productosTexto = "Error al cargar productos";
     }
 
-    // ✅ NUEVO bloque para manejar la fecha correctamente
+    // Formatear fecha y hora
     let fechaObj;
     try {
         fechaObj = new Date(venta.fecha);
@@ -433,12 +410,11 @@ function crearCardVenta(venta, id) {
         month: '2-digit',
         day: '2-digit'
     });
-    const horaVenta = fechaObj.toLocaleTimeString('es-US', {
-        hour: 'numeric',
+    const horaVenta = fechaObj.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true
+        hour12: false
     });
-
 
     let detallePagoHTML = '';
     let estadoPagoHTML = '';
@@ -479,18 +455,19 @@ function crearCardVenta(venta, id) {
     }
 
     const card = document.createElement("div");
-    card.className = `venta-card ${estadoClase}`;
+    card.classList.add("venta-card");
+    if (estadoClase) card.classList.add(estadoClase);
 
     card.innerHTML = `
         <div class="header-venta">
             <h3>${venta.cliente}</h3>
-            <span class="fecha-venta">${fechaVenta}, ${horaVenta}</span>
         </div>
         <div class="detalle-venta">
             <p><strong>Productos:</strong> ${productosTexto}</p>
             <p><strong>Total:</strong> $${venta.ingreso?.toFixed(2) || '0.00'}</p>
             <p><strong>Condición:</strong> ${venta.tipoPago} ${estadoPagoHTML}</p>
-            ${detallePagoHTML}
+            <p><strong>Método:</strong> ${venta.detallePago.metodo || ''}</p>
+            <p><strong>Fecha y hora de registro:</strong> ${fechaVenta} ${horaVenta}</p>
         </div>
         <div class="acciones-venta">
             <button onclick="cargarVenta(${id})" class="btn-editar">✏️ Editar</button>
