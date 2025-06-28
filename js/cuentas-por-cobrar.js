@@ -1,29 +1,28 @@
 let ventasCredito = []; // Solo las ventas a crédito
 let clientes = [];
 let abonos = []; // Para los abonos
+let ventas = []; // <--- ASEGÚRATE DE QUE ESTA LÍNEA EXISTA
 
 let currentVentaIdAbono = null; // Para el modal de abonos
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        await abrirDB(); // Abre la base de datos (asegúrate de que db.js se carga antes)
+        await abrirDB(); // Abre la base de datos
 
         // Cargar todos los datos necesarios al inicio
-        ventas = await obtenerTodasLasVentas(); // Obtener todas las ventas
+        ventas = await obtenerTodasLasVentas();
         clientes = await obtenerTodosLosClientes();
         llenarDatalistClientes();
         abonos = await obtenerTodosLosAbonos();
 
-        // *** ¡AÑADE ESTA LÍNEA AQUÍ! ***
-        if (typeof renderCalendar === 'function') { // Asegurarnos que la función exista
-            renderCalendar(); // Llama a la función del calendario para que se dibuje
-        } else {
-            console.error("Error: renderCalendar() no está definido. Asegúrate de que js/calendar.js está enlazado correctamente.");
-        }
-
-        // Inicializar la lista de ventas a crédito
+        // Forzar una carga inmediata
         await cargarYMostrarCuentasPorCobrar();
-        await actualizarEstadisticas();
+
+        if (typeof renderCalendar === 'function') {
+            renderCalendar();
+        } else {
+            console.error("Error: renderCalendar() no está definido.");
+        }
 
         // Asignar eventos a los botones de filtro
         document.getElementById("btnFiltrarCuentas").addEventListener("click", aplicarFiltros);
@@ -38,6 +37,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
+        document.getElementById("btnToggleVentasPagadas").addEventListener("click", toggleVentasPagadas);
+
         // Lógica para cargar venta desde localStorage si se viene de "Cuentas por Cobrar"
         // (Esto es en ventas.js, pero lo mantengo aquí por si acaso lo colocaste aquí)
         const storedEditVentaId = localStorage.getItem('editVentaId');
@@ -46,8 +47,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
     } catch (error) {
-        console.error("Error al inicializar la aplicación de cuentas por cobrar:", error);
-        mostrarToast("Error grave al cargar datos de cuentas por cobrar 😥", 'error'); // Usando tipo de toast
+        console.error("Error en la inicialización:", error);
+        mostrarToast("Error al inicializar la aplicación ❌", "error");
     }
 });
 
@@ -68,6 +69,12 @@ function llenarDatalistClientes() {
 
 async function cargarYMostrarCuentasPorCobrar() {
     try {
+        // Limpiar el contenedor de cuentas
+        const listaCuentas = document.getElementById("listaCuentasPorCobrar");
+        if (listaCuentas) {
+            listaCuentas.innerHTML = "";
+        }
+
         // Obtener todas las ventas y filtrar solo las de crédito
         const allVentas = await obtenerTodasLasVentas();
         ventasCredito = allVentas.filter(venta => venta.tipoPago === 'credito');
@@ -87,19 +94,22 @@ async function cargarYMostrarCuentasPorCobrar() {
             } else {
                 venta.estadoPago = 'Pendiente';
             }
-            // Persistir el estado actualizado en la DB (útil para que el estado se guarde)
+            // Persistir el estado actualizado en la DB
             await actualizarVenta(venta.id, venta);
         }
 
         // Filtrar solo las ventas que aún tienen un monto pendiente por defecto
         const pendientesFiltradas = ventasCredito.filter(v => v.montoPendiente > 0);
 
+        // Forzar una actualización completa de la UI
         mostrarCuentasEnUI(pendientesFiltradas);
-        await actualizarEstadisticas(pendientesFiltradas); // Actualiza estadísticas con los datos filtrados
+        await actualizarEstadisticas(pendientesFiltradas);
 
         verificarRecordatorios(pendientesFiltradas);
+        mostrarRankingMorosos(pendientesFiltradas);
 
-        mostrarRankingMorosos(pendientesFiltradas); // o filteredCuentas si estás en aplicarFiltros
+        // Forzar un refresco de los eventos después de actualizar la UI
+        agregarEventosHistorial();
 
     } catch (error) {
         console.error("Error al cargar y mostrar cuentas por cobrar:", error);
@@ -158,19 +168,48 @@ function verificarRecordatorios(pedidos) {
     }
 }
 
-//NUEVA A LA 1 AM
+//NUEVA A LA 1 AM (actualizada para ventas pagadas)
 function agregarEventosHistorial() {
+    // Para los botones de "Ventas a Crédito Pendientes"
     document.querySelectorAll('.btn-ver-historial').forEach(btn => {
-        btn.removeEventListener('click', toggleHistorialPagos);
+        btn.removeEventListener('click', toggleHistorialPagos); // Eliminar por si ya existía
         btn.addEventListener('click', toggleHistorialPagos);
     });
-}
 
+    // --- NUEVA SECCIÓN: Para los botones de "Historial de Ventas Pagadas" ---
+    document.querySelectorAll('.btn-ver-historial-pagada').forEach(btn => {
+        btn.removeEventListener('click', toggleHistorialPagos); // Eliminar por si ya existía
+        btn.addEventListener('click', toggleHistorialPagos);
+    });
+    // --- FIN NUEVA SECCIÓN ---
+}
 
 function crearCardVentaCredito(venta) {
     const nombreCliente = venta.cliente || "Cliente desconocido";
     const productosTexto = venta.productos.map(p => `${p.nombre} x${p.cantidad}`).join(", ");
     const fechaVencimiento = venta.detallePago?.fechaVencimiento || "Sin fecha";
+
+    console.log('Datos de venta:', {
+        id: venta.id,
+        fechaVencimientoOriginal: fechaVencimiento,
+        detallePago: venta.detallePago
+    });
+
+    // Formatear fecha y hora de registro
+    let fechaRegistro;
+    try {
+        const fechaObj = new Date(venta.fecha);
+        fechaRegistro = fechaObj.toLocaleString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }).replace(',', '');
+    } catch (e) {
+        fechaRegistro = venta.fecha || "Fecha no disponible";
+    }
 
     let estadoPagoHTML = '';
     let cardStatusClass = 'card-status-info';
@@ -184,15 +223,37 @@ function crearCardVentaCredito(venta) {
     // Texto de días de mora o por vencer
     let textoDias = '';
     if (fechaVencimiento !== "Sin fecha") {
-        const diff = vencimientoOnlyDate - today;
-        const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-        if (dias < 0) {
-            textoDias = `<span class="mora-text text-danger">Hace ${Math.abs(dias)} día${Math.abs(dias) === 1 ? '' : 's'} de mora</span>`;
-        } else if (dias === 0) {
+        // Crear fecha de vencimiento correctamente
+        const fechaVencimientoSinHora = new Date(fechaVencimiento + 'T00:00:00');
+        const fechaHoySinHora = new Date();
+        fechaHoySinHora.setHours(0, 0, 0, 0);
+        
+        console.log('Fechas para cálculo:', {
+            fechaVencimiento: fechaVencimientoSinHora.toISOString(),
+            fechaHoy: fechaHoySinHora.toISOString(),
+            fechaVencimientoOriginal: fechaVencimiento
+        });
+        
+        // Calcular la diferencia en días
+        const diff = fechaVencimientoSinHora.getTime() - fechaHoySinHora.getTime();
+        const diasTotales = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        
+        console.log('Cálculo de días:', {
+            diferenciaMilisegundos: diff,
+            diasTotales: diasTotales
+        });
+        
+        if (diasTotales < 0) {
+            const diasMora = Math.abs(diasTotales);
+            textoDias = `<span class="mora-text text-danger">
+                ${diasMora === 1 ? 'Hace 1 día de mora' : `Hace ${diasMora} días de mora`}
+            </span>`;
+        } else if (diasTotales === 0) {
             textoDias = `<span class="mora-text text-warning">Vence hoy</span>`;
         } else {
-            textoDias = `<span class="mora-text text-muted">Faltan ${dias} día${dias === 1 ? '' : 's'}</span>`;
+            textoDias = `<span class="mora-text text-muted">
+                ${diasTotales === 1 ? 'Falta 1 día' : `Faltan ${diasTotales} días`}
+            </span>`;
         }
     } else {
         textoDias = `<span class="mora-text text-muted">Sin fecha de vencimiento</span>`;
@@ -242,7 +303,7 @@ function crearCardVentaCredito(venta) {
     <div class="card-header-flex">
         <h3 class="card-title ${textColorClass}">${nombreCliente}</h3>
         <p class="riesgo-nivel">🧠 Riesgo: <strong>${nivelRiesgo}</strong></p>
-        <span class="card-date">Reg: ${venta.fecha}</span>
+        <span class="card-date">Reg: ${fechaRegistro}</span>
     </div>
     <p class="card-text"><strong>Productos:</strong> ${productosTexto}</p>
     <p class="card-text"><strong>Total Venta:</strong> $${venta.ingreso.toFixed(2)}</p>
@@ -349,50 +410,22 @@ function cargarVentaParaEditar(ventaId) {
 async function aplicarFiltros() {
     const clienteFiltro = document.getElementById("filtroCliente").value.toLowerCase().trim();
     // Si hay coincidencia exacta en cliente, mostrar solo el resumen
- const coincidenciaExacta = clientes.some(c => c.nombre.toLowerCase() === clienteFiltro);
- if (coincidenciaExacta) {
-    mostrarResumenCliente(clienteFiltro);
-    return; // Ya no seguimos con el filtro normal
- }
+    const coincidenciaExacta = clientes.some(c => c.nombre.toLowerCase() === clienteFiltro);
+    if (coincidenciaExacta) {
+        mostrarResumenCliente(clienteFiltro); // <-- Volvemos a llamar a esta
+        return; // Ya no seguimos con el filtro normal
+    }
 
-    const estadoFiltro = document.getElementById("filtroEstado").value;
-    const fechaVencimientoFiltro = document.getElementById("filtroFechaVencimiento").value;
-
-    // Asegurarse de tener los datos más recientes antes de filtrar
-    await cargarYMostrarCuentasPorCobrar(); // Esto recarga y recalcula ventasCredito
+    // ... (el resto de tu lógica de filtros si no hay coincidencia exacta) ...
+    // ... Asegúrate de que cargarYMostrarCuentasPorCobrar() se llama aquí o al inicio de la función
+    await cargarYMostrarCuentasPorCobrar(); // <-- Es bueno asegurarlo aquí también para los otros filtros
 
     let filteredCuentas = ventasCredito.filter(venta => {
-        // Solo mostrar ventas a crédito que aún tienen monto pendiente,
-        // a menos que el filtro de estado esté vacío ("Todas las Pendientes")
-        // o si queremos ver específicamente "Pagado Parcial" o "Pendiente"
-        if (venta.montoPendiente <= 0 && estadoFiltro !== "") return false; // Si está pagada y no estamos en "Todas", no mostrar
-
-        const idVentaTexto = String(venta.id || "").toLowerCase();
-        const nombreCliente = venta.cliente?.toLowerCase() || "";
-        const matchesCliente = clienteFiltro === "" || nombreCliente.includes(clienteFiltro) || idVentaTexto.includes(clienteFiltro);
-
-
-        let matchesEstado = true;
-        if (estadoFiltro === "Pendiente") {
-            matchesEstado = venta.estadoPago === "Pendiente";
-        } else if (estadoFiltro === "Pagado Parcial") {
-            matchesEstado = venta.estadoPago === "Pagado Parcial";
-        }
-        // Si estadoFiltro es "", coincide con ambos "Pendiente" y "Pagado Parcial" ya que filtramos al inicio por montoPendiente > 0
-
-        let matchesFechaVencimiento = true;
-        if (fechaVencimientoFiltro) {
-            const vencimientoDate = new Date(venta.detallePago.fechaVencimiento);
-            const filtroDate = new Date(fechaVencimientoFiltro);
-            // Compara solo las fechas (sin la parte de la hora)
-            matchesFechaVencimiento = vencimientoDate.setHours(0,0,0,0) <= filtroDate.setHours(0,0,0,0);
-        }
-
-        return matchesCliente && matchesEstado && matchesFechaVencimiento;
+        // ... (el resto de tu lógica de filtrado) ...
     });
 
     mostrarCuentasEnUI(filteredCuentas);
-    await actualizarEstadisticas(filteredCuentas); // Actualiza estadísticas con los filtros aplicados
+    await actualizarEstadisticas(filteredCuentas);
 }
 
 function limpiarFiltros() {
@@ -486,7 +519,9 @@ async function registrarAbono() {
         return;
     }
 
-    const montoAbono = parseFloat(document.getElementById("montoAbono").value);
+    const montoAbonoInput = document.getElementById("montoAbono").value;
+    const montoAbono = parseFloat(montoAbonoInput);
+
     if (isNaN(montoAbono) || montoAbono <= 0) {
         mostrarToast("Ingresa un monto de abono válido. 🚫", 'warning');
         return;
@@ -503,21 +538,27 @@ async function registrarAbono() {
     const totalAbonadoActual = abonosDeVentaActuales.reduce((sum, abono) => sum + abono.montoAbonado, 0);
     venta.montoPendiente = Math.max(0, venta.ingreso - totalAbonadoActual);
 
-    if (montoAbono > venta.montoPendiente) {
-        mostrarToast(`El abono ($${montoAbono.toFixed(2)}) no puede ser mayor que el monto pendiente ($${venta.montoPendiente.toFixed(2)}). 🚫`, 'warning');
+    // --- CORRECCIÓN CLAVE: Redondear para evitar problemas de precisión con flotantes ---
+    const montoAbonoRedondeado = parseFloat(montoAbono.toFixed(2));
+    const montoPendienteRedondeado = parseFloat(venta.montoPendiente.toFixed(2));
+
+    if (montoAbonoRedondeado > montoPendienteRedondeado) {
+        mostrarToast(`El abono ($${montoAbonoRedondeado.toFixed(2)}) no puede ser mayor que el monto pendiente ($${montoPendienteRedondeado.toFixed(2)}). 🚫`, 'warning');
         return;
     }
+    // --- FIN DE CORRECCIÓN ---
 
     const nuevoAbono = {
         pedidoId: currentVentaIdAbono,
-        fechaAbono: new Date().toISOString().split("T")[0],
+        // --- CAMBIO AQUÍ: Usamos la nueva función para fecha local ---
+        fechaAbono: getTodayDateFormattedLocal(),
+        // --- FIN CAMBIO ---
         montoAbonado: montoAbono
     };
 
     try {
         await agregarAbonoDB(nuevoAbono);
-        // Quita o mantén el toast aquí según tu preferencia
-        mostrarToast("Abono registrado con éxito ✅", 'success'); 
+        mostrarToast("Abono registrado con éxito ✅", 'success');
 
         // Actualizar el monto pendiente y estado de pago de la venta en el modelo
         venta.montoPendiente -= montoAbono;
@@ -533,7 +574,7 @@ async function registrarAbono() {
         await agregarMovimientoDB({
             tipo: "ingreso",
             monto: montoAbono,
-            fecha: nuevoAbono.fechaAbono,
+            fecha: nuevoAbono.fechaAbono, // Aquí ya se usa la fecha local del abono
             descripcion: `Abono a venta a crédito de ${venta.cliente} (ID Venta: ${venta.id})`
         });
 
@@ -597,12 +638,17 @@ async function mostrarAbonosPrevios(ventaId) {
 
 // Nota: La función mostrarToast se asume que está definida en db.js o script.js
 // y que db.js se carga antes de este script.
-function mostrarResumenCliente(clienteNombre) {
-    const ventasDelCliente = ventasCredito.filter(v => v.cliente.toLowerCase() === clienteNombre.toLowerCase());
+// Función para mostrar el resumen del cliente y sus ventas detalladas
+async function mostrarResumenCliente(clienteNombre) { // <--- AÑADE 'async' AQUÍ
+    // Asegurarse de tener los datos más recientes antes de filtrar
+    await cargarYMostrarCuentasPorCobrar(); // <--- AÑADE ESTA LÍNEA AQUÍ. Esto recarga y recalcula ventasCredito
 
+    const ventasDelCliente = ventasCredito.filter(v => v.cliente.toLowerCase() === clienteNombre.toLowerCase());
+    
     if (ventasDelCliente.length === 0) {
         mostrarToast("Este cliente no tiene cuentas por cobrar pendientes. ✅", "info");
-        mostrarCuentasEnUI([]); // Limpia la vista
+        document.getElementById("listaCuentasPorCobrar").innerHTML = ""; // Limpia la vista completamente si no hay nada
+        actualizarEstadisticas([]); // Limpia las estadísticas también
         return;
     }
 
@@ -619,105 +665,106 @@ function mostrarResumenCliente(clienteNombre) {
         <p class="card-text"><strong>Total Pendiente:</strong> <span class="text-amount-danger">$${totalPendiente.toFixed(2)}</span></p>
         <p class="card-text"><strong>Última Venta:</strong> ${ventasDelCliente[ventasDelCliente.length - 1].fecha}</p>
         <div class="card-actions">
-            <button class="btn-secondary btn-toggle-detalles">📄 Ver detalles</button>
+            <button class="btn-secondary btn-toggle-detalles-ventas">📄 Ver Ventas Detalladas</button>
             <button class="btn-imprimir-resumen">🧾 Exportar resumen</button>
         </div>
 
-        <div class="ventas-detalladas" style="display:none; margin-top:10px;"></div>
+        <div class="ventas-individuales-container" style="display:none; margin-top:15px; padding-top:15px; border-top: 1px solid #eee;">
+            <h4>Ventas Pendientes de ${clienteNombre}:</h4>
+            <div id="listaVentasIndividualesCliente" class="lista-ventas-individuales">
+                </div>
+        </div>
     `;
-
     const listaCuentas = document.getElementById("listaCuentasPorCobrar");
-    listaCuentas.innerHTML = ""; // Limpiar lista
+    listaCuentas.innerHTML = ""; // Limpiar lista antes de añadir la nueva tarjeta
     listaCuentas.appendChild(card);
 
     actualizarEstadisticas(ventasDelCliente); // Mostrar estadísticas solo de este cliente
 
-    // Agregar evento toggle para mostrar/ocultar detalles
-    const btnToggle = card.querySelector(".btn-toggle-detalles");
-    const detallesDiv = card.querySelector(".ventas-detalladas");
+    // --- Lógica para el nuevo botón de "Ver Ventas Detalladas" ---
+    const btnToggleVentas = card.querySelector(".btn-toggle-detalles-ventas"); // Asegúrate que el nombre de la clase es este
+    const ventasIndividualesContainer = card.querySelector(".ventas-individuales-container");
+    const listaVentasIndividualesDiv = card.querySelector("#listaVentasIndividualesCliente");
 
-    btnToggle.addEventListener("click", () => {
-        if (detallesDiv.style.display === "none") {
-            // Mostrar detalles
-            detallesDiv.style.display = "block";
-            btnToggle.textContent = "📄 Ocultar detalles";
-            // Rellenar detalles con las ventas detalladas
-            detallesDiv.innerHTML = ""; // limpiar
+    btnToggleVentas.addEventListener("click", () => {
+        if (ventasIndividualesContainer.style.display === "none") {
+            // Mostrar las ventas individuales
+            ventasIndividualesContainer.style.display = "block";
+            btnToggleVentas.textContent = "👆 Ocultar Ventas Detalladas";
+            
+            // Limpiar y rellenar las ventas individuales usando crearCardVentaCredito
+            listaVentasIndividualesDiv.innerHTML = "";
             ventasDelCliente.forEach(venta => {
-                const ventaDiv = document.createElement("div");
-                ventaDiv.className = "venta-detalle";
-                ventaDiv.innerHTML = `
-                    <p><strong>ID Venta:</strong> ${venta.id} — <strong>Fecha:</strong> ${venta.fecha} — <strong>Monto Pendiente:</strong> $${venta.montoPendiente.toFixed(2)}</p>
-                `;
-                detallesDiv.appendChild(ventaDiv);
+                const cardVentaIndividual = crearCardVentaCredito(venta); // <--- ¡USA ESTA FUNCIÓN!
+                listaVentasIndividualesDiv.appendChild(cardVentaIndividual);
             });
+            agregarEventosHistorial(); // <--- AÑADE ESTA LÍNEA AQUÍ para reactivar eventos
         } else {
-            // Ocultar detalles
-            detallesDiv.style.display = "none";
-            btnToggle.textContent = "📄 Ver detalles";
-            detallesDiv.innerHTML = ""; // Opcional: limpiar cuando se oculta
+            // Ocultar las ventas individuales
+            ventasIndividualesContainer.style.display = "none";
+            btnToggleVentas.textContent = "📄 Ver Ventas Detalladas";
+            listaVentasIndividualesDiv.innerHTML = ""; // Opcional: limpiar al ocultar
         }
     });
 
+    // --- Lógica para el botón de "Exportar resumen" (ya existía) ---
     const btnImprimir = card.querySelector(".btn-imprimir-resumen");
     btnImprimir.addEventListener("click", () => {
-    const contenido = `
-        <html>
-        <head>
-            <title>Resumen de ${clienteNombre}</title>
-            <style>
-                body { font-family: sans-serif; padding: 20px; }
-                h1 { color: #5b2d90; }
-                .venta-item { margin-bottom: 10px; }
-                .venta-item span { display: inline-block; min-width: 120px; }
-                .total { font-weight: bold; font-size: 18px; margin-top: 20px; }
-                .footer { margin-top: 40px; font-size: 12px; color: #555; }
-            </style>
-        </head>
-        <body>
-            <h1>Resumen de cuenta: ${clienteNombre}</h1>
-            <div class="total">Total pendiente: $${totalPendiente.toFixed(2)}</div>
-            <h3>Ventas pendientes:</h3>
-            <div>
-                ${ventasDelCliente.map(v => `
+        const contenido = `
+            <html>
+            <head>
+                <title>Resumen de ${clienteNombre}</title>
+                <style>
+                    body { font-family: sans-serif; padding: 20px; }
+                    h1 { color: #5b2d90; }
+                    .venta-item { margin-bottom: 10px; }
+                    .venta-item span { display: inline-block; min-width: 120px; }
+                    .total { font-weight: bold; font-size: 18px; margin-top: 20px; }
+                    .footer { margin-top: 40px; font-size: 12px; color: #555; }
+                </style>
+            </head>
+            <body>
+                <h1>Resumen de cuenta: ${clienteNombre}</h1>
+                <div class="total">Total pendiente: $${totalPendiente.toFixed(2)}</div>
+                <h3>Ventas pendientes:</h3>
+                <div>
+                    ${ventasDelCliente.map(v => `
                     <div class="venta-item">
-                        <span><strong>ID:</strong> ${v.id}</span>
-                        <span><strong>Fecha:</strong> ${v.fecha}</span>
-                        <span><strong>Monto:</strong> $${v.montoPendiente.toFixed(2)}</span>
+                            <span><strong>ID:</strong> ${v.id}</span>
+                            <span><strong>Fecha:</strong> ${v.fecha}</span>
+                            <span><strong>Monto:</strong> $${v.montoPendiente.toFixed(2)}</span>
                     </div>
-                `).join('')}
-            </div>
-            <div class="footer">
-                Generado el ${new Date().toLocaleString()}
-            </div>
-        </body>
-        </html>
-    `;
+                    `).join('')}
+                </div>
+                <div class="footer">
+                    Generado el ${new Date().toLocaleString()}
+                </div>
+            </body>
+            </html>
+        `;
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
 
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    document.body.appendChild(iframe);
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(contenido);
+        doc.close();
 
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(contenido);
-    doc.close();
+        iframe.onload = () => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        
+        // Opcional: eliminar el iframe después de imprimir
+        setTimeout(() => document.body.removeChild(iframe), 1000);
+        };
 
-    iframe.onload = () => {
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-    
-    // Opcional: eliminar el iframe después de imprimir
-    setTimeout(() => document.body.removeChild(iframe), 1000);
-    };
-
- });
-
+    });
 }
 
 function mostrarVentasDetalladas(clienteNombre) {
@@ -759,4 +806,98 @@ function mostrarRankingMorosos(ventas) {
   lista.innerHTML = ranking.map(([nombre, total]) =>
     `<li><strong>${nombre}</strong>: $${total.toFixed(2)}</li>`
   ).join('');
+}
+
+// --- NUEVAS FUNCIONES PARA VENTAS PAGADAS ---
+
+// Función para alternar la visibilidad de las ventas pagadas
+// Función para alternar la visibilidad de las ventas pagadas
+async function toggleVentasPagadas() {
+    const seccionVentasPagadas = document.getElementById("seccionVentasPagadas");
+    const btnToggle = document.getElementById("btnToggleVentasPagadas");
+    const listaVentasPagadasDiv = document.getElementById("listaVentasPagadas");
+    const noVentasPagadasMsg = document.getElementById("noVentasPagadasMsg");
+
+    if (seccionVentasPagadas.style.display === "none") {
+        // Si está oculta, mostrarla
+        seccionVentasPagadas.style.display = "block";
+        btnToggle.innerHTML = '<i class="fas fa-file-invoice-slash"></i> Ocultar Facturas Pagadas'; // Cambiar texto del botón
+        
+        // Limpiar y cargar las ventas pagadas
+        listaVentasPagadasDiv.innerHTML = '<p style="text-align: center;">Cargando facturas pagadas...</p>'; // Mensaje de carga
+        noVentasPagadasMsg.style.display = 'none'; // Ocultar mensaje de no hay ventas
+
+        await cargarYMostrarVentasPagadas(); // Llamar a la función para cargar los datos
+
+        // --- AÑADE ESTA LÍNEA AQUÍ ---
+        seccionVentasPagadas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // --- FIN DE LA LÍNEA A AÑADIR ---
+
+    } else {
+        // Si está visible, ocultarla
+        seccionVentasPagadas.style.display = "none";
+        btnToggle.innerHTML = '<i class="fas fa-file-invoice"></i> Ver Facturas Pagadas'; // Restaurar texto del botón
+        listaVentasPagadasDiv.innerHTML = ''; // Limpiar contenido al ocultar
+        noVentasPagadasMsg.style.display = 'none'; // Ocultar mensaje de no hay ventas
+    }
+}
+
+// Función para cargar y mostrar las ventas que están totalmente pagadas
+async function cargarYMostrarVentasPagadas() {
+    const listaVentasPagadasDiv = document.getElementById("listaVentasPagadas");
+    const noVentasPagadasMsg = document.getElementById("noVentasPagadasMsg");
+
+    listaVentasPagadasDiv.innerHTML = ''; // Limpiar antes de cargar
+    noVentasPagadasMsg.style.display = 'none'; // Asegurar que esté oculto
+
+    try {
+        // Asegúrate de que 'ventas' global está actualizada (ya lo hacemos en DOMContentLoaded)
+        // Si por alguna razón necesitas recargar específicamente, puedes poner:
+        // ventas = await obtenerTodasLasVentas(); 
+
+        // Filtrar solo las ventas que están 'Pagado Total'
+        const ventasPagadas = ventas.filter(venta => venta.estadoPago === 'Pagado Total');
+
+        if (ventasPagadas.length === 0) {
+            noVentasPagadasMsg.style.display = 'block'; // Mostrar mensaje si no hay
+            return;
+        }
+
+        // Ordenar por fecha, las más recientes primero (puedes ajustar el orden)
+        ventasPagadas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        ventasPagadas.forEach(venta => {
+            const card = document.createElement("div");
+            card.className = "venta-pagada-card"; // Clase CSS nueva para estas tarjetas
+            card.innerHTML = `
+                <div class="card-header-flex">
+                    <h4 class="card-title">Factura ${venta.id} - ${venta.cliente}</h4>
+                    <span class="card-date">${venta.fecha}</span>
+                </div>
+                <p class="card-text">Total Venta: <strong>$${venta.ingreso.toFixed(2)}</strong></p>
+                <p class="card-text status-pagado">Estado: ${venta.estadoPago}</p>
+                <div class="card-actions">
+                    <button class="btn-detail btn-ver-historial-pagada" data-venta-id="${venta.id}">Ver Historial</button>
+                </div>
+                <div class="historial-pagos" id="historial-${venta.id}" style="display:none; margin-top:10px;"></div>
+            `;
+            listaVentasPagadasDiv.appendChild(card);
+        });
+
+        // Esta línea ya estaba bien ubicada y se mantiene.
+        agregarEventosHistorial(); // ¡Ahora también agregamos eventos para las tarjetas pagadas!
+
+    } catch (error) {
+        console.error("Error al cargar ventas pagadas:", error);
+        listaVentasPagadasDiv.innerHTML = '<p style="color: red;">Error al cargar las facturas pagadas.</p>';
+    }
+}
+
+// Función de utilidad para obtener la fecha actual en formato YYYY-MM-DD (hora local)
+function getTodayDateFormattedLocal() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0'); // getMonth() es de 0-11
+    const day = today.getDate().toString().padStart(2, '0'); // getDate() es el día del mes
+    return `${year}-${month}-${day}`;
 }
