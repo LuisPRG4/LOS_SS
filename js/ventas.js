@@ -9,6 +9,9 @@ let abonos = []; // ¡NUEVO! Para cargar los abonos
 let editVentaId = null; // Cambiado de editVentaIndex a editVentaId para usar el ID de la DB
 let productosVenta = []; // Array temporal para los productos de la venta actual
 
+// Añadir esta variable global al inicio del archivo
+let abonoEnProceso = false;
+
 async function guardarVentas() {
     // Las ventas ya se guardan/actualizan a través de las funciones de db.js en registrarVenta.
     // Esta función solo necesita recargar los gráficos si es necesario.
@@ -1213,59 +1216,78 @@ function cerrarModalAbono() {
 
 // Registra el abono
 async function registrarAbono() {
+    // Prevenir múltiples envíos
+    if (abonoEnProceso) {
+        console.log("Ya hay un abono en proceso, evitando duplicación");
+        return;
+    }
+    
+    // Activar el bloqueo
+    abonoEnProceso = true;
+    
     // Debug para ver si se está ejecutando la función
     console.log("Función registrarAbono() ejecutada");
     
-    if (currentVentaIdAbono === null) {
-        mostrarToast("No hay una venta seleccionada para abonar. 🚫");
-        return;
-    }
-
-    // Obtenemos el valor y lo convertimos a número con 2 decimales de precisión
-    let montoAbono = parseFloat(parseFloat(document.getElementById("montoAbono").value).toFixed(2));
-    console.log("Monto de abono ingresado:", montoAbono);
-    
-    if (isNaN(montoAbono) || montoAbono <= 0) {
-        mostrarToast("Ingresa un monto de abono válido. 🚫");
-        return;
-    }
-
-    const venta = ventas.find(v => v.id === currentVentaIdAbono);
-    if (!venta) {
-        mostrarToast("Venta no encontrada. 🚫");
-        return;
-    }
-
-    // Convertir el monto pendiente a 2 decimales de precisión para evitar problemas
-    const montoPendiente = parseFloat(venta.montoPendiente.toFixed(2));
-    console.log("Monto pendiente:", montoPendiente);
-
-    // Usar una pequeña tolerancia (epsilon) para comparaciones de punto flotante
-    const epsilon = 0.01; // Aumentamos la tolerancia a 0.01
-    if (montoAbono > montoPendiente + epsilon) {
-        mostrarToast(`El abono ($${montoAbono.toFixed(2)}) no puede ser mayor que el monto pendiente ($${montoPendiente.toFixed(2)}). 🚫`);
-        return;
-    }
-    
-    // Si los montos son casi iguales (dentro del margen de error), ajustar para que sean exactamente iguales
-    if (Math.abs(montoAbono - montoPendiente) < epsilon) {
-        console.log("Montos casi iguales, ajustando...");
-        montoAbono = montoPendiente;
-    }
-    
-    console.log("Monto de abono final:", montoAbono);
-    
-    // Obtener el valor de la forma de pago seleccionada
-    const formaPago = document.getElementById("formaPagoAbono").value;
-
-    const nuevoAbono = {
-        pedidoId: currentVentaIdAbono, // Es el ID de la venta, para el objectStore abonos
-        fechaAbono: new Date().toISOString().split("T")[0],
-        montoAbonado: montoAbono,
-        formaPago: formaPago // Añadir la forma de pago al objeto
-    };
-
     try {
+        if (currentVentaIdAbono === null) {
+            mostrarToast("No hay una venta seleccionada para abonar. 🚫");
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+
+        // Obtenemos el valor y lo convertimos a número con 2 decimales de precisión
+        let montoAbono = parseFloat(parseFloat(document.getElementById("montoAbono").value).toFixed(2));
+        console.log("Monto de abono ingresado:", montoAbono);
+        
+        if (isNaN(montoAbono) || montoAbono <= 0) {
+            mostrarToast("Ingresa un monto de abono válido. 🚫");
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+
+        const venta = ventas.find(v => v.id === currentVentaIdAbono);
+        if (!venta) {
+            mostrarToast("Venta no encontrada. 🚫");
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+
+        // Convertir el monto pendiente a 2 decimales de precisión para evitar problemas
+        const montoPendiente = parseFloat(venta.montoPendiente.toFixed(2));
+        console.log("Monto pendiente:", montoPendiente);
+
+        // Usar una pequeña tolerancia (epsilon) para comparaciones de punto flotante
+        const epsilon = 0.01; // Aumentamos la tolerancia a 0.01
+        if (montoAbono > montoPendiente + epsilon) {
+            mostrarToast(`El abono ($${montoAbono.toFixed(2)}) no puede ser mayor que el monto pendiente ($${montoPendiente.toFixed(2)}). 🚫`);
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+        
+        // Si los montos son casi iguales (dentro del margen de error), ajustar para que sean exactamente iguales
+        if (Math.abs(montoAbono - montoPendiente) < epsilon) {
+            console.log("Montos casi iguales, ajustando...");
+            montoAbono = montoPendiente;
+        }
+        
+        console.log("Monto de abono final:", montoAbono);
+        
+        // Obtener el valor de la forma de pago seleccionada
+        const formaPago = document.getElementById("formaPagoAbono").value;
+
+        const nuevoAbono = {
+            pedidoId: currentVentaIdAbono, // Es el ID de la venta, para el objectStore abonos
+            fechaAbono: new Date().toISOString().split("T")[0],
+            montoAbonado: montoAbono,
+            formaPago: formaPago // Añadir la forma de pago al objeto
+        };
+
+        // Deshabilitar el botón de confirmación para evitar doble clic
+        const btnConfirmar = document.getElementById("btnRegistrarAbono");
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = "Procesando...";
+        btnConfirmar.style.opacity = "0.7";
+        
         await agregarAbonoDB(nuevoAbono);
         mostrarToast("Abono registrado con éxito ✅");
 
@@ -1318,10 +1340,23 @@ async function registrarAbono() {
             mostrarToast("Venta a crédito completamente pagada! 🎉");
             cerrarModalAbono(); // Cerrar modal si ya se pagó todo
         }
-
+        
+        // Restaurar el botón después de procesar todo
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar Abono";
+        btnConfirmar.style.opacity = "1";
     } catch (error) {
         console.error("Error al registrar abono:", error);
         mostrarToast("Error al registrar abono. 😔");
+        
+        // Restaurar el botón en caso de error
+        const btnConfirmar = document.getElementById("btnRegistrarAbono");
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar Abono";
+        btnConfirmar.style.opacity = "1";
+    } finally {
+        // Liberar el bloqueo al finalizar, sin importar si hubo éxito o error
+        abonoEnProceso = false;
     }
 }
 
