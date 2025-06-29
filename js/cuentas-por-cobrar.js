@@ -4,6 +4,7 @@ let abonos = []; // Para los abonos
 let ventas = []; // <--- ASEGÚRATE DE QUE ESTA LÍNEA EXISTA
 
 let currentVentaIdAbono = null; // Para el modal de abonos
+let abonoEnProceso = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -195,6 +196,11 @@ function mostrarCuentasEnUI(cuentasParaMostrar) {
 
 //FUNCIÓN RECORDARTORIOS 25 DE JUNIO 2025
 function verificarRecordatorios(pedidos) {
+    // Verificar si ya se mostró el recordatorio en esta sesión
+    if (sessionStorage.getItem("recordatorioMostrado") === "true") {
+        return; // Si ya se mostró, no hacer nada
+    }
+    
     const hoy = new Date();
     const proximosAVencer = pedidos.filter(pedido => {
         const fechaVencimiento = new Date(pedido.detallePago?.fechaVencimiento);
@@ -207,6 +213,8 @@ function verificarRecordatorios(pedidos) {
 
     if (proximosAVencer.length > 0) {
         mostrarToast(`⚠️ Tienes ${proximosAVencer.length} cliente(s) por vencer en menos de 3 días.`, "warning", 5000);
+        // Marcar que ya se mostró el recordatorio en esta sesión
+        sessionStorage.setItem("recordatorioMostrado", "true");
     }
 }
 
@@ -554,49 +562,70 @@ function cerrarModalAbono() {
 }
 
 async function registrarAbono() {
-    if (currentVentaIdAbono === null) {
-        mostrarToast("No hay una venta seleccionada para abonar. 🚫", 'error');
+    // Prevenir múltiples envíos
+    if (abonoEnProceso) {
+        console.log("Ya hay un abono en proceso, evitando duplicación");
         return;
     }
-
-    const montoAbonoInput = document.getElementById("montoAbono").value;
-    const montoAbono = parseFloat(montoAbonoInput);
-
-    if (isNaN(montoAbono) || montoAbono <= 0) {
-        mostrarToast("Ingresa un monto de abono válido. 🚫", 'warning');
-        return;
-    }
-
-    const venta = await obtenerVentaPorId(currentVentaIdAbono);
-    if (!venta) {
-        mostrarToast("Venta no encontrada. 🚫", 'error');
-        return;
-    }
-
-    // Recalcular el monto pendiente justo antes de abonar para evitar condiciones de carrera
-    const abonosDeVentaActuales = await obtenerAbonosPorPedidoId(currentVentaIdAbono);
-    const totalAbonadoActual = abonosDeVentaActuales.reduce((sum, abono) => sum + abono.montoAbonado, 0);
-    venta.montoPendiente = Math.max(0, venta.ingreso - totalAbonadoActual);
-
-    // --- CORRECCIÓN CLAVE: Redondear para evitar problemas de precisión con flotantes ---
-    const montoAbonoRedondeado = parseFloat(montoAbono.toFixed(2));
-    const montoPendienteRedondeado = parseFloat(venta.montoPendiente.toFixed(2));
-
-    if (montoAbonoRedondeado > montoPendienteRedondeado) {
-        mostrarToast(`El abono ($${montoAbonoRedondeado.toFixed(2)}) no puede ser mayor que el monto pendiente ($${montoPendienteRedondeado.toFixed(2)}). 🚫`, 'warning');
-        return;
-    }
-    // --- FIN DE CORRECCIÓN ---
-
-    const nuevoAbono = {
-        pedidoId: currentVentaIdAbono,
-        // --- CAMBIO AQUÍ: Usamos la nueva función para fecha local ---
-        fechaAbono: getTodayDateFormattedLocal(),
-        // --- FIN CAMBIO ---
-        montoAbonado: montoAbono
-    };
-
+    
+    // Activar el bloqueo
+    abonoEnProceso = true;
+    
     try {
+        if (currentVentaIdAbono === null) {
+            mostrarToast("No hay una venta seleccionada para abonar. 🚫", 'error');
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+
+        const montoAbonoInput = document.getElementById("montoAbono").value;
+        const montoAbono = parseFloat(montoAbonoInput);
+
+        if (isNaN(montoAbono) || montoAbono <= 0) {
+            mostrarToast("Ingresa un monto de abono válido. 🚫", 'warning');
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+
+        const venta = await obtenerVentaPorId(currentVentaIdAbono);
+        if (!venta) {
+            mostrarToast("Venta no encontrada. 🚫", 'error');
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+
+        // Recalcular el monto pendiente justo antes de abonar para evitar condiciones de carrera
+        const abonosDeVentaActuales = await obtenerAbonosPorPedidoId(currentVentaIdAbono);
+        const totalAbonadoActual = abonosDeVentaActuales.reduce((sum, abono) => sum + abono.montoAbonado, 0);
+        venta.montoPendiente = Math.max(0, venta.ingreso - totalAbonadoActual);
+
+        // --- CORRECCIÓN CLAVE: Redondear para evitar problemas de precisión con flotantes ---
+        const montoAbonoRedondeado = parseFloat(montoAbono.toFixed(2));
+        const montoPendienteRedondeado = parseFloat(venta.montoPendiente.toFixed(2));
+
+        if (montoAbonoRedondeado > montoPendienteRedondeado) {
+            mostrarToast(`El abono ($${montoAbonoRedondeado.toFixed(2)}) no puede ser mayor que el monto pendiente ($${montoPendienteRedondeado.toFixed(2)}). 🚫`, 'warning');
+            abonoEnProceso = false; // Liberar el bloqueo
+            return;
+        }
+        // --- FIN DE CORRECCIÓN ---
+
+        // Obtener la forma de pago seleccionada
+        const formaPago = document.getElementById("formaPagoAbono").value;
+
+        const nuevoAbono = {
+            pedidoId: currentVentaIdAbono,
+            fechaAbono: getTodayDateFormattedLocal(),
+            montoAbonado: montoAbono,
+            formaPago: formaPago // Añadir la forma de pago al objeto
+        };
+
+        // Deshabilitar el botón de confirmación para evitar doble clic
+        const btnConfirmar = document.getElementById("btnRegistrarAbono");
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = "Procesando...";
+        btnConfirmar.style.opacity = "0.7";
+        
         await agregarAbonoDB(nuevoAbono);
         mostrarToast("Abono registrado con éxito ✅", 'success');
 
@@ -614,7 +643,7 @@ async function registrarAbono() {
         await agregarMovimientoDB({
             tipo: "ingreso",
             monto: montoAbono,
-            fecha: nuevoAbono.fechaAbono, // Aquí ya se usa la fecha local del abono
+            fecha: nuevoAbono.fechaAbono,
             descripcion: `Abono a venta a crédito de ${venta.cliente} (ID Venta: ${venta.id})`
         });
 
@@ -645,10 +674,24 @@ async function registrarAbono() {
         // Finalmente, recargar la vista principal de cuentas por cobrar para reflejar los cambios
         // (Esto también se encarga de recargar las variables globales ventasCredito y abonos)
         cargarYMostrarCuentasPorCobrar();
+        
+        // Restaurar el botón después de procesar todo
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar Abono";
+        btnConfirmar.style.opacity = "1";
 
     } catch (error) {
         console.error("Error al registrar abono:", error);
         mostrarToast("Error al registrar abono. 😔", 'error');
+        
+        // Restaurar el botón en caso de error
+        const btnConfirmar = document.getElementById("btnRegistrarAbono");
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar Abono";
+        btnConfirmar.style.opacity = "1";
+    } finally {
+        // Liberar el bloqueo al finalizar, sin importar si hubo éxito o error
+        abonoEnProceso = false;
     }
 }
 
@@ -669,7 +712,17 @@ async function mostrarAbonosPrevios(ventaId) {
 
     abonosDeVenta.forEach(abono => {
         const li = document.createElement('li');
-        li.innerHTML = `<strong>Fecha:</strong> ${abono.fechaAbono}, <strong>Monto:</strong> $${abono.montoAbonado.toFixed(2)}`;
+        
+        // Convertir método de pago para mostrar en formato legible
+        let metodoPago = abono.formaPago || "No especificado";
+        if (metodoPago === "pago_movil") metodoPago = "Pago Móvil";
+        else if (metodoPago) metodoPago = metodoPago.charAt(0).toUpperCase() + metodoPago.slice(1);
+        
+        li.innerHTML = `
+            <strong>Fecha:</strong> ${abono.fechaAbono}, 
+            <strong>Monto:</strong> $${abono.montoAbonado.toFixed(2)}
+            ${metodoPago !== "No especificado" ? `, <strong>Método:</strong> ${metodoPago}` : ''}
+        `;
         li.className = 'abono-item'; // Nueva clase para cada ítem de abono
         ul.appendChild(li);
     });
