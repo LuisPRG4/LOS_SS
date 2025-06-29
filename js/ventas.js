@@ -163,7 +163,12 @@ async function registrarVenta() {
             mostrarToast("Por favor, selecciona una fecha de vencimiento para la venta a crédito. 🚫");
             return;
         }
-        detallePago = { acreedor: clienteNombre, fechaVencimiento };
+        const metodo = document.getElementById("metodoCredito").value;
+        detallePago = { 
+            acreedor: clienteNombre, 
+            fechaVencimiento,
+            metodo: metodo || "No especificado"  // Si no se selecciona, usamos "No especificado"
+        };
         montoPendiente = ingreso; // Al inicio, el monto pendiente es el total del ingreso
         estadoPago = 'Pendiente'; // Estado inicial para crédito
     }
@@ -468,6 +473,7 @@ function crearCardVenta(venta, id) {
             <p><strong>Condición:</strong> ${venta.tipoPago} ${estadoPagoHTML}</p>
             <p><strong>Método:</strong> ${venta.detallePago.metodo || ''}</p>
             <p><strong>Fecha y hora de registro:</strong> ${fechaVenta} ${horaVenta}</p>
+            ${venta.tipoPago === 'credito' ? `<p><strong>Fecha de vencimiento:</strong> ${formatearFecha(venta.detallePago?.fechaVencimiento) || 'No establecida'}</p>` : ''}
         </div>
         <div class="acciones-venta">
             <button onclick="cargarVenta(${id})" class="btn-editar">✏️ Editar</button>
@@ -877,6 +883,7 @@ async function cargarVenta(id) {
             toggleFechaManual(); // Para ocultar los inputs de fecha manual
         } else { // Venta a crédito
             document.getElementById("fechaVencimiento").value = venta.detallePago.fechaVencimiento || '';
+            document.getElementById("metodoCredito").value = venta.detallePago.metodo || '';
             // Si hay una fecha de venta personalizada guardada, cargarla y activar
             if (venta.fecha) {
                 const fechaParte = venta.fecha.slice(0, 10); // Formato YYYY-MM-DD
@@ -1537,4 +1544,42 @@ function descargarPlantillaJSON() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     mostrarToast("Plantilla de ventas JSON descargada ✅", "success");
+}
+
+// Función para formatear fechas en formato legible
+function formatearFecha(fechaStr) {
+    if (!fechaStr) return 'No establecida';
+    
+    try {
+        // Dividir la cadena de fecha en componentes (YYYY-MM-DD)
+        const [year, month, day] = fechaStr.split('-').map(num => parseInt(num, 10));
+        
+        // Crear la fecha correctamente (sin ajuste de zona horaria)
+        if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+            // El mes en JavaScript es base 0 (0-11), por lo que restamos 1 al mes
+            const fecha = new Date(year, month - 1, day);
+            
+            // Formatear la fecha en el formato deseado (DD/MM/YYYY)
+            return fecha.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+        
+        // Si el formato no es YYYY-MM-DD, intentar parsear normalmente
+        const fecha = new Date(fechaStr);
+        if (!isNaN(fecha.getTime())) {
+            return fecha.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+        
+        return fechaStr; // Si no es una fecha válida, devolver el string original
+    } catch (e) {
+        console.error("Error al formatear fecha:", e);
+        return fechaStr; // En caso de error, devolver el string original
+    }
 }
