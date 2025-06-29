@@ -1213,12 +1213,18 @@ function cerrarModalAbono() {
 
 // Registra el abono
 async function registrarAbono() {
+    // Debug para ver si se está ejecutando la función
+    console.log("Función registrarAbono() ejecutada");
+    
     if (currentVentaIdAbono === null) {
         mostrarToast("No hay una venta seleccionada para abonar. 🚫");
         return;
     }
 
-    const montoAbono = parseFloat(document.getElementById("montoAbono").value);
+    // Obtenemos el valor y lo convertimos a número con 2 decimales de precisión
+    let montoAbono = parseFloat(parseFloat(document.getElementById("montoAbono").value).toFixed(2));
+    console.log("Monto de abono ingresado:", montoAbono);
+    
     if (isNaN(montoAbono) || montoAbono <= 0) {
         mostrarToast("Ingresa un monto de abono válido. 🚫");
         return;
@@ -1230,15 +1236,33 @@ async function registrarAbono() {
         return;
     }
 
-    if (montoAbono > venta.montoPendiente) {
-        mostrarToast(`El abono ($${montoAbono.toFixed(2)}) no puede ser mayor que el monto pendiente ($${venta.montoPendiente.toFixed(2)}). 🚫`);
+    // Convertir el monto pendiente a 2 decimales de precisión para evitar problemas
+    const montoPendiente = parseFloat(venta.montoPendiente.toFixed(2));
+    console.log("Monto pendiente:", montoPendiente);
+
+    // Usar una pequeña tolerancia (epsilon) para comparaciones de punto flotante
+    const epsilon = 0.01; // Aumentamos la tolerancia a 0.01
+    if (montoAbono > montoPendiente + epsilon) {
+        mostrarToast(`El abono ($${montoAbono.toFixed(2)}) no puede ser mayor que el monto pendiente ($${montoPendiente.toFixed(2)}). 🚫`);
         return;
     }
+    
+    // Si los montos son casi iguales (dentro del margen de error), ajustar para que sean exactamente iguales
+    if (Math.abs(montoAbono - montoPendiente) < epsilon) {
+        console.log("Montos casi iguales, ajustando...");
+        montoAbono = montoPendiente;
+    }
+    
+    console.log("Monto de abono final:", montoAbono);
+    
+    // Obtener el valor de la forma de pago seleccionada
+    const formaPago = document.getElementById("formaPagoAbono").value;
 
     const nuevoAbono = {
         pedidoId: currentVentaIdAbono, // Es el ID de la venta, para el objectStore abonos
         fechaAbono: new Date().toISOString().split("T")[0],
-        montoAbonado: montoAbono
+        montoAbonado: montoAbono,
+        formaPago: formaPago // Añadir la forma de pago al objeto
     };
 
     try {
@@ -1247,12 +1271,22 @@ async function registrarAbono() {
 
         // Actualizar el monto pendiente y estado de pago de la venta
         venta.montoPendiente -= montoAbono;
-        if (venta.montoPendiente <= 0.01) { // Usamos un pequeño delta por seguridad flotante
+        console.log("Nuevo monto pendiente (antes de redondeo):", venta.montoPendiente);
+        
+        // Usar una tolerancia más amplia para evitar problemas con decimales
+        // y redondear siempre a 2 decimales para evitar problemas de punto flotante
+        venta.montoPendiente = parseFloat(venta.montoPendiente.toFixed(2));
+        console.log("Nuevo monto pendiente (después de redondeo):", venta.montoPendiente);
+        
+        if (venta.montoPendiente <= 0.01) { 
+            console.log("Venta pagada completamente");
             venta.montoPendiente = 0;
             venta.estadoPago = 'Pagado Total';
         } else {
             venta.estadoPago = 'Pagado Parcial';
         }
+        
+        console.log("Estado de pago final:", venta.estadoPago);
         await actualizarVenta(venta.id, venta); // Actualizar la venta en la DB
 
         // Registrar un movimiento de ingreso por el abono
@@ -1309,7 +1343,12 @@ async function mostrarAbonosPrevios(ventaId) {
 
     abonosDeVenta.forEach(abono => {
         const li = document.createElement('li');
-        li.innerHTML = `<strong>Fecha:</strong> ${abono.fechaAbono}, <strong>Monto:</strong> $${abono.montoAbonado.toFixed(2)}`;
+        // Convertir método de pago para mostrar en formato legible
+        let metodoPago = abono.formaPago || "No especificado";
+        if (metodoPago === "pago_movil") metodoPago = "Pago Móvil";
+        else if (metodoPago) metodoPago = metodoPago.charAt(0).toUpperCase() + metodoPago.slice(1);
+        
+        li.innerHTML = `<strong>Fecha:</strong> ${abono.fechaAbono}, <strong>Monto:</strong> $${abono.montoAbonado.toFixed(2)}${metodoPago !== "No especificado" ? `, <strong>Método:</strong> ${metodoPago}` : ''}`;
         ul.appendChild(li);
     });
     listaAbonos.appendChild(ul);
@@ -1346,7 +1385,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Asociar eventos del modal de abono
         document.getElementById("btnRegistrarAbono").addEventListener("click", registrarAbono);
-        document.getElementById("cerrarModalAbono").addEventListener("click", cerrarModalAbono);
+        // Eliminado el event listener para el botón que ya no existe
+        
         // Cerrar modal al hacer clic fuera del contenido del modal
         document.getElementById("modalAbono").addEventListener("click", (e) => {
             if (e.target.id === "modalAbono") {
