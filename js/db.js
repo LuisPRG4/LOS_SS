@@ -1,12 +1,8 @@
-// js/db.js (CÓDIGO COMPLETO Y CORREGIDO PARA INCLUIR MERMAS Y MODALES PERSONALIZADOS)
-
 let db;
 
 const DB_NAME = 'miTiendaDB';
 
-// --- ¡¡¡IMPORTANTE!!! INCREMENTA ESTE NÚMERO CADA VEZ QUE CAMBIES LA ESTRUCTURA DE LA DB ---
-// Incrementado a 14 para asegurar la recreación de la DB si hubo problemas con la versión anterior.
-const DB_VERSION = 14; 
+const DB_VERSION = 15; 
 
 // Nombres de los Object Stores y sus configuraciones
 const STORES = {
@@ -295,6 +291,10 @@ window.obtenerAbonosPorPedidoId = obtenerAbonosPorPedidoId;
 window.abrirDB = abrirDB;
 window.limpiarStore = limpiarStore;
 
+// Variable para rastrear el último mensaje mostrado
+let lastToastMessage = '';
+let lastToastTimestamp = 0;
+
 // Función para mostrar toasts (asegúrate de tener el contenedor #toastContainer en tu HTML)
 function mostrarToast(message, type = 'info', duration = 3000) {
     const toastContainer = document.getElementById('toastContainer');
@@ -302,6 +302,17 @@ function mostrarToast(message, type = 'info', duration = 3000) {
         console.error('No se encontró el contenedor de toasts #toastContainer');
         return;
     }
+    
+    // Evitar mensajes duplicados en un corto período de tiempo (3 segundos)
+    const now = Date.now();
+    if (message === lastToastMessage && now - lastToastTimestamp < 3000) {
+        console.log('Evitando mensaje toast duplicado:', message);
+        return;
+    }
+    
+    // Registrar este mensaje para evitar duplicados
+    lastToastMessage = message;
+    lastToastTimestamp = now;
 
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
