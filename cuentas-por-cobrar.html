@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Los SS - Cuentas por Cobrar</title>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <link rel="icon" type="image/png" href="fav/los ss.png">
 
     <link rel="manifest" href="manifest.json">
@@ -107,23 +110,31 @@
             </div>
         </section>
 
-        <!-- SECCIÓN PARA LAS DEUDAS SALDADAS -->
         <div class="card-container-wrapper">
-            <div class="card-status-info">
-                <div class="card-header-flex">
-                    <h3 class="card-title text-info">Historial de Ventas Pagadas</h3>
-                    <button id="btnToggleVentasPagadas" class="btn-info btn-icon-text">
-                        <i class="fas fa-file-invoice"></i> Ver Facturas Pagadas
-                    </button>
-                </div>
-                <div id="seccionVentasPagadas" style="display:none;">
-                    <div id="listaVentasPagadas" class="lista-ventas-pagadas">
-                        <p>Cargando facturas pagadas...</p>
-                    </div>
-                    <p id="noVentasPagadasMsg" style="display:none;">No hay facturas pagadas registradas aún.</p>
-                </div>
-            </div>
+    <div class="card-status-info">
+        <div class="card-header-flex">
+            <h3 class="card-title text-info">Historial de Ventas Pagadas</h3>
+            <button id="btnToggleVentasPagadas" class="btn-info btn-icon-text">
+                <i class="fas fa-file-invoice"></i> Ver Facturas Pagadas
+            </button>
+
+            <button id="btnExportarHistorialPagadasPDF" class="btn btn-icon-text" style="background-color: #8A2BE2; color: white; margin-left: 10px;">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+            </button>
+
+            <button id="btnEliminarHistorialPagadas" class="btn-danger btn-icon-text" style="margin-left: 10px;">
+                <i class="fas fa-archive"></i> Archivar Historial
+            </button>
         </div>
+
+        <div id="seccionVentasPagadas" style="display:none;">
+            <div id="listaVentasPagadas" class="lista-ventas-pagadas">
+                <p>Cargando facturas pagadas...</p>
+            </div>
+            <p id="noVentasPagadasMsg" style="display:none;">No hay facturas pagadas registradas aún.</p>
+        </div>
+    </div>
+</div>
 
          <!-- Ayuda contextual para Cuentas por Cobrar -->
     <section id="ayuda">
