@@ -21,6 +21,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             seccionVentasPagadas.style.display = "none";
         }
 
+        // --- *** NUEVA LÍNEA CLAVE *** ---
+        const btnEliminarHistorialPagadas = document.getElementById("btnEliminarHistorialPagadas");
+        if (btnEliminarHistorialPagadas) {
+            btnEliminarHistorialPagadas.style.display = "none"; // Esta línea lo oculta al inicio
+        }
+        // --- FIN: NUEVA LÍNEA CLAVE ---
+
+        // --- AQUÍ ESTÁ LA LÍNEA PARA OCULTAR EL BOTÓN DE EXPORTAR AL INICIO ---
+        const btnExportarHistorialPagadasPDF = document.getElementById("btnExportarHistorialPagadasPDF");
+        if (btnExportarHistorialPagadasPDF) {
+            btnExportarHistorialPagadasPDF.style.display = "none"; // <--- Esta es la línea
+        }
+        // --- FIN DE LA LÍNEA ---
+
+        await cargarYMostrarCuentasPorCobrar();
+
         // Forzar una carga inmediata
         await cargarYMostrarCuentasPorCobrar();
 
@@ -30,7 +46,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Error: renderCalendar() no está definido.");
         }
 
-        // Función auxiliar para agregar event listeners de manera segura
         const addSafeEventListener = (elementId, event, handler) => {
             const element = document.getElementById(elementId);
             if (element) {
@@ -40,12 +55,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         };
 
-        // Asignar eventos a los botones de filtro de manera segura
         addSafeEventListener("btnFiltrarCuentas", "click", aplicarFiltros);
         addSafeEventListener("btnLimpiarFiltros", "click", limpiarFiltros);
-        addSafeEventListener("btnToggleVentasPagadas", "click", toggleVentasPagadas);
+        addSafeEventListener("btnToggleVentasPagadas", "click", toggleVentasPagadas); 
 
-        // Asociar eventos del modal de abono de manera segura
         addSafeEventListener("btnRegistrarAbono", "click", registrarAbono);
         addSafeEventListener("cerrarModalAbono", "click", cerrarModalAbono);
 
@@ -58,11 +71,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
-        // Lógica para cargar venta desde localStorage si se viene de "Cuentas por Cobrar"
-        // (Esto es en ventas.js, pero lo mantengo aquí por si acaso lo colocaste aquí)
         const storedEditVentaId = localStorage.getItem('editVentaId');
         if (storedEditVentaId) {
-            localStorage.removeItem('editVentaId'); // Limpiar después de usar si por alguna razón queda aquí
+            localStorage.removeItem('editVentaId');
+        }
+        
+        // Este event listener para eliminar historial ya lo tienes, y está bien ubicado
+        const btnEliminarHistorialPagadas_listener = document.getElementById("btnEliminarHistorialPagadas");
+        if (btnEliminarHistorialPagadas_listener) {
+            btnEliminarHistorialPagadas_listener.addEventListener("click", eliminarHistorialVentasPagadas);
+        }
+
+        // Añadir el event listener para el botón de exportar a PDF
+        const btnExportarPDF = document.getElementById("btnExportarHistorialPagadasPDF");
+        if (btnExportarPDF) {
+            btnExportarPDF.addEventListener("click", exportarVentasPagadasPDF);
         }
 
     } catch (error) {
@@ -374,7 +397,6 @@ function crearCardVentaCredito(venta) {
     return card;
 }
 
-
 //NUEVA A LA 1 AM
 // Función para cargar y mostrar el historial de pagos de una venta
 async function toggleHistorialPagos(event) {
@@ -424,7 +446,6 @@ function cargarVentaParaEditar(ventaId) {
     localStorage.setItem('editVentaId', ventaId);
     window.location.href = 'ventas.html';
 }
-
 
 async function aplicarFiltros() {
     const clienteFiltro = document.getElementById("filtroCliente").value.toLowerCase().trim();
@@ -830,15 +851,19 @@ function mostrarRankingMorosos(ventas) {
 // --- NUEVAS FUNCIONES PARA VENTAS PAGADAS ---
 
 // Función para alternar la visibilidad de las ventas pagadas
+// Función para alternar la visibilidad de las ventas pagadas
 async function toggleVentasPagadas() {
     const seccionVentasPagadas = document.getElementById("seccionVentasPagadas");
     const btnToggle = document.getElementById("btnToggleVentasPagadas");
     const listaVentasPagadasDiv = document.getElementById("listaVentasPagadas");
     const noVentasPagadasMsg = document.getElementById("noVentasPagadasMsg");
+    const btnEliminarHistorialPagadas = document.getElementById("btnEliminarHistorialPagadas");
+    // --- NUEVA LÍNEA CLAVE: OBTENER EL BOTÓN DE EXPORTAR ---
+    const btnExportarHistorialPagadasPDF = document.getElementById("btnExportarHistorialPagadasPDF"); 
 
-    // Verificar que todos los elementos necesarios existen
-    if (!seccionVentasPagadas || !btnToggle || !listaVentasPagadasDiv || !noVentasPagadasMsg) {
-        console.error("No se encontraron todos los elementos necesarios para mostrar las ventas pagadas");
+    // Verificar que todos los elementos necesarios existen (incluyendo el nuevo botón de exportar)
+    if (!seccionVentasPagadas || !btnToggle || !listaVentasPagadasDiv || !noVentasPagadasMsg || !btnEliminarHistorialPagadas || !btnExportarHistorialPagadasPDF) { 
+        console.error("No se encontraron todos los elementos necesarios para mostrar/ocultar ventas pagadas o los botones de acción.");
         return;
     }
 
@@ -850,6 +875,12 @@ async function toggleVentasPagadas() {
         // Limpiar y cargar las ventas pagadas
         listaVentasPagadasDiv.innerHTML = '<p style="text-align: center;">Cargando facturas pagadas...</p>';
         noVentasPagadasMsg.style.display = 'none';
+
+        // --- INICIO: Control de visibilidad de los botones (mostrar) ---
+        btnEliminarHistorialPagadas.style.display = "inline-block"; 
+        // --- NUEVA LÍNEA CLAVE: MOSTRAR EL BOTÓN DE EXPORTAR ---
+        btnExportarHistorialPagadasPDF.style.display = "inline-block"; 
+        // --- FIN: Control de visibilidad ---
 
         try {
             await cargarYMostrarVentasPagadas();
@@ -864,6 +895,12 @@ async function toggleVentasPagadas() {
         btnToggle.innerHTML = '<i class="fas fa-file-invoice"></i> Ver Facturas Pagadas';
         listaVentasPagadasDiv.innerHTML = '';
         noVentasPagadasMsg.style.display = 'none';
+
+        // --- INICIO: Control de visibilidad de los botones (ocultar) ---
+        btnEliminarHistorialPagadas.style.display = "none";
+        // --- NUEVA LÍNEA CLAVE: OCULTAR EL BOTÓN DE EXPORTAR ---
+        btnExportarHistorialPagadasPDF.style.display = "none"; 
+        // --- FIN: Control de visibilidad ---
     }
 }
 
@@ -907,6 +944,7 @@ async function cargarYMostrarVentasPagadas() {
                             <option value="Efectivo" ${venta.detallePago?.metodo === 'Efectivo' ? 'selected' : ''}>Efectivo</option>
                             <option value="Pago Móvil" ${venta.detallePago?.metodo === 'Pago Móvil' ? 'selected' : ''}>Pago Móvil</option>
                             <option value="Transferencia" ${venta.detallePago?.metodo === 'Transferencia' ? 'selected' : ''}>Transferencia</option>
+                            <option value="Mixto" ${venta.detallePago?.metodo === 'Mixto' ? 'selected' : ''}>Mixto</option>
                         </select>
                     </p>`;
             }
@@ -966,3 +1004,189 @@ function getTodayDateFormattedLocal() {
     const day = today.getDate().toString().padStart(2, '0'); // getDate() es el día del mes
     return `${year}-${month}-${day}`;
 }
+
+// --- INICIO: FUNCIÓN PARA ELIMINAR HISTORIAL DE VENTAS PAGADAS ---
+// --- FUNCIÓN PARA ELIMINAR HISTORIAL DE VENTAS PAGADAS (¡CORREGIDA!) ---
+// --- FUNCIÓN PARA "ELIMINAR" HISTORIAL DE VENTAS PAGADAS (¡CORREGIDA PARA ARCHIVAR!) ---
+async function eliminarHistorialVentasPagadas() {
+    // Confirmar eliminación
+    const confirmar = confirm("¿Estás seguro de que deseas archivar todo el historial de ventas pagadas? Esta acción no se puede deshacer.");
+    
+    if (confirmar) {
+        try {
+            const ventasPagadas = ventas.filter(venta => 
+                venta.tipoPago === 'credito' && venta.estadoPago === 'Pagado Total');
+            
+            for (const venta of ventasPagadas) {
+                venta.archivado = true; // Marcar como archivada
+                await actualizarVenta(venta.id, venta);
+            }
+            
+            // Actualizar la vista
+            mostrarToast("Historial de ventas pagadas archivado correctamente ✅", "success");
+            await cargarYMostrarCuentasPorCobrar(); // Recargar todo
+            
+            // Ocultar sección ya que no hay nada que mostrar ahora
+            const seccionVentasPagadas = document.getElementById("seccionVentasPagadas");
+            if (seccionVentasPagadas) {
+                seccionVentasPagadas.style.display = "none";
+            }
+            
+            // Cambiar texto del botón toggle
+            const btnToggle = document.getElementById("btnToggleVentasPagadas");
+            if (btnToggle) {
+                btnToggle.textContent = "Ver Facturas Pagadas";
+            }
+            
+            // Ocultar botón de exportar
+            const btnExportarHistorialPagadasPDF = document.getElementById("btnExportarHistorialPagadasPDF");
+            if (btnExportarHistorialPagadasPDF) {
+                btnExportarHistorialPagadasPDF.style.display = "none";
+            }
+            
+            // Ocultar botón de archivar
+            const btnEliminarHistorialPagadas = document.getElementById("btnEliminarHistorialPagadas");
+            if (btnEliminarHistorialPagadas) {
+                btnEliminarHistorialPagadas.style.display = "none";
+            }
+            
+        } catch (error) {
+            console.error("Error al archivar ventas pagadas:", error);
+            mostrarToast("Error al archivar ventas pagadas ❌", "error");
+        }
+    }
+}
+
+// Función para exportar ventas pagadas a PDF
+async function exportarVentasPagadasPDF() {
+    try {
+        const ventasPagadas = ventas.filter(venta => 
+            venta.tipoPago === 'credito' && 
+            venta.estadoPago === 'Pagado Total' && 
+            !venta.archivado
+        );
+
+        if (ventasPagadas.length === 0) {
+            mostrarToast("No hay ventas pagadas para exportar", "warning");
+            return;
+        }
+
+        // Crear el PDF utilizando jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Configuración inicial del documento
+        doc.setFont("helvetica");
+        doc.setFontSize(18);
+        doc.text("Historial de Ventas a Crédito Pagadas", 105, 15, { align: "center" });
+        
+        doc.setFontSize(10);
+        doc.text(`Generado: ${new Date().toLocaleString('es-ES')}`, 105, 22, { align: "center" });
+        doc.setFontSize(12);
+        
+        // Variables para la posición
+        let y = 35;
+        const lineHeight = 7;
+        let totalGeneral = 0;
+        
+        // Encabezado de la tabla
+        doc.setFont("helvetica", "bold");
+        doc.text("Factura", 10, y);
+        doc.text("Fecha", 40, y);
+        doc.text("Cliente", 70, y);
+        doc.text("Monto", 150, y);
+        doc.text("Fecha Pago", 180, y);
+        y += lineHeight;
+        
+        doc.setLineWidth(0.1);
+        doc.line(10, y - 2, 200, y - 2); // Línea horizontal después del encabezado
+        
+        doc.setFont("helvetica", "normal");
+        
+        // Ordenar ventas por fecha (más reciente primero)
+        ventasPagadas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        
+        // Agregar cada venta al PDF
+        for (const venta of ventasPagadas) {
+            // Verificar si necesitamos una nueva página
+            if (y > 270) {
+                doc.addPage();
+                y = 20;
+                
+                // Repetir encabezados en nueva página
+                doc.setFont("helvetica", "bold");
+                doc.text("Factura", 10, y);
+                doc.text("Fecha", 40, y);
+                doc.text("Cliente", 70, y);
+                doc.text("Monto", 150, y);
+                doc.text("Fecha Pago", 180, y);
+                y += lineHeight;
+                
+                doc.line(10, y - 2, 200, y - 2);
+                doc.setFont("helvetica", "normal");
+            }
+            
+            // Obtener la fecha del último abono (fecha de pago)
+            const ventaAbonos = abonos.filter(abono => abono.pedidoId === venta.id);
+            let fechaPago = "No disponible";
+            if (ventaAbonos.length > 0) {
+                // Ordenar abonos por fecha (descendente) y tomar el más reciente
+                ventaAbonos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+                const ultimoAbono = ventaAbonos[0];
+                const fechaObj = new Date(ultimoAbono.fecha);
+                fechaPago = fechaObj.toLocaleDateString('es-ES');
+            }
+            
+            // Formatear la fecha de la venta
+            const fechaVenta = new Date(venta.fecha).toLocaleDateString('es-ES');
+            
+            // Formatear factura
+            const factura = `Factura ${venta.id}`;
+            
+            // Limitar longitud del nombre del cliente
+            let cliente = venta.cliente || "Cliente desconocido";
+            if (cliente.length > 25) cliente = cliente.substring(0, 22) + "...";
+            
+            // Agregar datos a la fila
+            doc.text(factura, 10, y);
+            doc.text(fechaVenta, 40, y);
+            doc.text(cliente, 70, y);
+            doc.text(`$${venta.ingreso.toFixed(2)}`, 150, y);
+            doc.text(fechaPago, 180, y);
+            
+            totalGeneral += venta.ingreso;
+            y += lineHeight;
+            
+            // Línea separadora entre filas
+            if (ventasPagadas.indexOf(venta) < ventasPagadas.length - 1) {
+                doc.setDrawColor(200, 200, 200); // Gris claro para separadores
+                doc.line(10, y - 3, 200, y - 3);
+                doc.setDrawColor(0, 0, 0); // Restaurar color negro
+            }
+        }
+        
+        // Línea antes del total
+        doc.setLineWidth(0.2);
+        doc.line(10, y, 200, y);
+        y += lineHeight;
+        
+        // Total general
+        doc.setFont("helvetica", "bold");
+        doc.text("TOTAL:", 120, y);
+        doc.text(`$${totalGeneral.toFixed(2)}`, 150, y);
+        
+        // Pie de página
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "italic");
+        doc.text("Documento generado por Los SS - Sistema de Gestión", 105, 280, { align: "center" });
+        
+        // Guardar el PDF
+        doc.save(`Historial_Ventas_Pagadas_${getTodayDateFormattedLocal()}.pdf`);
+        
+        mostrarToast("PDF exportado correctamente ✅", "success");
+    } catch (error) {
+        console.error("Error al exportar PDF:", error);
+        mostrarToast("Error al exportar PDF ❌", "error");
+    }
+}
+// --- FIN: FUNCIÓN PARA "ELIMINAR" HISTORIAL DE VENTAS PAGADAS ---
