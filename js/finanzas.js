@@ -135,23 +135,49 @@ async function mostrarMovimientos() { // Hacemos esta función async
         return;
     }
 
-    // ... (resto de la función mostrarMovimientos, no necesita cambios) ...
+    // Nuevo código con las clases de estilo modernas
     filtrados.forEach(mov => {
         const li = document.createElement("li");
-        li.className = "movimiento-item";
-
-        if (mov.tipo.toLowerCase() === "ingreso") {
-            li.classList.add("movimiento-ingreso");
-        } else if (mov.tipo.toLowerCase() === "gasto") {
-            li.classList.add("movimiento-gasto");
+        
+        // Aplicamos la clase base de tarjeta de movimiento
+        li.className = "movimiento-card";
+        
+        // Aplicamos clase específica según el tipo
+        const tipoLower = mov.tipo.toLowerCase();
+        if (tipoLower === "ingreso") {
+            li.classList.add("ingreso");
+        } else if (tipoLower === "gasto") {
+            li.classList.add("gasto");
         }
-
+        
+        // Añadir clase para animación de nuevos elementos
+        if (mov.id > Date.now() - 5000) {
+            li.classList.add("nuevo");
+        }
+        
+        // Formatear la fecha correctamente
+        let fechaFormateada = mov.fecha;
+        if (fechaFormateada === "undefined" || !fechaFormateada) {
+            fechaFormateada = `<span class="fecha-undefined">Fecha no definida</span>`;
+        }
+        
         li.innerHTML = `
-            <strong>${mov.tipo}</strong> - $${mov.monto.toFixed(2)} <br/>
-            <em>${mov.descripcion}</em> <br/>
-            <small>Fecha: ${mov.fecha}</small><br/>
-            <button class="btn-editar" onclick="editarMovimiento(${mov.id})">✏️ Editar</button>
-            <button class="btn-eliminar" onclick="eliminarMovimiento(${mov.id})">🗑️ Eliminar</button>
+            <div class="movimiento-tipo ${tipoLower}">
+                ${tipoLower === "ingreso" ? "💰" : "💸"} ${mov.tipo}
+            </div>
+            <div class="movimiento-monto">
+                $${mov.monto.toFixed(2)}
+            </div>
+            <div class="movimiento-descripcion">
+                ${mov.descripcion}
+            </div>
+            <div class="movimiento-fecha">
+                📅 ${fechaFormateada}
+            </div>
+            <div class="movimiento-acciones">
+                <button class="btn-editar" onclick="editarMovimiento(${mov.id})">✏️ Editar</button>
+                <button class="btn-eliminar" onclick="eliminarMovimiento(${mov.id})">🗑️ Eliminar</button>
+            </div>
         `;
         listaMovimientos.appendChild(li);
     });
