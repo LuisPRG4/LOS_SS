@@ -1,0 +1,315 @@
+/* ========================================================= */
+/* CSS para Tarjetas de Reportes de Ventas (NUEVAS CLASES) */
+/* ========================================================= */
+.reporte-venta-card {
+    background-color: #FDF5E6; /* Un blanco cremoso/hueso para un fondo suave y lujoso */
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1), /* Sombra principal para elevación */
+                0 0 8px rgba(255, 215, 0, 0.2); /* Sutil halo dorado */
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #E0E0E0; /* Borde sutil plata */
+    display: flex; /* Usamos flexbox para la estructura interna */
+    flex-direction: column; /* Apilamos los elementos verticalmente */
+}
+
+.reporte-venta-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), /* Sombra más pronunciada al hover */
+                0 0 12px rgba(255, 215, 0, 0.3); /* Halo dorado más intenso al hover */
+}
+
+/* Clases para tipos específicos de reporte si quieres variaciones de color en la tarjeta */
+.reporte-venta-card.tipo-credito {
+    /* Si quieres un borde distinto o un fondo muy sutil para crédito */
+    border-left: 5px solid #6B46C1;
+}
+
+.reporte-venta-card.tipo-contado {
+    /* Si quieres un borde distinto o un fondo muy sutil para contado */
+    border-left: 5px solid #38A169;
+}
+
+/* Sección superior de la tarjeta (puede contener el título del reporte/cliente y el tipo si aplica) */
+.reporte-venta-header {
+    padding-bottom: 0.8rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid #F0F0F0; /* Línea separadora */
+    display: flex;
+    justify-content: space-between; /* Alinea el título y el tipo (si hay) */
+    align-items: center;
+}
+
+/* Título principal del reporte (ej. Nombre del Cliente/Reporte) */
+.reporte-venta-titulo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #36454F; /* Gris carbón oscuro para un contraste lujoso */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espacio entre el icono y el texto si hay */
+}
+
+/* Iconos dentro del título (si los usas, ej. un icono de cliente) */
+.reporte-venta-titulo svg {
+    fill: #DAA520; /* Color dorado para el icono */
+    width: 20px;
+    height: 20px;
+}
+
+/* Etiqueta de tipo de reporte (ej. "Crédito", "Contado") */
+.reporte-venta-tipo {
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: white;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+/* Colores para tipos específicos (ej. Ventas a Crédito, Contado) */
+.reporte-venta-tipo.credito {
+    background-color: #6B46C1; /* Un púrpura/violeta */
+}
+.reporte-venta-tipo.contado {
+    background-color: #38A169; /* Verde */
+}
+/* Añade más colores si tienes más tipos de reporte específicos */
+
+
+/* Contenido principal de la tarjeta (detalles y monto) */
+.reporte-venta-body {
+    display: flex;
+    justify-content: space-between; /* Detalle a la izquierda, monto a la derecha */
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+/* Bloque de información detallada (fecha, producto, etc.) */
+.reporte-venta-info {
+    flex-grow: 1; /* Para que ocupe el espacio disponible */
+}
+
+/* Detalles individuales del reporte (fecha, productos, etc.) */
+.reporte-venta-detalle {
+    color: #4A5568; /* Un gris medio para la descripción */
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+    display: flex; /* Para alinear icono y texto si usas */
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Iconos pequeños para los detalles (si los usas, ej. icono de fecha, producto) */
+.reporte-venta-detalle svg {
+    fill: #718096; /* Color gris suave para iconos de detalle */
+    width: 16px;
+    height: 16px;
+}
+
+/* Estilo para las etiquetas de productos (si las generas en JS) */
+.producto-tag {
+    background-color: #F0F0F0; /* Fondo gris claro para las etiquetas */
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.8em;
+    color: #555;
+    white-space: nowrap; /* Evita que el texto se rompa */
+}
+
+/* Monto total de la venta */
+.reporte-venta-monto {
+    font-size: 1.6rem; /* Un poco más grande para destacar */
+    font-weight: 700;
+    color: #B8860B; /* Tu tono dorado oscuro para el monto */
+    text-align: right; /* Alinear a la derecha para destacar */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Sombra sutil para darle volumen */
+    margin-left: 1rem; /* Espacio entre info y monto */
+    flex-shrink: 0; /* Para evitar que se comprima si hay mucha info */
+}
+
+/* Sección de acciones (botones) */
+.reporte-venta-acciones {
+    display: flex;
+    gap: 0.8rem; /* Más espacio entre botones */
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #F0F0F0; /* Línea separadora */
+    justify-content: flex-end; /* Alinear botones a la derecha */
+}
+
+/* Estilo base para todos los botones de acción en reportes */
+.btn-reporte-accion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.2rem; /* Padding más generoso */
+    border-radius: 8px; /* Bordes más suaves */
+    font-size: 0.95rem;
+    font-weight: 600; /* Un poco más de peso */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none; /* Quitamos el borde por defecto */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra sutil para todos los botones */
+}
+
+.btn-reporte-accion:hover {
+    transform: translateY(-1px); /* Ligero levantamiento al hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada al hover */
+}
+
+/* Estilo específico para el botón "Ver Detalles" (dorado) */
+.btn-ver-detalles {
+    background: linear-gradient(90deg, #FFD700, #DAA520); /* Gradiente dorado */
+    color: #36454F; /* Gris carbón para el texto */
+    border: 1px solid #FFC400; /* Borde dorado para realzar */
+}
+
+.btn-ver-detalles:hover {
+    background: linear-gradient(90deg, #FFA500, #FFD700); /* Otro gradiente dorado al hover */
+}
+
+/* Estilo específico para el botón "Eliminar" (rojo) */
+.btn-eliminar-reporte {
+    background-color: #DC3545; /* Rojo de Bootstrap para peligro */
+    color: white;
+}
+
+.btn-eliminar-reporte:hover {
+    background-color: #C82333;
+}
+
+/* Contenedor principal de las tarjetas de reportes */
+#listaEspecial { /* Usamos el ID existente en tu HTML */
+    list-style: none; /* Elimina viñetas */
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Columnas responsivas */
+    gap: 1.5rem; /* Espacio entre las tarjetas */
+}
+
+/* Asegurarnos que los li's dentro de ul#listaEspecial no tengan estilos predeterminados indeseados */
+#listaEspecial li {
+    list-style: none; /* Elimina viñetas si el navegador las añade por defecto */
+    margin-bottom: 0; /* Asegura que el gap del grid se encargue del espacio */
+}
+
+/* Estilo para el total general de los reportes */
+.total-reporte-especial {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #B8860B; /* Tu color dorado más oscuro */
+    text-align: right;
+    padding: 15px;
+    background-color: #FFFDE7; /* Fondo ligeramente diferente para el total */
+    border-radius: 8px;
+    margin-top: 20px;
+    grid-column: 1 / -1; /* Para que ocupe todo el ancho del grid */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Estilo para el mensaje cuando no hay resultados */
+.reporte-venta-card.no-results {
+    text-align: center;
+    grid-column: 1 / -1; /* Ocupa todo el ancho si no hay resultados */
+    background-color: #FDF5E6; /* Consistente con el fondo de las tarjetas */
+    color: #555;
+    font-style: italic;
+    padding: 30px;
+    margin-top: 20px;
+    box-shadow: none; /* Sin sombra para este mensaje */
+    border: 1px dashed #DDD;
+}
+
+
+/* Estilos responsivos para tarjetas de reportes */
+@media (max-width: 768px) {
+    #listaEspecial {
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+        gap: 1rem; /* Un poco menos de espacio en móvil */
+    }
+    .reporte-venta-card {
+        padding: 1rem;
+    }
+    .reporte-venta-titulo {
+        font-size: 1.1rem;
+    }
+    .reporte-venta-monto {
+        font-size: 1.4rem;
+    }
+    .reporte-venta-acciones {
+        flex-direction: column; /* Botones apilados verticalmente en móvil */
+        gap: 0.5rem;
+    }
+    .btn-reporte-accion {
+        width: 100%; /* Botones ocupan todo el ancho en móvil */
+        font-size: 0.9rem;
+    }
+    .total-reporte-especial {
+        font-size: 1.2rem;
+        padding: 10px;
+    }
+}
+
+/* Estilos para el detalle desplegable */
+.detalle-desplegable {
+    background-color: #f8f8f8; /* Un color ligeramente diferente para el panel */
+    border-top: 1px solid #eee;
+    padding: 10px 15px;
+    margin-top: 10px; /* Separación de la tarjeta principal */
+    border-radius: 0 0 8px 8px; /* Bordes redondeados solo abajo */
+    max-height: 0; /* Por defecto oculto */
+    overflow: hidden; /* Oculta el contenido que excede el max-height */
+    transition: max-height 0.4s ease-out, padding 0.4s ease-out, background-color 0.3s ease-in-out;
+    opacity: 0; /* Por defecto transparente */
+    visibility: hidden; /* Oculto para lectores de pantalla */
+}
+
+.detalle-desplegable.mostrar {
+    max-height: 200px; /* Altura máxima cuando está visible (ajusta según necesites) */
+    padding: 15px; /* Un poco más de padding cuando se muestra */
+    opacity: 1; /* Completamente visible */
+    visibility: visible;
+}
+
+.detalle-desplegable h4 {
+    margin-top: 0;
+    color: #5b2d90;
+    font-size: 1.1em;
+    border-bottom: 1px solid #d1a7ff;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.detalle-desplegable p {
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.detalle-desplegable ul {
+    list-style: none; /* Sin viñetas predeterminadas */
+    padding: 0;
+    margin: 0;
+}
+
+.detalle-desplegable ul li {
+    padding: 3px 0;
+    border-bottom: 1px dotted #e0e0e0;
+    font-size: 0.85em;
+    color: #444;
+}
+
+.detalle-desplegable ul li:last-child {
+    border-bottom: none;
+}
+
+/* Ajuste para la tarjeta general cuando el detalle está abierto */
+.reporte-venta-card.mostrar {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
