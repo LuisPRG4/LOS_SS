@@ -1,36 +1,7 @@
-/* --- KPIS (INDICADORES DE CUENTAS POR COBRAR) --- */
-.kpi-box .kpis {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px; /* Espacio entre los KPIS */
-    justify-content: space-around;
-}
-
-.kpi-box .kpi {
-    background-color: #fcf9f2; /* Fondo más claro y coherente con tu theme */
-    border: 1px solid #d4af37; /* Borde dorado */
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-    flex: 1;
-    min-width: 160px; /* Ancho mínimo para cada KPI */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.kpi-box .kpi strong {
-    display: block;
-    margin-bottom: 5px;
-    color: #8B4513; /* Color del texto del título del KPI */
-    font-size: 0.95em;
-}
-
-.kpi-box .kpi span {
-    font-size: 1.8em; /* Tamaño grande para el valor */
-    font-weight: bold;
-    color:#36454F;  /*   #6F4F28; MARRÓN */
-    display: block;
-    margin-top: 5px;
-}
+/*
+* Estilos específicos para la página de inicio (index.html)
+* Aquí se definen los estilos para las KPI box y otros elementos exclusivos del dashboard.
+*/
 
 /* KPI Box - Ajustes para que sea menos amplio y más centrado */
 .kpi-box {
