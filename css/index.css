@@ -5,157 +5,134 @@
 
 /* KPI Box - Ajustes para que sea menos amplio y más centrado */
 .kpi-box {
-    background-color: #fffaf0; /* Un CREMITA muy claro */
-    border-radius: 18px; /* Bordes más suaves */
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), /* Sombra más pronunciada */
-                0 0 20px rgba(255, 215, 0, 0.3); /* Sutil resplandor dorado */
-    padding: 25px; /* ¡REDUCIDO! Menos padding general para la caja principal */
-    margin: 30px auto; /* Centrar y dar espacio */
-    max-width: 900px; /* ¡AJUSTADO! Un ancho máximo para que no se estire demasiado */
+    background-color: #fffaf0;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12),
+                0 0 20px rgba(255, 215, 0, 0.3);
+    padding: 25px;
+    margin: 30px auto;
+    max-width: 900px;
     text-align: center;
-    border: 1px solid #f0e68c; /* Borde dorado suave */
+    border: 1px solid #f0e68c;
     position: relative;
     overflow: hidden;
 }
 
 .kpi-box h2 {
-    color: #B8860B; /* Dorado oscuro para el título */
-    border-color: #FFD700; /* Borde dorado para el título */
-    font-size: 2.2rem; /* Más grande y prominente */
+    color: #B8860B;
+    border-color: #FFD700;
+    font-size: 2.2rem;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenedor de las KPIs individuales */
 .kpis {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* ¡CENTRADOS! Para que se vean bien si hay pocos */
-    gap: 20px; /* Espacio entre las tarjetas */
+    justify-content: center;
+    gap: 20px;
     margin-top: 25px;
-    padding: 0 10px; /* Un poco de padding horizontal si el contenedor principal es muy ancho */
+    padding: 0 10px;
 }
 
-/* Tarjeta individual de KPI - Ajustes para un tamaño más compacto y detalle */
 .kpi {
-    background: linear-gradient(145deg, #FFECB3, #FFD700); /* Degradado dorado para cada KPI */
-    border: 1px solid #DAA520; /* Borde más oscuro del oro */
-    border-radius: 15px; /* Bordes más redondeados */
-    padding: 25px 25px; /* ¡AJUSTADO! Más padding interno para dejar espacio a los pernos */
-    flex: 0 1 280px; /* Se ajusta pero prefiere un ancho de 280px */
-    max-width: 300px; /* ¡AJUSTADO! Ancho máximo para cada tarjeta individual */
-    font-size: 1.1rem; /* Texto ligeramente ajustado */
-    font-weight: 600; /* Más audaz */
-    color: #4a4a4a; /* Texto oscuro para buen contraste con el dorado */
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1), /* Sombra elegante, más sutil */
-                inset 0 0 5px rgba(255, 255, 255, 0.4); /* Sombra interior para un efecto de "vidrio" o profundidad */
+    background: linear-gradient(145deg, #FFECB3, #FFD700);
+    border: 1px solid #DAA520;
+    border-radius: 15px;
+    padding: 25px 25px;
+    flex: 0 1 280px;
+    max-width: 300px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4a4a4a;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1),
+                inset 0 0 5px rgba(255, 255, 255, 0.4);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     cursor: default;
-    position: relative; /* ¡CLAVE! Necesario para posicionar los pernos */
-    overflow: hidden; /* Asegura que los pernos no se salgan del borde si son muy grandes */
+    position: relative;
+    overflow: hidden;
 }
 
 .kpi:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.2),
-                0 0 25px rgba(255, 215, 0, 0.6); /* Resplandor dorado más intenso */
+                0 0 25px rgba(255, 215, 0, 0.6);
     border-color: #B8860B;
 }
 
 .kpi strong {
     color: #7a6300;
     font-weight: 800;
-    display: block; /* Para que el título esté en su propia línea */
-    margin-bottom: 5px; /* Pequeño espacio debajo del título */
+    display: block;
+    margin-bottom: 5px;
 }
 
-/* Contenedor auxiliar para los pernos adicionales (bottom-left y top-right) */
-/* Posicionado ABSOLUTO respecto al .kpi padre, pero con z-index para que sus pseudo-elementos estén bien */
 .kpi-pernos-adicionales {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Crucial para que no bloquee interacciones del KPI */
-    z-index: 3; /* Asegura que esté por encima de posibles capas de texto o fondo de KPI */
+    pointer-events: none;
+    z-index: 3;
 }
 
-
-/* ESTILOS COMUNES PARA TODOS LOS PERNOS (para PC) */
-/* Unificamos los estilos base del perno aquí. Estos serán pseudo-elementos de .kpi Y .kpi-pernos-adicionales */
 .kpi::before,
 .kpi::after,
 .kpi-pernos-adicionales::before,
 .kpi-pernos-adicionales::after {
     content: '';
-    position: absolute; /* Absoluto respecto a su padre (.kpi o .kpi-pernos-adicionales) */
-    width: 14px; /* Tamaño del perno */
+    position: absolute;
+    width: 14px;
     height: 14px;
-    border-radius: 50%; /* Forma circular del perno */
-    box-shadow: 0 0 5px rgba(0,0,0,0.3), /* Sombra para darle profundidad */
-                inset 0 0 3px rgba(255,255,255,0.5); /* Brillo interior */
-    z-index: 4; /* Asegura que el perno esté por encima de todo */
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3),
+                inset 0 0 3px rgba(255,255,255,0.5);
+    z-index: 4;
     transition: transform 0.2s ease;
-
-    /* Para simular la "cruz" del tornillo, usamos un truco con múltiples fondos */
     background:
-        linear-gradient(to right, transparent 40%, #c29d00 40%, #c29d00 60%, transparent 60%), /* Línea vertical de la cruz (tono más oscuro) */
-        linear-gradient(to bottom, transparent 40%, #c29d00 40%, #c29d00 60%, transparent 60%), /* Línea horizontal de la cruz (tono más oscuro) */
-        radial-gradient(circle at center, #d4af37 0%, #a07d00 70%); /* Fondo base del perno (círculo dorado) */
-    background-size: 100% 100%; /* Asegura que los degradados cubran todo el tamaño */
+        linear-gradient(to right, transparent 40%, #c29d00 40%, #c29d00 60%, transparent 60%),
+        linear-gradient(to bottom, transparent 40%, #c29d00 40%, #c29d00 60%, transparent 60%),
+        radial-gradient(circle at center, #d4af37 0%, #a07d00 70%);
+    background-size: 100% 100%;
     background-repeat: no-repeat;
 }
 
-/* POSICIONAMIENTO INDIVIDUAL DE CADA PERNO (por defecto para PC) */
-
-/* Perno Superior Izquierdo (es pseudo-elemento de .kpi) */
 .kpi::before {
-    top: 5px; /* Más cerca de la esquina real del padding */
+    top: 5px;
     left: 5px;
 }
 
-/* Perno Superior Derecho (es pseudo-elemento de .kpi-pernos-adicionales) */
 .kpi-pernos-adicionales::before {
     top: 5px;
     right: 5px;
 }
 
-/* Perno Inferior Izquierdo (es pseudo-elemento de .kpi-pernos-adicionales) */
 .kpi-pernos-adicionales::after {
     bottom: 5px;
     left: 5px;
 }
 
-/* Perno Inferior Derecho (es pseudo-elemento de .kpi) */
 .kpi::after {
     bottom: 5px;
     right: 5px;
 }
 
-/* EFECTOS DE HOVER - ROTACIÓN INDIVIDUAL */
-
-/* Perno Superior Izquierdo */
 .kpi:hover::before {
     transform: rotate(15deg);
 }
 
-/* Perno Superior Derecho */
 .kpi:hover .kpi-pernos-adicionales::before {
-    transform: rotate(-15deg); /* Rotación opuesta para variar */
+    transform: rotate(-15deg);
 }
 
-/* Perno Inferior Izquierdo */
 .kpi:hover .kpi-pernos-adicionales::after {
-    transform: rotate(15deg); /* Rotación similar al superior izquierdo */
+    transform: rotate(15deg);
 }
 
-/* Perno Inferior Derecho */
 .kpi:hover::after {
-    transform: rotate(-15deg); /* Rotación opuesta al inferior izquierdo */
+    transform: rotate(-15deg);
 }
 
-
-/* Media queries para responsividad de los KPI */
 @media (max-width: 768px) {
     .kpi-box {
         padding: 20px;
@@ -172,40 +149,512 @@
     }
 
     .kpi {
-        flex: 1 1 100%; /* Ocupar todo el ancho en pantallas pequeñas */
+        flex: 1 1 100%;
         max-width: none;
         font-size: 1.1rem;
-        padding: 30px 20px 15px; /* ¡AJUSTADO! Más padding arriba para la pestaña, menos abajo */
-        display: flex; /* Asegura flexbox para centrar contenido */
-        flex-direction: column; /* Apila contenido verticalmente */
-        align-items: center; /* Centra horizontalmente el contenido */
-        justify-content: center; /* Centra verticalmente el contenido */
-        text-align: center; /* Asegura centrado del texto */
+        padding: 30px 20px 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
 
-    /* OCULTAR TODOS LOS PERNOS EN MÓVIL (LOS DE LAS ESQUINAS) */
-    .kpi::before, /* Antes era el perno central, ahora lo ocultamos para redefinirlo */
+    .kpi::before,
     .kpi::after,
     .kpi-pernos-adicionales::before,
     .kpi-pernos-adicionales::after {
-        display: none; /* ¡Oculta todos los 4 pernos en móvil! */
+        display: none;
     }
 
-    /* REPOSICIONAR Y ESTILIZAR LA NUEVA PESTAÑA SUJETADORA (usamos .kpi::before ya que está oculto y podemos redefinirlo) */
     .kpi::before {
-        content: ''; /* Asegura que el pseudo-elemento exista */
-        display: block; /* Muestra el pseudo-elemento */
-        position: absolute; /* Posicionamiento absoluto respecto a .kpi */
-        top: 0; /* Pegado al borde superior */
-        left: 50%; /* Centrado horizontalmente */
-        transform: translateX(-50%); /* Ajuste fino para centrado perfecto */
-        width: 60px; /* Ancho de la pestaña */
-        height: 20px; /* Alto de la pestaña */
-        background: linear-gradient(145deg, #FFD700, #B8860B); /* Degradado dorado para la pestaña */
-        border-radius: 0 0 10px 10px; /* Solo redondea las esquinas inferiores para efecto de pestaña */
-        box-shadow: 0 5px 10px rgba(0,0,0,0.3); /* Sombra para darle volumen */
-        z-index: 5; /* Asegura que esté por encima de todo */
-        border: 1px solid #7a6300; /* Borde más oscuro del oro */
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 20px;
+        background: linear-gradient(145deg, #FFD700, #B8860B);
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        z-index: 5;
+        border: 1px solid #7a6300;
     }
-    /* No hay animación de rotación en hover para la pestaña en móvil */
+}
+
+/* PANEL DE CONTROL */
+.dashboard-section {
+    background-color: #f8f8dc;
+    border: 2px solid #daa520;
+    border-radius: 18px;
+    padding: 30px;
+    margin: 30px auto;
+    max-width: 900px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15),
+                inset 0 0 40px rgba(218, 165, 32, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-section::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    z-index: -1;
+    background: radial-gradient(circle at center, transparent 60%, rgba(218, 165, 32, 0.2));
+    opacity: 0.6;
+}
+
+.dashboard-title {
+    color: #b8860b;
+    font-size: 2rem;
+    margin-bottom: 25px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: inline-block;
+}
+
+.dashboard-title::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #daa520, transparent);
+}
+
+/* Accesos Rápidos */
+.quick-access {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0e68c;
+}
+
+.quick-access h3 {
+    color: #8b4513;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+.quick-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.quick-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #4a4a4a;
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border-radius: 12px;
+    padding: 15px;
+    min-width: 120px;
+    flex: 1;
+    max-width: 160px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid #f0e68c;
+}
+
+.quick-button:hover {
+    transform: translateY(-5px);
+    background: linear-gradient(145deg, #fff7d6, #ffe066);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    color: #8b4513;
+    border-color: #daa520;
+}
+
+.quick-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    transition: transform 0.3s ease;
+}
+
+.quick-button:hover .quick-icon {
+    transform: scale(1.15);
+}
+
+.quick-button span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Consejo del Día */
+.daily-tip {
+    background: linear-gradient(145deg, #fff9e6, #fff0c4);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #daa520;
+    position: relative;
+    overflow: hidden;
+}
+
+.daily-tip::after {
+    content: "💡";
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 5rem;
+    opacity: 0.1;
+    transform: rotate(15deg);
+}
+
+.daily-tip h3 {
+    color: #8b4513;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+.tip-content {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+    font-style: italic;
+    color: #5a5a5a;
+}
+
+.tip-content::before {
+    content: "“"; /* ← aquí está corregido 🥰 */
+    position: absolute;
+    top: -15px;
+    left: 10px;
+    font-size: 3rem;
+    color: #daa520;
+    opacity: 0.4;
+}
+
+.btn-tip {
+    background-color: #f0c14b;
+    color: #333;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-tip:hover {
+    background-color: #e2b33b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Actividad Reciente */
+.recent-activity {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0e68c;
+}
+
+.recent-activity h3 {
+    color: #8b4513;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+.activity-timeline {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px 5px;
+    position: relative;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 5px;
+    border-bottom: 1px dashed #e0e0e0;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+}
+
+.timeline-item:hover {
+    background-color: #fffbeb;
+}
+
+.timeline-icon {
+    width: 30px;
+    height: 30px;
+    background-color: #ffd700;
+    color: #8b4513;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+}
+
+.timeline-content {
+    text-align: left;
+    flex-grow: 1;
+}
+
+.timeline-title {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.timeline-time {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.timeline-loader {
+    color: #888;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+/* Media queries del dashboard */
+@media (max-width: 768px) {
+    .dashboard-section {
+        padding: 20px 15px;
+        margin: 20px 10px;
+    }
+
+    .dashboard-title {
+        font-size: 1.8rem;
+    }
+
+    .quick-buttons {
+        gap: 10px;
+    }
+
+    .quick-button {
+        min-width: 100px;
+        padding: 12px 8px;
+    }
+
+    .quick-icon {
+        font-size: 2rem;
+    }
+
+    .daily-tip, .recent-activity, .quick-access {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-button {
+        min-width: 70px;
+        max-width: calc(50% - 10px);
+        flex: 1 0 calc(50% - 10px);
+    }
+
+    .quick-icon {
+        font-size: 1.8rem;
+    }
+
+    .timeline-item {
+        padding: 10px 0;
+    }
+
+    .timeline-icon {
+        width: 25px;
+        height: 25px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ----- ESTILOS PARA NOTAS RÁPIDAS Y RECORDATORIOS ----- */
+.quick-notes {
+    background: linear-gradient(145deg, #fffaf0, #fff5e0);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #daa520;
+    position: relative;
+}
+
+.quick-notes h3 {
+    color: #8b4513;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+.notes-container {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.notes-list {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.note-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background-color: #fff9e6;
+    border-left: 4px solid #daa520;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.note-item:hover {
+    background-color: #fff5d0;
+    transform: translateX(3px);
+}
+
+.note-checkbox {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    appearance: none;
+    border: 2px solid #daa520;
+    position: relative;
+    background-color: transparent;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.note-checkbox:checked {
+    background-color: #daa520;
+}
+
+.note-checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.note-text {
+    flex-grow: 1;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.note-item.completed .note-text {
+    text-decoration: line-through;
+    color: #888;
+    font-style: italic;
+}
+
+.note-delete {
+    color: #cc0000;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.note-delete:hover {
+    opacity: 1;
+}
+
+.notes-input-container {
+    display: flex;
+    gap: 10px;
+}
+
+.note-input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 2px solid #f0e68c;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.note-input:focus {
+    outline: none;
+    border-color: #daa520;
+    box-shadow: 0 0 5px rgba(218, 165, 32, 0.4);
+}
+
+.btn-add-note {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f0c14b, #daa520);
+    color: white;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-add-note:hover {
+    transform: scale(1.05);
+    background: linear-gradient(145deg, #e2b33b, #cd9b16);
+}
+
+.empty-notes-message {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Media queries para notas en pantallas pequeñas */
+@media (max-width: 768px) {
+    .quick-notes {
+        padding: 15px;
+    }
+    
+    .note-item {
+        padding: 8px 10px;
+    }
 }
