@@ -1,7 +1,7 @@
 // Archivo: service-worker.js
 
 // Incrementamos la versión y agregamos timestamp para forzar actualización
-const CACHE_NAME = "los-ss-cache-v9";
+const CACHE_NAME = "los-ss-cache-v10";
 const APP_VERSION = "1.0.4"; // Incrementa esto cuando hagas cambios importantes
 const REPO_PREFIX = '/Los_SS/';
 
@@ -50,6 +50,7 @@ const urlsToCache = [
   `${REPO_PREFIX}css/ventas.css`,
   `${REPO_PREFIX}css/whatsapp.css`,
   `${REPO_PREFIX}css/update-button.css`, // ¡Asegúrate de incluir este nuevo CSS!
+  `${REPO_PREFIX}css/reportes.css`,
 
   // JS:
   `${REPO_PREFIX}js/calendar.js`,
