@@ -9,7 +9,6 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/exportData.css" />
   <link rel="stylesheet" href="css/form-decoration.css" /> <!-- ¡NUEVA LÍNEA CLAVE! -->
   <link rel="stylesheet" href="css/index.css"/>
   <link rel="stylesheet" href="css/stockAlert.css"/>
@@ -43,6 +42,7 @@
       <li><a href="finanzas.html">💰 Finanzas</a></li>
       <li><a href="novedades.html">🐶 Novedades</a></li>
       <li><a href="pedidos.html">📦 Pedidos</a></li>
+      <li><a href="datos.html">💾 Datos</a></li>
     </ul>
   </nav>
 
@@ -70,54 +70,72 @@
       <ul id="alertasStock"></ul>
     </section>
 
-    <!-- EXPORTAR LOS DATOS-->
-    <section class="export-all-section golden-decorated-form">
-      <h2 class="export-all-title">🗄️ Exportar Todos los Datos 💎</h2>
-      <p class="export-all-description">Elige el formato para descargar una copia completa de tu información.</p>
-      <div class="export-options">
+    <!-- NUEVA SECCIÓN: PANEL DE CONTROL -->
+    <section class="dashboard-section golden-decorated-form">
+      <h2 class="dashboard-title">✨ Panel de Control</h2>
+      
+      <!-- Accesos Rápidos -->
+      <div class="quick-access">
+        <h3>⚡ Accesos Rápidos</h3>
+        <div class="quick-buttons">
+          <a href="ventas.html" class="quick-button">
+            <div class="quick-icon">🛒</div>
+            <span>Nueva Venta</span>
+          </a>
+          <a href="inventario.html" class="quick-button">
+            <div class="quick-icon">📦</div>
+            <span>Añadir Producto</span>
+          </a>
+          <a href="cuentas-por-cobrar.html" class="quick-button">
+            <div class="quick-icon">💰</div>
+            <span>Registrar Pago</span>
+          </a>
+          <a href="reportesGraficos.html" class="quick-button">
+            <div class="quick-icon">📊</div>
+            <span>Ver Reportes</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Consejos del Día -->
+      <div class="daily-tip">
+        <h3>💡 Consejo del Día</h3>
+        <div class="tip-content" id="dailyTip">
+          <p>Cargando consejo...</p>
+        </div>
+        <button id="newTipBtn" class="btn-tip">Mostrar otro consejo</button>
+      </div>
+      
+      <!-- Actividad Reciente -->
+      <div class="recent-activity">
+        <h3>🔔 Actividad Reciente</h3>
+        <div class="activity-timeline" id="activityTimeline">
+          <div class="timeline-loader">Cargando actividades recientes...</div>
+        </div>
+      </div>
 
-        <button id="btnExportarExcel" class="btn-export">
-            <img src="icons/1.EXCEL.png" alt="Excel" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a Excel
-        </button>
-        <button id="btnExportarCSV" class="btn-export">
-            <img src="icons/2. CSV.png" alt="CSV" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a CSV
-        </button>
-        <button id="btnExportarJSON" class="btn-export">
-            <img src="icons/3. JSON.png" alt="JSON" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a JSON
-        </button>
-        <button id="btnExportarPDF" class="btn-export">
-            <img src="icons/4. PDF.png" alt="PDF" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a PDF
-        </button>
+       <!-- Notas Rápidas y Recordatorios -->
+      <div class="quick-notes">
+        <h3>📝 Recordatorios</h3>
+        <div class="notes-container">
+          <div id="notesContainer" class="notes-list">
+            <!-- Aquí se cargarán las notas dinámicamente -->
+          </div>
+          <div class="notes-input-container">
+            <input type="text" id="newNoteInput" placeholder="Añadir nuevo recordatorio..." class="note-input">
+            <button id="addNoteBtn" class="btn-add-note">➕</button>
+          </div>
+        </div>
+      </div>
 
-        <button id="btnToggleImport" class="btn-export btn-import-toggle">
-            <img src="icons/5. SUBIR.png" alt="Importar" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Importar Datos
-        </button>
-    </div>
-
-    <div id="importOptionsContainer" class="import-options-container">
-    <h3>📂 Selecciona el archivo JSON para importar:</h3>
-    <p class="import-description">¡Cuidado! Esto reemplazará tus datos actuales. Asegúrate de tener una copia de seguridad.</p>
-    
-    <label for="jsonFileInput" class="custom-file-upload">
-        <input type="file" id="jsonFileInput" accept=".json" style="display: none;"> <span id="fileNameDisplay" class="file-name-display">Seleccionar archivo...</span>
-        <button type="button" class="btn-browse-file">Examinar</button>
-    </label>
-    <button id="btnImportarJSON" class="btn-import btn-primary">
-        <img src="icons/6. CARGAR Y REEMPLAZAR.png" alt="Importar" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Cargar y Reemplazar Datos
-    </button>
-  </div>
-</section>
+    </section>
 
   </main>
 
   <script src="js/db.js"></script>
   <script src="js/sw-register.js"></script>
-  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  
-  <script src="js/exportAll.js"></script>
   <script src="js/script.js"></script>
+  <script src="js/dashboard.js"></script>
   <script src="js/nav-highlighter.js" defer></script>
 
   <script>
