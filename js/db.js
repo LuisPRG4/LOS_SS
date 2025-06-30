@@ -385,6 +385,69 @@ async function reemplazarTodosLosDatos(importedData) {
                 const store = transaction.objectStore(storeName);
                 importedData[storeName].forEach(item => {
                     const itemToStore = { ...item }; 
+                    
+                    // Convertir campos de string a número
+                    if (storeName === 'ventas') {
+                        // Convertir campos numéricos en ventas
+                        if (typeof itemToStore.ingreso === 'string') {
+                            itemToStore.ingreso = parseFloat(itemToStore.ingreso);
+                        }
+                        if (typeof itemToStore.ganancia === 'string') {
+                            itemToStore.ganancia = parseFloat(itemToStore.ganancia);
+                        }
+                        if (typeof itemToStore.montoPendiente === 'string') {
+                            itemToStore.montoPendiente = parseFloat(itemToStore.montoPendiente);
+                        }
+                        
+                        // Procesar campo productos si es string
+                        if (typeof itemToStore.productos === 'string') {
+                            try {
+                                // Intentar parsear si es un JSON
+                                if (itemToStore.productos.startsWith('[') || itemToStore.productos.startsWith('{')) {
+                                    itemToStore.productos = JSON.parse(itemToStore.productos);
+                                } else {
+                                    // Si es un string con formato específico como "Yogurt x2 ($2.30)"
+                                    console.warn("El campo productos no es un JSON válido:", itemToStore.productos);
+                                }
+                            } catch (e) {
+                                console.error("Error al parsear productos de venta:", e);
+                                // Mantener como array vacío si hay error
+                                itemToStore.productos = [];
+                            }
+                        }
+                    } else if (storeName === 'productos') {
+                        // Convertir campos numéricos en productos
+                        if (typeof itemToStore.stock === 'string') {
+                            itemToStore.stock = parseInt(itemToStore.stock);
+                        }
+                        if (typeof itemToStore.costo === 'string') {
+                            itemToStore.costo = parseFloat(itemToStore.costo);
+                        }
+                        if (typeof itemToStore.precio === 'string') {
+                            itemToStore.precio = parseFloat(itemToStore.precio);
+                        }
+                        if (typeof itemToStore.vendidos === 'string') {
+                            itemToStore.vendidos = parseInt(itemToStore.vendidos);
+                        }
+                        if (typeof itemToStore.stockMin === 'string') {
+                            itemToStore.stockMin = parseInt(itemToStore.stockMin);
+                        }
+                        if (typeof itemToStore.stockMax === 'string') {
+                            itemToStore.stockMax = parseInt(itemToStore.stockMax);
+                        }
+                    } else if (storeName === 'abonos') {
+                        if (typeof itemToStore.montoAbonado === 'string') {
+                            itemToStore.montoAbonado = parseFloat(itemToStore.montoAbonado);
+                        }
+                    } else if (storeName === 'movimientos') {
+                        if (typeof itemToStore.monto === 'string') {
+                            itemToStore.monto = parseFloat(itemToStore.monto);
+                        }
+                        if (typeof itemToStore.ganancia === 'string') {
+                            itemToStore.ganancia = parseFloat(itemToStore.ganancia);
+                        }
+                    }
+                    
                     store.put(itemToStore); 
                 });
                 console.log(`Datos de '${storeName}' insertados: ${importedData[storeName].length} registros.`);
