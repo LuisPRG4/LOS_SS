@@ -16,6 +16,7 @@ const urlsToCache = [
   `${REPO_PREFIX}`, // La raíz de tu aplicación en GitHub Pages
   `${REPO_PREFIX}clientes.html`,
   `${REPO_PREFIX}cuentas-por-cobrar.html`,
+  `${REPO_PREFIX}datos.html`,
   `${REPO_PREFIX}finanzas.html`,
   `${REPO_PREFIX}index.html`,
   `${REPO_PREFIX}inventario.html`,
@@ -35,7 +36,7 @@ const urlsToCache = [
   `${REPO_PREFIX}css/calendar.css`,
   `${REPO_PREFIX}css/cards-general.css`,
   `${REPO_PREFIX}css/chatbot-ayuda.css`,
-  `${REPO_PREFIX}css/exportData.css`,
+  `${REPO_PREFIX}css/datos.css`,
   `${REPO_PREFIX}css/form-decoration.css`,
   `${REPO_PREFIX}css/index.css`,
   `${REPO_PREFIX}css/inventario.css`,
@@ -56,8 +57,9 @@ const urlsToCache = [
   `${REPO_PREFIX}js/chatbot-ayuda.js`,
   `${REPO_PREFIX}js/clientes.js`,
   `${REPO_PREFIX}js/cuentas-por-cobrar.js`,
+  `${REPO_PREFIX}js/dashboard.js`,
+  `${REPO_PREFIX}js/datos.js`,
   `${REPO_PREFIX}js/db.js`,
-  `${REPO_PREFIX}js/exportAll.js`,
   `${REPO_PREFIX}js/finanzas.js`,
   `${REPO_PREFIX}js/inventario.js`,
   `${REPO_PREFIX}js/login.js`,
@@ -79,8 +81,10 @@ const urlsToCache = [
   // fav:
   `${REPO_PREFIX}fav/los ss.png`,
 
-  // Fonts:
-  `${REPO_PREFIX}fonts/Handlee-Regular.ttf`,
+ // Fonts:
+  `${REPO_PREFIX}fonts/Handlee-Regular.ttf`, 
+  `${REPO_PREFIX}fonts/Montserrat-Italic.ttf`,
+  `${REPO_PREFIX}fonts/Playfair.ttf`,
 
   // Icons:
   `${REPO_PREFIX}icons/1.EXCEL.png`,
@@ -97,7 +101,7 @@ const urlsToCache = [
   `${REPO_PREFIX}logo/Yogurt.png`,
 
   // Resources:
-  `${REPO_PREFIX}resources/GPT.png`,
+  `${REPO_PREFIX}resources/ORO.jpg`,
   `${REPO_PREFIX}resources/ICONO BOLSITA.png`,
 ];
 
