@@ -385,18 +385,27 @@ function crearCardVenta(venta, id) {
     let productosTexto = "";
 
     try {
-        const productosVentaArray = Array.isArray(venta.productos)
-            ? venta.productos
-            : JSON.parse(venta.productos || '[]');
+        // Si productos es un string que no empieza con '[' o '{', es probablemente un texto ya formateado
+        if (typeof venta.productos === 'string' && 
+            !venta.productos.trim().startsWith('[') && 
+            !venta.productos.trim().startsWith('{')) {
+            // Ya está en formato texto, usarlo directamente
+            productosTexto = venta.productos;
+        } else {
+            // Si es array o JSON válido, procesarlo normalmente
+            const productosVentaArray = Array.isArray(venta.productos)
+                ? venta.productos
+                : JSON.parse(venta.productos || '[]');
 
-        productosTexto = productosVentaArray.map(p => {
-            const unidad = p.unidadMedida || 'unidad(es)';
-            return `${p.nombre} x${p.cantidad} ${unidad}`;
-        }).join(", ");
+            productosTexto = productosVentaArray.map(p => {
+                const unidad = p.unidadMedida || 'unidad(es)';
+                return `${p.nombre} x${p.cantidad} ${unidad}`;
+            }).join(", ");
+        }
     } catch (e) {
         console.warn("⚠️ Error procesando productos de la venta:", e);
-        mostrarToast("¡Elimina ese estúpido caché! 🤬🔥", "error");
-        productosTexto = "Error al cargar productos";
+        // Si hay error, mostrar los productos como texto o "Error" si no es posible
+        productosTexto = typeof venta.productos === 'string' ? venta.productos : "Error al cargar productos";
     }
 
     // Formatear fecha y hora
@@ -440,11 +449,11 @@ function crearCardVenta(venta, id) {
 
         switch (venta.estadoPago) {
             case 'Pendiente':
-                estadoPagoHTML = `<span class="estado-pago pendiente">(Pendiente: $${venta.montoPendiente?.toFixed(2) || '0.00'})</span>`;
+                estadoPagoHTML = `<span class="estado-pago pendiente">(Pendiente: $${typeof venta.montoPendiente === 'number' ? venta.montoPendiente.toFixed(2) : (parseFloat(venta.montoPendiente) || 0).toFixed(2)})</span>`;
                 estadoClase = 'border-red-400';
                 break;
             case 'Pagado Parcial':
-                estadoPagoHTML = `<span class="estado-pago parcial">(Parcial: $${venta.montoPendiente?.toFixed(2) || '0.00'} restantes)</span>`;
+                estadoPagoHTML = `<span class="estado-pago parcial">(Parcial: $${typeof venta.montoPendiente === 'number' ? venta.montoPendiente.toFixed(2) : (parseFloat(venta.montoPendiente) || 0).toFixed(2)} restantes)</span>`;
                 estadoClase = 'border-orange-400';
                 break;
             case 'Pagado Total':
@@ -458,7 +467,7 @@ function crearCardVenta(venta, id) {
 
         if (venta.tipoPago === 'credito' && venta.estadoPago !== 'Pagado Total' && fechaVencimiento && new Date(fechaVencimiento) < new Date()) {
             estadoClase = 'border-red-700 ring-2 ring-red-500';
-            estadoPagoHTML = `<span class="estado-pago vencido">(OVERDUE: $${venta.montoPendiente?.toFixed(2) || '0.00'})</span>`;
+            estadoPagoHTML = `<span class="estado-pago vencido">(OVERDUE: $${typeof venta.montoPendiente === 'number' ? venta.montoPendiente.toFixed(2) : (parseFloat(venta.montoPendiente) || 0).toFixed(2)})</span>`;
         }
     }
 
@@ -466,15 +475,20 @@ function crearCardVenta(venta, id) {
     card.classList.add("venta-card");
     if (estadoClase) card.classList.add(estadoClase);
 
+    // Aseguramos que detallePago exista
+    if (!venta.detallePago) {
+        venta.detallePago = { metodo: 'N/A' };
+    }
+    
     card.innerHTML = `
         <div class="header-venta">
             <h3>${venta.cliente}</h3>
         </div>
         <div class="detalle-venta">
             <p><strong>Productos:</strong> ${productosTexto}</p>
-            <p><strong>Total:</strong> $${venta.ingreso?.toFixed(2) || '0.00'}</p>
+            <p><strong>Total:</strong> $${typeof venta.ingreso === 'number' ? venta.ingreso.toFixed(2) : (parseFloat(venta.ingreso) || 0).toFixed(2)}</p>
             <p><strong>Condición:</strong> ${venta.tipoPago} ${estadoPagoHTML}</p>
-            <p><strong>Método:</strong> ${venta.detallePago.metodo || ''}</p>
+            <p><strong>Método:</strong> ${venta.detallePago?.metodo || 'N/A'}</p>
             <p><strong>Fecha y hora de registro:</strong> ${fechaVenta} ${horaVenta}</p>
             ${venta.tipoPago === 'credito' ? `<p><strong>Fecha de vencimiento:</strong> ${formatearFecha(venta.detallePago?.fechaVencimiento) || 'No establecida'}</p>` : ''}
         </div>
@@ -518,14 +532,26 @@ async function filtrarVentas() {
     }
 
     const filtradas = ventas.filter(v => {
-        const productos = v.productos.map(p => `${p.nombre.toLowerCase()} ${p.cantidad} ${p.unidadMedida || ''}`).join(" "); // ¡MODIFICADO! Incluye la unidad en el filtro de productos
-        const cliente = v.cliente.toLowerCase();
-        const fecha = v.fecha.toLowerCase();
-        const metodo = (v.detallePago.metodo || "").toLowerCase();
-        const acreedor = (v.detallePago.acreedor || "").toLowerCase();
+        // Asegurarnos que los datos existen y son válidos antes de procesarlos
+        let productos = "";
+        try {
+            if (Array.isArray(v.productos)) {
+                productos = v.productos.map(p => `${(p.nombre || '').toLowerCase()} ${p.cantidad} ${p.unidadMedida || ''}`).join(" ");
+            } else if (typeof v.productos === 'string') {
+                productos = v.productos.toLowerCase();
+            }
+        } catch (e) {
+            console.warn("Error procesando productos para filtrar:", e);
+        }
+        
+        const cliente = (v.cliente || "").toLowerCase();
+        const fecha = (v.fecha || "").toLowerCase();
+        const detallePago = v.detallePago || {};
+        const metodo = (detallePago.metodo || "").toLowerCase();
+        const acreedor = (detallePago.acreedor || "").toLowerCase();
         const tipoVenta = (v.tipoPago || "").toLowerCase();
         const estadoPago = (v.estadoPago || "").toLowerCase();
-        const fechaVencimiento = (v.detallePago.fechaVencimiento || "").toLowerCase();
+        const fechaVencimiento = (detallePago.fechaVencimiento || "").toLowerCase();
 
         return (
             cliente.includes(input) ||
