@@ -5,6 +5,22 @@
     box-sizing: border-box;
 }
 
+/* General */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(
+    135deg,
+    #fefefe 0%,          /* Diamante fundido */
+    #e0f7ff 20%,         /* Azul hielo cristalino */
+    #dcdcdc 40%,         /* Plata líquida */
+    #f0e68c 65%,         /* Oro suave */
+    #ffd700 85%,         /* Oro puro */
+    #cce7ff 100%         /* Reflejo celeste brillante */
+  );
+  color: #2c2c2c;
+  padding: 20px;
+}
+
 /* FUENTE */
 /* Se mueve al inicio ya que las fuentes son fundamentales para el diseño */
 @font-face {
