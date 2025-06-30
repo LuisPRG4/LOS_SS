@@ -13,7 +13,7 @@ body {
   align-items: center;
   height: 100vh;
   /* Fondo con tu imagen local: ¡RUTA CORREGIDA AQUÍ! */
-  background: url('../resources/ORO PURO Y PLATA.jpg') no-repeat center center fixed;
+  background: url('../resources/ORO.jpg') no-repeat center center fixed;
   background-size: cover; 
   animation: brillo 10s ease-in-out infinite alternate; 
 }
