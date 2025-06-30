@@ -1,21 +1,29 @@
 @font-face {
-  font-family: 'Handlee';
-  src: url('fonts/Handlee-Regular.ttf') format('truetype');
+  font-family: 'Playfair Display';
+  src: url('/fonts/Playfair.ttf') format('truetype'); /* Asegúrate de que esta ruta sea correcta para tu archivo Playfair.ttf */
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Italic.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 body {
   margin: 0;
-  font-family: 'Handlee', sans-serif;
+  /* CAMBIO: Usamos una fuente más adecuada para el cuerpo que complemente el tema de lujo */
+  font-family: 'Montserrat', sans-serif; /* O 'Raleway', 'Lato', etc. - Elige la que más te guste */
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   /* Fondo con tu imagen local: ¡RUTA CORREGIDA AQUÍ! */
-  background: url('../resources/ORO.jpg') no-repeat center center fixed;
-  background-size: cover; 
-  animation: brillo 10s ease-in-out infinite alternate; 
+  background: url('../resources/ORO PURO Y PLATA.jpg') no-repeat center center fixed;
+  background-size: cover;
+  animation: brillo 10s ease-in-out infinite alternate;
 }
 
 @keyframes brillo {
@@ -24,15 +32,27 @@ body {
 }
 
 main {
-  background: white;
+  /* ANTES: background: white; */
+  /* AHORA: Simula un metal dorado pulido con gradientes y una sombra interior */
+  background: linear-gradient(to bottom, #FFD700, #DAA520, #B8860B); /* Tonos de oro más ricos */
   padding: 2rem;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 30px rgba(218, 165, 32, 0.25);
+  /* ANTES: box-shadow: 0 8px 30px rgba(218, 165, 32, 0.25); */
+  /* AHORA: Múltiples sombras para profundidad y brillo exterior e interior */
+  box-shadow:
+    0 8px 30px rgba(255, 215, 0, 0.5), /* Sombra exterior dorada más intensa */
+    0 0 40px rgba(255, 215, 0, 0.2), /* Un halo más amplio */
+    inset 0 0 15px rgba(255, 255, 255, 0.7), /* Reflejo blanco en el borde interno */
+    inset 0 0 30px rgba(255, 215, 0, 0.3); /* Brillo dorado interno */
   width: 100%;
   max-width: 400px;
   text-align: center;
-  border: 2px solid #d4af37;
+  /* ANTES: border: 2px solid #d4af37; */
+  /* AHORA: Borde más sutil o removido si el inset box-shadow es suficiente */
+  border: none; /* Quitamos el borde sólido para dejar que las sombras y el gradiente hagan el trabajo */
   animation: fadeInScale 0.8s ease-out forwards;
+  /* Agregamos una ligera perspectiva para que la sombra se vea mejor */
+  transform-style: preserve-3d;
 }
 
 @keyframes fadeInScale {
@@ -42,17 +62,26 @@ main {
 
 
 .titulo {
-  color: #d4af37;
-  font-size: 2.2rem;
+  /* CAMBIO: Fuente para título y nuevo color plata oscuro con sombra */
+  font-family: 'Playfair Display', serif; /* Usamos Playfair Display para el título */
+  color: #fff8dc; /* como marfil brillante */
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.9), 0 0 8px #ffd700;
+  
+  font-size: 2.5rem; /* Un poco más grande para el impacto */
   font-weight: bold;
   margin-bottom: 0.2rem;
 }
 
 .subtitulo {
   margin-top: 0;
-  color: #555;
+  /* CAMBIO: Fuente para subtítulo y nuevo color plata oscuro con sombra */
+  font-family: 'Handlee', cursive; /* Si quieres mantener Handlee aquí como un toque distintivo */
+  /* O puedes usar: font-family: 'Montserrat', sans-serif; para un estilo más uniforme */
+  color: #f5f5dc;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6), 0 0 4px #ffe680;
+  
   font-weight: normal;
-  font-size: 1.1rem;
+  font-size: 1.2rem; /* Podría ser un poco más grande */
 }
 
 label {
@@ -60,46 +89,95 @@ label {
   text-align: left;
   margin-top: 1rem;
   font-size: 0.95rem;
-  color: #968039;
+  /* CAMBIO: Fuente para etiquetas y nuevo color plata oscuro con sombra */
+  font-family: 'Montserrat', sans-serif; /* Usamos Montserrat para las etiquetas */
+  color: #fffaf0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+
+  
   font-weight: bold;
 }
 
 input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ccc;
+  /* ANTES: border: 1px solid #ccc; */
+  /* AHORA: Bordes dorados sutiles */
+  border: 1px solid #B8860B; /* Tono de oro oscuro para el borde */
   border-radius: 0.75rem;
   margin-top: 0.25rem;
   font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  /* Fondo muy claro, casi transparente, para dejar pasar algo del brillo del contenedor */
+  background-color: rgba(255, 255, 255, 0.15); /* Blanco muy translúcido */
+  
+  /* CAMBIO: Color del texto ingresado (mantener oscuro para legibilidad) */
+  color: #333; /* Color oscuro para el texto que el usuario escribe, crucial para legibilidad */
+
+  
 }
+
+input::placeholder {
+  color: #e6e6e6;
+  text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.5);
+}
+
 
 input:focus {
   outline: none;
-  border-color: #d4af37;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+  border-color: #FFD700; /* Oro más brillante al enfocar */
+  /* ANTES: box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3); */
+  /* AHORA: Sombra de brillo dorado más pronunciada al enfocar */
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.5), /* Halo de brillo dorado */
+              inset 0 0 5px rgba(255, 255, 255, 0.5); /* Reflejo interior al enfocar */
+  background-color: rgba(255, 255, 255, 0.3); /* Ligeramente más opaco al enfocar */
 }
 
 button {
   margin-top: 1.5rem;
   width: 100%;
   padding: 0.75rem;
-  background: linear-gradient(90deg, #d4af37, #b98c1c);
-  color: white;
+  /* ANTES: background: linear-gradient(90deg, #d4af37, #b98c1c); */
+  /* AHORA: Gradiente más vibrante y efecto de luz */
+  background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700); /* Oro a naranja a oro */
+  
+  /* CAMBIO: Color plata oscuro para el texto del botón y sombra pronunciada */
+  color: #A9A9A9; /* Plateado oscuro para el texto del botón */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra oscura para que el texto resalte */
+  
+  /* CAMBIO: Fuente para el botón */
+  font-family: 'Montserrat', sans-serif; /* Usamos Montserrat para el botón */
+  
   border: none;
   border-radius: 0.75rem;
-  font-size: 1rem;
+  font-size: 1.1rem; /* Un poco más grande para el botón */
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.1s ease;
+  transition: background 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease, color 0.3s ease;
+  /* Sombra del botón para darle volumen y brillo */
+  box-shadow:
+    0 5px 15px rgba(255, 215, 0, 0.7), /* Sombra principal dorada */
+    0 0 30px rgba(255, 215, 0, 0.4), /* Halo de brillo */
+    inset 0 0 10px rgba(255, 255, 255, 0.6); /* Reflejo interior blanco */
+  font-weight: bold; /* Hacer el texto del botón más fuerte */
 }
 
 button:hover {
-  background: linear-gradient(90deg, #b98c1c, #d4af37);
-  transform: translateY(-2px);
+  /* ANTES: background: linear-gradient(90deg, #b98c1c, #d4af37); */
+  /* AHORA: Brillo más intenso al pasar el ratón */
+  background: linear-gradient(90deg, #FFFACD, #FFD700, #FFFACD); /* Oro más claro y brillante */
+  transform: translateY(-3px); /* Ligeramente más elevado */
+  /* Sombra más dramática al hacer hover */
+  box-shadow:
+    0 8px 20px rgba(255, 215, 0, 0.9), /* Sombra principal más fuerte */
+    0 0 40px rgba(255, 215, 0, 0.6), /* Halo de brillo más amplio */
+    inset 0 0 12px rgba(255, 255, 255, 0.8); /* Reflejo interior más intenso */
 }
 
 button:active {
     transform: translateY(0);
+    box-shadow:
+      0 2px 10px rgba(255, 215, 0, 0.5), /* Sombra al presionar */
+      inset 0 0 8px rgba(0, 0, 0, 0.3); /* Oscurecimiento interno al presionar */
 }
 
 #error {
@@ -123,4 +201,45 @@ button:active {
   .titulo {
     font-size: 2rem;
   }
+}
+
+main {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Pseudo-elemento con el resplandor */
+main::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    130deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 35%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0.08) 65%,
+    transparent 100%
+  );
+  animation: deslizarBrillo 8s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(3px);
+  opacity: 0.6;
+  transition: opacity 1.5s ease;
+}
+
+/* Contenido por encima del brillo */
+main * {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes deslizarBrillo {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50%, 50%); }
 }
