@@ -1,11 +1,3 @@
-/* General */
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(to right, #F0E68C 0%, #D3D3D3 100%);
-    color: #333;
-    padding: 20px;
-}
-
 /* --- KPIS (INDICADORES DE CUENTAS POR COBRAR) --- */
 .kpi-box .kpis {
     display: flex;
