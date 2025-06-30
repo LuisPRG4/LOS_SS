@@ -14,14 +14,6 @@
     font-style: normal;
 }
 
-/* General */
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #fdfdfd;
-    color: #333;
-    padding: 20px;
-}
-
 header {
     margin-bottom: 10px;
 }
@@ -550,7 +542,6 @@ label {
     background-color: #4a237a; /* Mantiene el color morado oscuro para editar */
 }
 
-
 /* FINANZAS */
 .movimiento-item {
     background: #f5f3fa;
@@ -944,41 +935,6 @@ section button {
     max-width: none;
     margin: 0;
     padding: 8px 15px; /* Padding ligeramente menor para botones de filtro */
-}
-
-
-/* --- KPIS (INDICADORES DE CUENTAS POR COBRAR) --- */
-.kpi-box .kpis {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px; /* Espacio entre los KPIS */
-    justify-content: space-around;
-}
-
-.kpi-box .kpi {
-    background-color: #fcf9f2; /* Fondo más claro y coherente con tu theme */
-    border: 1px solid #d4af37; /* Borde dorado */
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-    flex: 1;
-    min-width: 160px; /* Ancho mínimo para cada KPI */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.kpi-box .kpi strong {
-    display: block;
-    margin-bottom: 5px;
-    color: #4b3500; /* Color del texto del título del KPI */
-    font-size: 0.95em;
-}
-
-.kpi-box .kpi span {
-    font-size: 1.8em; /* Tamaño grande para el valor */
-    font-weight: bold;
-    color: #5b2d90; /* Tu color morado para los valores */
-    display: block;
-    margin-top: 5px;
 }
 
 /* Colores específicos para los valores de KPI si deseas diferenciarlos */
