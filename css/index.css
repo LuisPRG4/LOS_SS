@@ -252,6 +252,7 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 15px;
+    margin-top: 20px;
 }
 
 .quick-button {
@@ -448,16 +449,35 @@
     }
 
     .quick-buttons {
-        gap: 10px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 10px 5px;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: #DAA520 #f8f8dc;
+    }
+
+    .quick-buttons::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .quick-buttons::-webkit-scrollbar-track {
+        background: #f8f8dc;
+        border-radius: 10px;
+    }
+
+    .quick-buttons::-webkit-scrollbar-thumb {
+        background-color: #DAA520;
+        border-radius: 10px;
+        border: 2px solid #f8f8dc;
     }
 
     .quick-button {
-        min-width: 100px;
-        padding: 12px 8px;
-    }
-
-    .quick-icon {
-        font-size: 2rem;
+        flex: 0 0 auto;
+        width: calc(25% - 15px);
+        min-width: 120px;
     }
 
     .daily-tip, .recent-activity, .quick-access {
@@ -467,9 +487,9 @@
 
 @media (max-width: 480px) {
     .quick-button {
-        min-width: 70px;
-        max-width: calc(50% - 10px);
-        flex: 1 0 calc(50% - 10px);
+        width: calc(33.33% - 15px);
+        min-width: 100px;
+        padding: 10px;
     }
 
     .quick-icon {
