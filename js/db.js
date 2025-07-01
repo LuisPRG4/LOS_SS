@@ -1,5 +1,4 @@
 let db;
-
 const DB_NAME = 'miTiendaDB';
 
 const DB_VERSION = 15; 
