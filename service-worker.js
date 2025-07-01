@@ -1,15 +1,15 @@
 // Archivo: service-worker.js
 
 // Incrementamos la versión y agregamos timestamp para forzar actualización
-const CACHE_NAME = "los-ss-cache-v10";
+const CACHE_NAME = "los-ss-cache-v11";
 const APP_VERSION = "1.0.4"; // Incrementa esto cuando hagas cambios importantes
 const REPO_PREFIX = '/Los_SS/';
 
 // Archivos críticos que siempre deben actualizarse
 const CRITICAL_FILES = [
-    `${REPO_PREFIX}js/cuentas-por-cobrar.js`,
-    `${REPO_PREFIX}css/ventas-pagadas.css`,
-    `${REPO_PREFIX}cuentas-por-cobrar.html`
+`${REPO_PREFIX}js/cuentas-por-cobrar.js`,
+`${REPO_PREFIX}css/ventas-pagadas.css`,
+`${REPO_PREFIX}cuentas-por-cobrar.html`
 ];
 
 const urlsToCache = [
