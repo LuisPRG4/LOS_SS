@@ -1,5 +1,4 @@
 // js/ventas.js (CÓDIGO CORREGIDO Y RECOMENDADO)
-
 let clientes = [];
 let ventas = [];
 let productos = []; // Ahora 'productos' globalmente contendrá la unidad de medida
@@ -1465,7 +1464,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // ====== NUEVAS FUNCIONES PARA EXPORTAR, IMPORTAR Y PLANTILLA JSON ======
-
 /**
  * Exporta todas las ventas a un archivo JSON.
  */
