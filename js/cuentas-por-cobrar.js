@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         llenarDatalistClientes();
         abonos = await obtenerTodosLosAbonos();
 
+        // NUEVO: Verificar y normalizar las fechas de vencimiento
+        await verificarFormatosFechasVencimiento();
+
         // Inicializar la sección de ventas pagadas
         const seccionVentasPagadas = document.getElementById("seccionVentasPagadas");
         if (seccionVentasPagadas) {
@@ -43,6 +46,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (typeof renderCalendar === 'function') {
             renderCalendar();
+            // Forzar una segunda renderización después de un pequeño retraso
+            // para asegurar que todos los datos estén disponibles
+            setTimeout(() => {
+                console.log("🔄 Forzando actualización del calendario...");
+                renderCalendar();
+            }, 1000);
         } else {
             console.error("Error: renderCalendar() no está definido.");
         }
@@ -515,7 +524,13 @@ async function actualizarEstadisticas(currentFilteredVentas = null) {
 
 // --- Funciones del Modal de Abonos ---
 // (Estas asumen que tienes obtenerVentaPorId y obtenerAbonosPorPedidoId en db.js)
-async function abrirModalAbono(ventaId) {
+// Función global para poder ser llamada desde cualquier contexto (incluyendo modales y calendario)
+window.abrirModalAbono = async function(ventaId) {
+    console.log(`🔄 Abriendo modal de abono para venta #${ventaId}`);
+    
+    // Cerrar cualquier modal que esté abierto antes de mostrar este
+    cerrarTodosLosModales();
+    
     currentVentaIdAbono = ventaId;
     const venta = await obtenerVentaPorId(ventaId);
     
@@ -674,6 +689,11 @@ async function registrarAbono() {
         // Finalmente, recargar la vista principal de cuentas por cobrar para reflejar los cambios
         // (Esto también se encarga de recargar las variables globales ventasCredito y abonos)
         cargarYMostrarCuentasPorCobrar();
+        
+        // Actualizar el calendario si existe la función
+        if (typeof renderCalendar === 'function') {
+            renderCalendar();
+        }
         
         // Restaurar el botón después de procesar todo
         btnConfirmar.disabled = false;
@@ -1243,3 +1263,357 @@ async function exportarVentasPagadasPDF() {
     }
 }
 // --- FIN: FUNCIÓN PARA "ELIMINAR" HISTORIAL DE VENTAS PAGADAS ---
+
+// --- NUEVA FUNCIÓN PARA MODAL DE DETALLE COMPLETO DE UNA VENTA ---
+// Esta función es global para poder ser llamada desde el calendario
+window.mostrarDetalleVentaModal = async function(ventaId) {
+    try {
+        const venta = await obtenerVentaPorId(Number(ventaId));
+        if (!venta) {
+            mostrarToast("No se pudo encontrar la venta solicitada.", "error");
+            return;
+        }
+
+        // Verificar si ya existe un modal para detalles, si no, crearlo
+        let modalDetalle = document.getElementById('modalDetalleVenta');
+        if (!modalDetalle) {
+            modalDetalle = document.createElement('div');
+            modalDetalle.id = 'modalDetalleVenta';
+            modalDetalle.className = 'modal-overlay';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content modal-detalle-venta';
+            
+            modalContent.innerHTML = `
+                <div class="modal-header">
+                    <h2>📋 Detalle de Venta</h2>
+                    <span class="close-button" id="cerrarModalDetalle">&times;</span>
+                </div>
+                <div class="modal-body" id="detalleVentaCompleto">
+                </div>
+                <div class="modal-footer">
+                    <button id="btnAbonarDesdeDetalle" class="btn-primary">💰 Abonar</button>
+                    <button id="btnCerrarDetalle" class="btn-secondary">Cerrar</button>
+                </div>
+            `;
+            
+            modalDetalle.appendChild(modalContent);
+            document.body.appendChild(modalDetalle);
+            
+            // Event listeners para cerrar el modal
+            document.getElementById('cerrarModalDetalle').addEventListener('click', () => {
+                modalDetalle.style.display = 'none';
+            });
+            
+            document.getElementById('btnCerrarDetalle').addEventListener('click', () => {
+                modalDetalle.style.display = 'none';
+            });
+            
+            // Cerrar el modal al hacer clic fuera del contenido
+            modalDetalle.addEventListener('click', (e) => {
+                if (e.target === modalDetalle) {
+                    modalDetalle.style.display = 'none';
+                }
+            });
+        }
+        
+        // Configurar el botón de abonar para que abra el modal de abonos
+        const btnAbonarDesdeDetalle = document.getElementById('btnAbonarDesdeDetalle');
+        btnAbonarDesdeDetalle.onclick = () => {
+            // Ocultar este modal antes de abrir el de abonos
+            modalDetalle.style.display = 'none';
+            
+            // Cerrar también el modal de ventas del calendario si está abierto
+            const modalVentasCalendario = document.getElementById('modalVentasCalendario');
+            if (modalVentasCalendario) {
+                modalVentasCalendario.style.display = 'none';
+            }
+            
+            // Ahora sí, abrir el modal de abonos
+            setTimeout(() => {
+                // Usar la función global abrirModalAbono para asegurar que funcione
+                window.abrirModalAbono(ventaId);
+            }, 100); // Pequeño retraso para evitar problemas de UI
+        };
+        
+        // Llenar el modal con los detalles de la venta
+        const detalleDiv = document.getElementById('detalleVentaCompleto');
+        
+        // Calcular días de mora si aplica
+        let estadoMora = '';
+        if (venta.detallePago && venta.detallePago.fechaVencimiento) {
+            const fechaVenc = new Date(venta.detallePago.fechaVencimiento);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            fechaVenc.setHours(0, 0, 0, 0);
+            
+            const diasDiferencia = Math.floor((hoy - fechaVenc) / (1000 * 60 * 60 * 24));
+            
+            if (diasDiferencia > 0 && venta.montoPendiente > 0) {
+                estadoMora = `<span class="badge badge-danger">En mora: ${diasDiferencia} día(s)</span>`;
+            } else if (diasDiferencia === 0 && venta.montoPendiente > 0) {
+                estadoMora = '<span class="badge badge-warning">Vence hoy</span>';
+            } else if (venta.montoPendiente > 0) {
+                estadoMora = `<span class="badge badge-info">Quedan ${Math.abs(diasDiferencia)} día(s)</span>`;
+            } else {
+                estadoMora = '<span class="badge badge-success">Pagado</span>';
+            }
+        }
+        
+        // Obtener el historial de abonos
+        const abonosVenta = await obtenerAbonosPorPedidoId(ventaId);
+        const totalAbonado = abonosVenta.reduce((sum, abono) => sum + abono.montoAbonado, 0);
+        
+        // Encontrar datos del cliente
+        const clienteData = clientes.find(c => c.nombre === venta.cliente) || {};
+        
+        // Crear tabla HTML con productos de la venta
+        let productosHTML = '<table class="tabla-productos-detalle"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>';
+        
+        venta.productos.forEach(producto => {
+            const subtotal = producto.precio * producto.cantidad;
+            productosHTML += `
+                <tr>
+                    <td>${producto.nombre}</td>
+                    <td>${producto.cantidad}</td>
+                    <td>$${producto.precio.toFixed(2)}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+        
+        productosHTML += '</tbody></table>';
+        
+        // Crear tabla HTML con abonos
+        let abonosHTML = '<table class="tabla-abonos-detalle"><thead><tr><th>Fecha</th><th>Monto</th><th>Método</th></tr></thead><tbody>';
+        
+        if (abonosVenta.length === 0) {
+            abonosHTML += '<tr><td colspan="3" class="text-center">No hay abonos registrados</td></tr>';
+        } else {
+            abonosVenta.forEach(abono => {
+                let metodoPago = abono.formaPago || "No especificado";
+                if (metodoPago === "pago_movil") metodoPago = "Pago Móvil";
+                else if (metodoPago) metodoPago = metodoPago.charAt(0).toUpperCase() + metodoPago.slice(1);
+                
+                abonosHTML += `
+                    <tr>
+                        <td>${abono.fechaAbono}</td>
+                        <td>$${abono.montoAbonado.toFixed(2)}</td>
+                        <td>${metodoPago}</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        abonosHTML += '</tbody></table>';
+        
+        // Insertar todo el contenido en el modal
+        detalleDiv.innerHTML = `
+            <div class="detalle-venta-grid">
+                <div class="detalle-venta-seccion">
+                    <h3>Información General</h3>
+                    <div class="detalle-item">
+                        <strong>Factura #:</strong> ${venta.id}
+                    </div>
+                    <div class="detalle-item">
+                        <strong>Fecha:</strong> ${venta.fecha}
+                    </div>
+                    <div class="detalle-item">
+                        <strong>Cliente:</strong> ${venta.cliente}
+                        ${clienteData.telefono ? `<a href="https://wa.me/52${clienteData.telefono.replace(/\D/g, '')}" class="btn-link-whatsapp" target="_blank"><i class="fab fa-whatsapp"></i> Contactar</a>` : ''}
+                    </div>
+                    <div class="detalle-item">
+                        <strong>Tipo de Pago:</strong> ${venta.tipoPago.charAt(0).toUpperCase() + venta.tipoPago.slice(1)}
+                    </div>
+                    <div class="detalle-item estado-pago">
+                        <strong>Estado:</strong> ${venta.estadoPago} ${estadoMora}
+                    </div>
+                    <div class="detalle-item">
+                        <strong>Vencimiento:</strong> ${venta.detallePago?.fechaVencimiento || 'No aplica'}
+                    </div>
+                </div>
+
+                <div class="detalle-venta-seccion">
+                    <h3>Resumen Financiero</h3>
+                    <div class="detalle-item">
+                        <strong>Total Venta:</strong> <span class="monto-total">$${venta.ingreso.toFixed(2)}</span>
+                    </div>
+                    <div class="detalle-item">
+                        <strong>Total Abonado:</strong> <span class="monto-abonado">$${totalAbonado.toFixed(2)}</span>
+                    </div>
+                    <div class="detalle-item">
+                        <strong>Pendiente:</strong> <span class="monto-pendiente">$${venta.montoPendiente.toFixed(2)}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detalle-venta-seccion">
+                <h3>Productos</h3>
+                ${productosHTML}
+            </div>
+
+            <div class="detalle-venta-seccion">
+                <h3>Historial de Abonos</h3>
+                ${abonosHTML}
+            </div>
+        `;
+        
+        // Si la venta está pagada totalmente, ocultar el botón de abonar
+        if (venta.montoPendiente <= 0) {
+            btnAbonarDesdeDetalle.style.display = 'none';
+        } else {
+            btnAbonarDesdeDetalle.style.display = 'inline-block';
+        }
+        
+        // Mostrar el modal
+        modalDetalle.style.display = 'flex';
+        
+    } catch (error) {
+        console.error("Error al mostrar detalle de venta:", error);
+        mostrarToast("Error al cargar los detalles de la venta.", "error");
+    }
+}
+
+// Función para verificar y normalizar las fechas de vencimiento de todas las ventas
+async function verificarFormatosFechasVencimiento() {
+    try {
+        console.log("🔍 Verificando formatos de fechas de vencimiento...");
+        let contadorCorregidas = 0;
+        
+        // Iterar por todas las ventas a crédito
+        for (const venta of ventas) {
+            if (venta.tipoPago === 'credito' && venta.detallePago && venta.detallePago.fechaVencimiento) {
+                let fechaOriginal = venta.detallePago.fechaVencimiento;
+                let necesitaCorreccion = false;
+                
+                // Si la fecha tiene barras en lugar de guiones
+                if (fechaOriginal.includes('/')) {
+                    venta.detallePago.fechaVencimiento = fechaOriginal.replace(/\//g, '-');
+                    necesitaCorreccion = true;
+                }
+                
+                // Si la fecha no está en formato ISO (YYYY-MM-DD)
+                if (!/^\d{4}-\d{2}-\d{2}/.test(venta.detallePago.fechaVencimiento)) {
+                    try {
+                        // Intentar convertir cualquier formato de fecha válido a ISO
+                        const fecha = new Date(venta.detallePago.fechaVencimiento);
+                        if (!isNaN(fecha)) {
+                            venta.detallePago.fechaVencimiento = fecha.toISOString().split('T')[0];
+                            necesitaCorreccion = true;
+                        }
+                    } catch (e) {
+                        console.error(`Error al convertir fecha para venta #${venta.id}:`, e);
+                    }
+                }
+                
+                // Si se realizó alguna corrección, actualizar la venta en la base de datos
+                if (necesitaCorreccion) {
+                    console.log(`✅ Corrigiendo formato de fecha para venta #${venta.id}: ${fechaOriginal} → ${venta.detallePago.fechaVencimiento}`);
+                    await actualizarVenta(venta.id, venta);
+                    contadorCorregidas++;
+                }
+            }
+        }
+        
+        console.log(`🔄 Proceso de verificación completado. ${contadorCorregidas} fechas corregidas.`);
+        
+        // Si se corrigieron fechas, recargar las ventas
+        if (contadorCorregidas > 0) {
+            ventas = await obtenerTodasLasVentas();
+            console.log("🔄 Datos de ventas actualizados con fechas normalizadas");
+        }
+    } catch (error) {
+        console.error("❌ Error al verificar formatos de fechas:", error);
+    }
+}
+
+// Función para diagnosticar y solucionar problemas con el calendario
+// Se puede ejecutar desde la consola del navegador con diagnosticarCalendario()
+window.diagnosticarCalendario = async function() {
+    console.log("🔍 INICIANDO DIAGNÓSTICO DEL CALENDARIO");
+    
+    // 1. Verificar si hay ventas a crédito con fecha de vencimiento
+    const todasLasVentas = await obtenerTodasLasVentas();
+    console.log(`📊 Total de ventas: ${todasLasVentas.length}`);
+    
+    const ventasCredito = todasLasVentas.filter(v => v.tipoPago === 'credito');
+    console.log(`💳 Ventas a crédito: ${ventasCredito.length}`);
+    
+    const ventasPendientes = ventasCredito.filter(v => v.montoPendiente > 0);
+    console.log(`⏳ Ventas a crédito pendientes: ${ventasPendientes.length}`);
+    
+    const ventasConFechaVencimiento = ventasPendientes.filter(v => v.detallePago && v.detallePago.fechaVencimiento);
+    console.log(`📅 Ventas con fecha de vencimiento: ${ventasConFechaVencimiento.length}`);
+    
+    if (ventasConFechaVencimiento.length === 0) {
+        console.error("❌ No hay ventas con fecha de vencimiento. Añade una fecha de vencimiento a tus ventas a crédito.");
+    } else {
+        console.log("✅ Hay ventas con fecha de vencimiento.");
+        
+        // 2. Verificar el formato de las fechas de vencimiento
+        let formatosIncorrectos = 0;
+        
+        ventasConFechaVencimiento.forEach(venta => {
+            const fechaVenc = venta.detallePago.fechaVencimiento;
+            console.log(`Venta #${venta.id} - Fecha: ${fechaVenc}`);
+            
+            if (fechaVenc.includes('/')) {
+                console.warn(`⚠️ La venta #${venta.id} tiene barras en la fecha: ${fechaVenc}`);
+                formatosIncorrectos++;
+            }
+            
+            if (!/^\d{4}[-/]\d{2}[-/]\d{2}/.test(fechaVenc)) {
+                console.warn(`⚠️ La venta #${venta.id} tiene un formato de fecha no estándar: ${fechaVenc}`);
+                formatosIncorrectos++;
+            }
+        });
+        
+        if (formatosIncorrectos > 0) {
+            console.warn(`⚠️ Se encontraron ${formatosIncorrectos} fechas con posibles problemas de formato.`);
+            console.log("🔧 Ejecutando corrección de formatos de fecha...");
+            await verificarFormatosFechasVencimiento();
+        } else {
+            console.log("✅ Todas las fechas tienen un formato correcto.");
+        }
+    }
+    
+    // 3. Verificar si el calendario está cargando las ventas correctamente
+    console.log("🔄 Forzando recarga del calendario...");
+    if (typeof cargarVentasPendientesPorFecha === 'function') {
+        await cargarVentasPendientesPorFecha();
+        console.log("✅ Función de carga de ventas ejecutada.");
+    } else {
+        console.error("❌ La función cargarVentasPendientesPorFecha no está disponible.");
+    }
+    
+    // 4. Forzar renderización del calendario
+    if (typeof renderCalendar === 'function') {
+        renderCalendar();
+        console.log("✅ Calendario renderizado. Verifica si aparecen los marcadores en las fechas correctas.");
+    } else {
+        console.error("❌ La función renderCalendar no está disponible.");
+    }
+    
+    console.log("🏁 DIAGNÓSTICO COMPLETADO");
+    
+    // Instrucciones para el usuario
+    console.log("\n📌 INSTRUCCIONES:");
+    console.log("1. Si no ves marcadores en el calendario, verifica que tus ventas a crédito tengan:");
+    console.log("   - Monto pendiente mayor a 0");
+    console.log("   - Campo detallePago.fechaVencimiento con formato YYYY-MM-DD");
+    console.log("2. Si el problema persiste, prueba recargar la página.");
+    console.log("3. Para editar una venta y corregir manualmente su fecha, usa el botón 'Editar Venta' en la tarjeta de la venta.");
+}
+
+// Función auxiliar para cerrar todos los modales abiertos
+function cerrarTodosLosModales() {
+    // Lista de IDs de todos los modales que usamos
+    const idsModales = ['modalAbono', 'modalDetalleVenta', 'modalVentasCalendario'];
+    
+    idsModales.forEach(idModal => {
+        const modal = document.getElementById(idModal);
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    });
+}
