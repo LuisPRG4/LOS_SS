@@ -47,15 +47,15 @@
             <li><a href="finanzas.html">💰 Finanzas</a></li>
             <li><a href="novedades.html">🐶 Novedades</a></li>
             <li><a href="pedidos.html">📦 Pedidos</a></li>
-            <li><a href="datos.html">💾 Datos</a></li>
         </ul>
     </nav>
 
     <main>
 
-        <!-- Puedes colocarla aquí, después de la navegación principal -->
+        <!-- Sección del calendario de vencimientos -->
         <section class="seccion-calendario">
             <h2 class="titulo-calendario">📅 Calendario de Vencimientos</h2>
+            <p class="descripcion-calendario">Visualiza las fechas con ventas a crédito pendientes. Los días marcados con un punto dorado y número tienen ventas por vencer. Haz clic para ver detalles.</p>
             <div id="calendarioVencimientos"></div> <!-- Aquí se dibujará el calendario -->
         </section>
 
@@ -199,6 +199,16 @@
                 <div class="form-group">
                     <label for="montoAbono">Monto del Abono:</label>
                     <input type="number" id="montoAbono" class="form-control" step="0.01" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="formaPagoAbono">Forma de Pago:</label>
+                    <select id="formaPagoAbono" class="form-control">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="pago_movil">Pago Móvil</option>
+                        <option value="otro">Otro</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
