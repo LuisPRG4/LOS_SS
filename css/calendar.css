@@ -6,49 +6,125 @@
     --gold-glow-rgba: rgba(255, 215, 0, 0.5); /* Resplandor dorado más fuerte */
     --gold-text-glow: rgba(255, 215, 0, 0.7); /* Para el texto */
     --soft-blue-bg: #e0f2fe; /* Fondo azul suave para celdas */
-    --purple-main: #a78bfa; /* Púrpura principal para el día actual */
+    --purple-main: #8b5cf6; /* Púrpura principal para el día actual */
     --dark-purple-border: #6d28d9; /* Borde oscuro para el día actual */
     --emerald-green: #10b981; /* Verde esmeralda para día seleccionado */
     --emerald-border: #047857;
     --red-event: #ef4444; /* Rojo para eventos */
+    
+    /* Nuevos colores modernos y tecnológicos */
+    --tech-blue: #3b82f6;
+    --tech-purple: #8b5cf6;
+    --tech-cyan: #06b6d4;
+    --tech-indigo: #4f46e5;
+    --neon-pink: #ec4899;
+    --neon-yellow: #facc15;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --dark-glass: rgba(30, 41, 59, 0.85);
+    --blue-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
+    --purple-gradient: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    --neon-gradient: linear-gradient(135deg, #06b6d4, #0ea5e9);
+    --golden-gradient: linear-gradient(135deg, #f59e0b, #d97706);
 }
 
-/* Estilos generales del contenedor del calendario (AHORA CON UN FONDO MAS RICO Y BORDE) */
-/* La sección padre (.seccion-calendario en style.css) puede dar un padding adicional si se desea,
-   pero este #calendarioVencimientos ahora tendrá su propio fondo y un borde sutil para darle más presencia. */
+/* Estilos para la sección del calendario */
+.seccion-calendario {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.titulo-calendario {
+    color: #4f46e5; /* Color sólido para que el ícono sea visible */
+    margin-bottom: 10px;
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    position: relative;
+    display: inline-block;
+    letter-spacing: 0.5px;
+}
+
+/* Efecto de brillo debajo del título */
+.titulo-calendario::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: var(--neon-gradient);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+}
+
+.descripcion-calendario {
+    color: #64748b;
+    margin-bottom: 20px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+/* Estilos generales del contenedor del calendario - Aspecto más tecnológico */
 #calendarioVencimientos {
-    font-family: 'Inter', sans-serif; /* Fuente consistente */
-    background: linear-gradient(145deg, #f0f4f8, #e0e6eb); /* Degradado suave para el fondo del calendario */
-    border: 1px solid #c9d6e0; /* Borde suave */
-    border-radius: 18px; /* Bordes más redondeados para un look premium */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), /* Sombra principal */
-                0 0 30px var(--gold-glow-rgba); /* Resplandor dorado más visible */
-    padding: 25px; /* Padding interno para que el contenido respire */
-    width: 100%; /* Ocupa el 100% del ancho de su sección padre */
-    max-width: 420px; /* Un tamaño máximo razonable para el calendario en sí (un poco más grande) */
-    margin: 20px auto; /* Centrar el calendario dentro de su sección */
-    box-sizing: border-box; /* Incluir padding y borde en el ancho/alto */
-    position: relative; /* Para efectos de brillo internos */
-    overflow: hidden; /* Asegura que los brillos no se desborden */
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25),
+                0 0 40px rgba(59, 130, 246, 0.5),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    width: 100%;
+    max-width: 440px;
+    margin: 20px auto;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    backdrop-filter: blur(5px);
 }
 
-/* Animación de brillo sutil en el fondo del calendario */
+/* Efecto de brillo futurista */
 #calendarioVencimientos::before {
     content: '';
     position: absolute;
-    top: -20%;
-    left: -20%;
-    width: 140%;
-    height: 140%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-    animation: pulseGlow 8s infinite alternate;
-    z-index: 0;
-    pointer-events: none; /* Asegura que no interfiera con clics */
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at center,
+        rgba(99, 102, 241, 0.08) 0%,
+        rgba(99, 102, 241, 0.03) 40%,
+        transparent 70%
+    );
+    animation: rotatePulse 20s infinite linear;
+    z-index: 1;
+    opacity: 0.7;
+    pointer-events: none;
 }
 
-@keyframes pulseGlow {
-    from { transform: scale(0.8) rotate(0deg); opacity: 0.8; }
-    to { transform: scale(1.2) rotate(360deg); opacity: 1; }
+#calendarioVencimientos::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        rgba(59, 130, 246, 0.03) 0%, 
+        transparent 40%, 
+        rgba(139, 92, 246, 0.03) 60%, 
+        transparent 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+@keyframes rotatePulse {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* Encabezado del calendario (mes y año, botones de navegación) */
@@ -56,183 +132,468 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px; /* Más espacio */
-    padding-bottom: 12px;
-    border-bottom: 2px solid #ebf2f7; /* Borde más pronunciado */
-    position: relative; /* Asegura que esté por encima del brillo del contenedor */
-    z-index: 1;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 5;
 }
 
 .calendar-header h2 {
-    font-size: 2rem; /* Un poco más grande */
-    color: #2c3e50; /* Un gris oscuro profundo */
+    font-size: 1.8rem;
     margin: 0;
-    font-weight: 800; /* Más audaz */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Sombra de texto sutil */
-    background: linear-gradient(90deg, #333, #555); /* Degradado sutil para el texto */
+    font-weight: 700;
+    background: var(--neon-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+    letter-spacing: 1px;
+    text-transform: capitalize;
 }
 
 .calendar-nav button {
-    background: linear-gradient(145deg, #FFDF40, #DAA520); /* Degradado dorado para los botones */
-    color: #4a4a4a; /* Texto oscuro para contraste en el oro */
+    background: var(--blue-gradient);
+    color: white;
     border: none;
-    border-radius: 10px; /* Más redondeado */
-    padding: 10px 18px; /* Más padding */
-    font-size: 1.1rem; /* Un poco más grande */
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), /* Sombra suave */
-                0 0 15px var(--gold-glow-rgba); /* Resplandor dorado */
-    font-weight: 700; /* Texto audaz */
-    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5),
+                0 0 10px rgba(59, 130, 246, 0.5);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.calendar-nav button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    transition: transform 0.5s ease;
+    transform: scale(0);
+    z-index: 2;
 }
 
 .calendar-nav button:hover {
-    background: linear-gradient(145deg, #FFE066, #E6B32E); /* Brillo más intenso al pasar el ratón */
-    transform: translateY(-3px); /* Efecto 3D sutil */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3),
-                0 0 25px var(--gold-glow-rgba); /* Resplandor más fuerte */
+    background: linear-gradient(135deg, #4f46e5, #3b82f6);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.6),
+                0 0 20px rgba(79, 70, 229, 0.6);
+}
+
+.calendar-nav button:hover::before {
+    transform: scale(1);
+    animation: ripple 1s linear;
 }
 
 .calendar-nav button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2),
-                0 0 10px var(--gold-glow-rgba);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
-/* Días de la semana (L, M, X...) */
+@keyframes ripple {
+    from { opacity: 1; transform: scale(0); }
+    to { opacity: 0; transform: scale(1); }
+}
+
+/* Días de la semana - Estilo más tecnológico */
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
-    margin-bottom: 15px; /* Más espacio */
+    margin-bottom: 15px;
     text-align: center;
-    font-weight: 700; /* Más audaz */
-    color: #475569; /* Gris oscuro medio */
-    font-size: 1em; /* Un poco más grande */
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 5;
 }
 
-/* Cuadrícula de los días del mes */
+.calendar-weekdays div {
+    padding: 8px 0;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+/* Cuadrícula de los días del mes - Aspecto futurista */
 .calendar-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 7px; /* Espacio más generoso entre días */
+    gap: 8px;
     text-align: center;
+    position: relative;
+    z-index: 5;
 }
 
 .calendar-day-cell {
-    padding: 15px 10px; /* Más padding */
-    border-radius: 10px; /* Más redondeado */
-    background-color: #f0f4f8; /* Fondo suave para las celdas */
-    color: #475569; /* Gris oscuro */
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    font-weight: 600; /* Más audaz */
-    font-size: 1.1em; /* Un poco más grande */
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 1rem;
     position: relative;
-    overflow: hidden; /* Para efectos de brillo */
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); /* Sombra interna sutil */
+    overflow: visible;
+    border: 1px solid transparent;
+    backdrop-filter: blur(2px);
 }
 
 /* Días de otros meses (inactivos) */
 .calendar-day-cell.inactive {
-    background-color: #e2e8f0; /* Gris más claro */
-    color: #94a3b8; /* Gris claro */
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.2);
     cursor: default;
-    opacity: 0.6; /* Menos opaco para que se noten más */
-    box-shadow: none; /* Sin sombra para inactivos */
+    border: none;
 }
 
 /* Efecto al pasar el ratón por los días activos */
 .calendar-day-cell:not(.inactive):hover {
-    background-color: #dbeafe; /* Azul claro más vibrante */
-    transform: translateY(-4px); /* Efecto 3D más pronunciado */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15), /* Sombra al pasar */
-                0 0 20px rgba(59, 130, 246, 0.4); /* Resplandor azulado suave */
-    color: #2563eb; /* Color de texto más vibrante */
+    background-color: rgba(59, 130, 246, 0.2);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: white;
+    z-index: 6;
 }
 
-/* Estilo para el día actual */
+/* Estilo para el día actual - Resalte futurista */
 .calendar-day-cell.current-day {
-    background: linear-gradient(145deg, var(--purple-main), #8b5cf6); /* Degradado púrpura */
+    background: var(--purple-gradient);
     color: white;
     font-weight: bold;
-    border: 3px solid var(--dark-purple-border); /* Borde más oscuro y pronunciado */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), /* Sombra */
-                0 0 25px rgba(167, 139, 250, 0.6); /* Resplandor púrpura más intenso */
-    transform: scale(1.05); /* Ligeramente más grande */
-    z-index: 2; /* Asegura que esté por encima de otros días */
-}
-
-/* Estilo para un día seleccionado (opcional, si el calendario permite selección) */
-.calendar-day-cell.selected-day {
-    background: linear-gradient(145deg, var(--emerald-green), #059669); /* Degradado esmeralda */
-    color: white;
-    font-weight: bold;
-    border: 3px solid var(--emerald-border);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2),
-                0 0 25px rgba(16, 185, 129, 0.6); /* Resplandor esmeralda */
+    border: none;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
     transform: scale(1.05);
-    z-index: 2;
+    z-index: 7;
+    position: relative;
 }
 
-/* Marcador para días con vencimientos - Ahora con un toque dorado */
+.calendar-day-cell.current-day::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    bottom: -2px;
+    left: -2px;
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    z-index: -1;
+    border-radius: 14px;
+    opacity: 0.6;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+/* Estilo para un día seleccionado */
+.calendar-day-cell.selected-day {
+    background: var(--neon-gradient);
+    color: white;
+    font-weight: bold;
+    border: none;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+    transform: scale(1.05);
+    z-index: 7;
+}
+
+/* Marcador futurista para días con vencimientos */
+.calendar-day-cell.has-event {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+    position: relative;
+    overflow: visible;
+}
+
 .calendar-day-cell.has-event::after {
     content: '';
     position: absolute;
-    bottom: 5px; /* Un poco más arriba */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 8px; /* Más grande */
-    height: 8px; /* Más grande */
-    background: var(--primary-gold); /* Color oro */
-    border-radius: 50%;
-    border: 2px solid white; /* Borde blanco para resaltar */
-    box-shadow: 0 0 8px var(--gold-glow-rgba); /* Resplandor dorado para el marcador */
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: linear-gradient(135deg, rgba(250, 204, 21, 0.1), rgba(250, 204, 21, 0.05));
+    border-radius: inherit;
+    z-index: -1;
 }
 
-/* Pequeñas adaptaciones para pantallas más pequeñas (opcional) */
+/* Pulso animado para días con eventos */
+.calendar-day-cell.has-event::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    bottom: 0;
+    left: 0;
+    background: var(--golden-gradient);
+    animation: pulseWidth 2s infinite ease-in-out;
+    border-radius: 0 0 12px 12px;
+    opacity: 0.8;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
+}
+
+@keyframes pulseWidth {
+    0%, 100% { transform: scaleX(0.3); opacity: 0.5; }
+    50% { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes pulseGlow {
+    from { opacity: 0.4; box-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
+    to { opacity: 0.7; box-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
+}
+
+/* Badge de cantidad de ventas - Estilo futurista */
+.calendar-event-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--golden-gradient);
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.7);
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    z-index: 8;
+    animation: pulseBadge 2s infinite alternate;
+}
+
+@keyframes pulseBadge {
+    from { transform: scale(1); box-shadow: 0 0 10px rgba(250, 204, 21, 0.7); }
+    to { transform: scale(1.1); box-shadow: 0 0 15px rgba(250, 204, 21, 0.9); }
+}
+
+/* ESTILOS PARA EL MODAL DEL CALENDARIO - Modernizados */
+.modal-calendar {
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: linear-gradient(to bottom, #0f172a, #1e293b);
+    color: white;
+    border-radius: 20px;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 80px rgba(99, 102, 241, 0.2);
+}
+
+.modal-calendar .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-calendar .modal-header h2 {
+    background: var(--neon-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.ventas-calendario-lista {
+    margin-top: 20px;
+}
+
+.venta-item {
+    background: linear-gradient(to right, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5));
+    border-radius: 15px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.venta-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.venta-item.venta-vencida {
+    background: linear-gradient(to right, rgba(127, 29, 29, 0.2), rgba(15, 23, 42, 0.5));
+    border-left: 5px solid #ef4444;
+}
+
+.venta-item.venta-pendiente {
+    background: linear-gradient(to right, rgba(30, 64, 175, 0.2), rgba(15, 23, 42, 0.5));
+    border-left: 5px solid #3b82f6;
+}
+
+.venta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.venta-header h4 {
+    margin: 0;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.venta-id {
+    background: rgba(99, 102, 241, 0.2);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.venta-monto {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #fca5a5;
+    margin: 10px 0;
+    text-shadow: 0 0 10px rgba(252, 165, 165, 0.4);
+}
+
+.venta-fecha, .venta-estado {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 8px 0;
+    font-size: 0.95rem;
+}
+
+.venta-acciones {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-abonar, .btn-ver-detalle {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-abonar {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+}
+
+.btn-ver-detalle {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+}
+
+.btn-abonar::before, .btn-ver-detalle::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    transition: transform 0.5s ease;
+    transform: scale(0);
+}
+
+.btn-abonar:hover, .btn-ver-detalle:hover {
+    transform: translateY(-3px);
+}
+
+.btn-abonar:hover {
+    box-shadow: 0 6px 15px rgba(16, 185, 129, 0.5);
+}
+
+.btn-ver-detalle:hover {
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.5);
+}
+
+.btn-abonar:hover::before, .btn-ver-detalle:hover::before {
+    transform: scale(1);
+    animation: ripple 1s linear;
+}
+
+.no-ventas {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    margin: 25px 0;
+    font-size: 1.1rem;
+}
+
+/* Pequeñas adaptaciones para pantallas más pequeñas */
 @media (max-width: 600px) {
     #calendarioVencimientos {
-        padding: 15px; /* Ajuste para móvil */
+        padding: 15px;
         margin: 15px auto;
-        max-width: 100%; /* Ajuste al 100% en móvil */
-        border-radius: 15px; /* Bordes un poco menos redondeados en móvil */
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1),
-                    0 0 15px var(--gold-glow-rgba); /* Resplandor más sutil */
+        max-width: 100%;
+        border-radius: 15px;
     }
     .calendar-header {
         margin-bottom: 15px;
-        padding-bottom: 8px;
+        padding-bottom: 10px;
     }
     .calendar-header h2 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
     }
     .calendar-nav button {
-        padding: 8px 12px;
-        font-size: 0.95rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra más pequeña */
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        border-radius: 10px;
     }
     .calendar-day-cell {
-        padding: 10px 5px;
-        font-size: 1em;
-        border-radius: 8px;
+        font-size: 0.9rem;
     }
     .calendar-day-cell.current-day,
     .calendar-day-cell.selected-day {
-        transform: none; /* Sin escalado en móvil para evitar desbordes */
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
-                    0 0 15px rgba(167, 139, 250, 0.4); /* Resplandor más sutil */
+        transform: none;
     }
-    .calendar-day-cell.has-event::after {
-        width: 5px;
-        height: 5px;
-        bottom: 3px;
-        border: 1px solid white;
-        box-shadow: 0 0 5px var(--gold-glow-rgba);
+
+    /* Ajustes responsivos para el modal de calendario */
+    .modal-calendar {
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .venta-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .venta-acciones {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-abonar, .btn-ver-detalle {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        text-align: center;
     }
 }
