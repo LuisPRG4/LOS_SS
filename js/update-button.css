@@ -1,0 +1,41 @@
+/* css/update-button.css */
+
+#update-app-button {
+    /* Oculto por defecto, lo hará visible el JavaScript */
+    display: none; 
+    
+    /* Posicionamiento fijo en la pantalla */
+    position: fixed;
+    bottom: 20px; /* 20px desde abajo */
+    right: 20px;  /* 20px desde la derecha */
+
+    /* Estilos del botón */
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Un verde amigable */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px; /* Tamaño de fuente legible */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transiciones suaves */
+
+    /* Asegura que el botón esté por encima de otros elementos */
+    z-index: 1000;
+}
+
+#update-app-button:hover {
+    background-color: #45a049; /* Verde un poco más oscuro al pasar el ratón */
+    transform: translateY(-2px); /* Pequeño efecto de levantamiento */
+}
+
+#update-app-button:active {
+    background-color: #367c39; /* Verde más oscuro al hacer clic */
+    transform: translateY(0); /* Vuelve a su posición original */
+}
+
+/* Opcional: Estilos para cuando la app está en modo offline y hay una actualización */
+/* Puedes usar una clase añadida por JS si quieres un estilo diferente para 'nueva versión disponible' */
+/* .update-app-button-visible {
+    display: block;
+} */
