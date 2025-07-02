@@ -1,0 +1,247 @@
+/* 
+* Estilos específicos para el modal de recibo de venta
+* Complementa los estilos existentes en ventas.css
+*/
+
+/* Contenedor principal del modal */
+#modalRecibo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 50;
+    backdrop-filter: blur(3px); /* Efecto de desenfoque para fondo */
+}
+
+/* Contenido del modal */
+.modal-recibo-contenido {
+    background-color: #fffaf0;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(91, 45, 144, 0.3);
+    width: 90%;
+    max-width: 650px; /* Un poco más ancho para el recibo */
+    animation: fadeInScale 0.3s ease-out;
+    border: 2px solid #d4af37; /* Borde dorado */
+    position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+/* Encabezado del recibo */
+.recibo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #d4af37;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+}
+
+.recibo-header h2 {
+    font-size: 1.8em;
+    color: #4b3500;
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.recibo-header .cerrar-recibo {
+    font-size: 1.5em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.recibo-header .cerrar-recibo:hover {
+    color: #333;
+}
+
+/* Contenido principal del recibo */
+.recibo-contenido {
+    padding: 15px;
+    background-color: #fff;
+    border: 1px dashed #d4af37;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* Información de la empresa/tienda */
+.recibo-empresa {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 10px;
+}
+
+.recibo-empresa h3 {
+    font-size: 1.4em;
+    color: #5b2d90;
+    margin: 0 0 5px;
+}
+
+.recibo-empresa p {
+    margin: 0 0 5px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Información del cliente y venta */
+.recibo-cliente-info, .recibo-detalles {
+    margin-bottom: 15px;
+}
+
+.recibo-cliente-info p, .recibo-detalles p {
+    margin: 5px 0;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Tabla de productos */
+.recibo-productos {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.recibo-productos th {
+    background-color: #f0e68c;
+    padding: 10px 5px;
+    text-align: left;
+    color: #333;
+    border-bottom: 1px solid #d4af37;
+}
+
+.recibo-productos td {
+    padding: 8px 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.recibo-productos tr:last-child td {
+    border-bottom: none;
+}
+
+/* Totales */
+.recibo-totales {
+    margin-top: 15px;
+    border-top: 1px dashed #ccc;
+    padding-top: 10px;
+}
+
+.recibo-totales p {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+.recibo-totales .total-final {
+    font-size: 1.2em;
+    color: #5b2d90;
+    border-top: 1px double #d4af37;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+/* Pie del recibo */
+.recibo-footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 15px;
+    border-top: 1px dashed #ccc;
+    padding-top: 15px;
+}
+
+/* Acciones del recibo */
+.recibo-acciones {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.recibo-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recibo-btn-imprimir {
+    background-color: #2196F3;
+}
+
+.recibo-btn-imprimir:hover {
+    background-color: #0d8bf2;
+}
+
+.recibo-btn-guardar {
+    background-color: #28a745;
+}
+
+.recibo-btn-guardar:hover {
+    background-color: #218838;
+}
+
+.recibo-btn-cerrar {
+    background-color: #6c757d;
+}
+
+.recibo-btn-cerrar:hover {
+    background-color: #5a6268;
+}
+
+/* Estilo para el botón de recibo en las tarjetas de venta */
+.btn-recibo {
+    background-color: #3f51b5; /* Azul índigo */
+}
+
+.btn-recibo:hover {
+    background-color: #303f9f;
+}
+
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+    .modal-recibo-contenido {
+        width: 95%;
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .recibo-header h2 {
+        font-size: 1.3em;
+    }
+    
+    .recibo-empresa h3 {
+        font-size: 1.2em;
+    }
+    
+    .recibo-productos th, .recibo-productos td {
+        padding: 5px 3px;
+        font-size: 0.9em;
+    }
+    
+    .recibo-acciones {
+        flex-direction: column;
+    }
+    
+    .recibo-btn {
+        width: 100%;
+        justify-content: center;
+    }
+} 
