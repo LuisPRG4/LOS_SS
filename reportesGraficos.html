@@ -49,7 +49,7 @@
   </nav>
 
   <main>
-    <!-- Tipo de gráfico sin onchange inline -->
+
     <section>
       <label for="tipoGrafico">📊 Tipo de gráfico:</label>
       <select id="tipoGrafico">
@@ -59,12 +59,10 @@
       </select>
     </section>
 
-    <!-- Botón exportar Excel con id corregido -->
     <section>
       <button id="btnExportarExcel">Exportar ventas a Excel</button>
     </section>
 
-    <!-- Filtrar fechas sin onclick -->
     <section>
       <h2>📅 Filtrar por Rango de Fechas</h2>
       <label>Desde: <input type="date" id="fechaInicio" /></label>
@@ -72,7 +70,6 @@
       <button id="btnFiltrar">Filtrar</button>
     </section>
 
-    <!-- Agrupar sin onchange -->
     <section>
       <label for="tipoAgrupacion">📆 Agrupar por:</label>
       <select id="tipoAgrupacion">
@@ -99,7 +96,7 @@
               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             "
           >
-            🎯 Ver Reportes Especiales
+     
           </button>
         </div>
 
@@ -160,7 +157,6 @@
       <canvas id="graficoCliente" width="400" height="400"></canvas>
     </section>
 
-    <!-- Ayuda contextual -->
     <section id="ayuda">
       <div class="h2title">
         <h2>📊 Módulo de Reportes</h2>
@@ -228,31 +224,27 @@
   <script src="js/chatbot-ayuda.js" defer></script>
 
   <script>
-    // Función para abrir y cerrar menú
+  
     function toggleMenu() {
         document.getElementById("navMenu").classList.toggle("open");
         // Asegúrate de que este toggle también controle la clase 'menu-open' en el body
         document.body.classList.toggle("menu-open", document.getElementById("navMenu").classList.contains("open"));
     }
 
-    // Verificar sesión (igual que antes)
     if (sessionStorage.getItem("sesionIniciada") !== "true") {
       window.location.href = "login.html";
     }
 
-    // Mostrar ayuda
     function mostrarAyuda() {
       const ayuda = document.getElementById("ayuda");
       ayuda.classList.add("visible");
       ayuda.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    // Cerrar ayuda
     document.getElementById("cerrarAyuda").addEventListener("click", () => {
       document.getElementById("ayuda").classList.remove("visible");
     });
 
-    // Alternar botones reportes especiales (¡VERSION CORREGIDA!)
     function alternarBotonesReportes() {
         const contenedorBotones = document.getElementById("botonesReportesEspeciales");
         const contenedorLista = document.getElementById("contenedorListaEspecial"); // El nuevo contenedor que creamos
@@ -260,40 +252,28 @@
         const buscadorEspecial = document.getElementById("filtroEspecial"); // Referencia directa al input del buscador
         const divBuscador = document.getElementById("buscadorEspecial"); // El div que contiene el input
 
-
-        // Si los botones están visibles y se van a ocultar
         if (contenedorBotones.style.display === "block" || contenedorBotones.style.display === "") {
             // Ocultar botones de tipo de reporte
             contenedorBotones.style.display = "none";
 
-            // Limpiar y ocultar la lista de resultados
             listaEspecial.innerHTML = ""; // Vacía el UL
-            
-            // Ocultar el contenedor de la lista (esto también ocultará el total si está dentro)
-            // No, mejor eliminamos el total directamente y ocultamos el div del buscador
-            // contenedorLista.style.display = "none"; // Esto podría ocultar todo el contenedor de golpe. Mejor controlamos elementos individuales.
 
-            // Eliminar el total general si existe
             const totalExistente = document.getElementById("totalReporteEspecial");
             if (totalExistente) {
                 totalExistente.remove();
             }
 
-            // Ocultar y limpiar el buscador
             divBuscador.style.display = "none";
             buscadorEspecial.value = ""; // Limpiar el campo del buscador
 
-            // Resetear el tipo de lista actual en reportes.js
-            // Esto es crucial para que la próxima vez que se abra, no recuerde el reporte anterior.
             if (typeof listaActual !== 'undefined') {
                  listaActual = null;
             }
 
         } else {
-            // Si los botones están ocultos y se van a mostrar
+       
             contenedorBotones.style.display = "block";
-            // Cuando se muestra, aseguramos que la lista y el buscador estén limpios y ocultos
-            // porque el usuario aún no ha seleccionado un tipo de reporte
+      
             listaEspecial.innerHTML = "";
             divBuscador.style.display = "none";
             buscadorEspecial.value = "";
@@ -307,7 +287,6 @@
         }
     }
 
-    // Aquí agregamos listeners que llaman tus funciones async en reportes.js
     document.addEventListener("DOMContentLoaded", () => {
       // Cuando cambias el tipo de gráfico, actualizar
       document
@@ -316,12 +295,10 @@
           await actualizarTodosLosGraficos();
         });
 
-      // Filtrar por fechas con botón
       document.getElementById("btnFiltrar").addEventListener("click", async () => {
         await aplicarFiltroFechas();
       });
 
-      // Exportar ventas a Excel con listener al botón con id correcto
       document
         .getElementById("btnExportarExcel")
         .addEventListener("click", async () => {
@@ -333,15 +310,12 @@
           }
         });
 
-      // Agrupar por semana, mes o ninguno
       document
         .getElementById("tipoAgrupacion")
         .addEventListener("change", async () => {
           await actualizarTodosLosGraficos();
         });
 
-      // Botones reportes especiales sin onclick inline,
-      // escuchamos clicks y llamamos alternarLista con el data-tipo
       document.querySelectorAll(".boton-reporte").forEach((boton) => {
         boton.addEventListener("click", async () => {
           const tipo = boton.dataset.tipo;
@@ -351,12 +325,10 @@
         });
       });
 
-      // Buscador especial filtra lista
       document
         .getElementById("filtroEspecial")
         .addEventListener("input", filtrarListaEspecial);
 
-      // Inicializamos todos los gráficos al cargar
       actualizarTodosLosGraficos();
     });
   </script>
