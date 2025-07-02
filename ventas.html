@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/ventas.css"/> <!-- ¡NUEVA LÍNEA AQUÍ! -->
+  <link rel="stylesheet" href="css/ventas.css"/>
   <link rel="stylesheet" href="css/ayuda.css">
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css" />
@@ -47,15 +47,14 @@
   </nav>
 
   <main>
-    <section id="formularioVenta" class="golden-decorated-form"> <!-- ¡NUEVA CLASE AÑADIDA AQUÍ! -->
+    <section id="formularioVenta" class="golden-decorated-form">
   <h2>➕ Registrar Venta Multiproducto</h2>
 
   <label for="clienteVenta">Cliente:</label>
     <input list="clientesLista" id="clienteVenta" name="clienteVenta" placeholder="Escribe o selecciona cliente..." autocomplete="off" />
     <datalist id="clientesLista">
-    <!-- Se llenará dinámicamente -->
+   
   </datalist>
-
 
   <label>Producto:</label>
   <select id="productoVenta">
@@ -67,8 +66,7 @@
 
   <button onclick="agregarProductoAVenta()">➕ Agregar Producto</button>
 
-  <!--TABLA-->
-  <table class="productos-venta-table"> <!-- ¡NUEVA CLASE AQUI! -->
+  <table class="productos-venta-table">
     <thead>
         <tr>
             <th>Producto</th>
@@ -79,7 +77,7 @@
         </tr>
     </thead>
     <tbody id="tablaProductosVenta">
-        <!-- Las filas se llenarán dinámicamente con JS -->
+      
     </tbody>
 </table>
 
@@ -92,13 +90,11 @@
     <option value="credito">Crédito</option>
   </select>
 
-<!-- Checkbox para activar la fecha manual -->
 <label style="margin-top: 10px; display: block;">
   <input type="checkbox" id="activarFechaManual" onchange="toggleFechaManual()" />
   Usar fecha personalizada
 </label>
 
-<!-- Campos de fecha y hora -->
 <div id="opcionFechaManual" style="display: none; margin-top: 10px;">
   <label for="fechaVentaPersonalizada">Fecha personalizada:</label>
   <input type="date" id="fechaVentaPersonalizada" />
@@ -107,7 +103,6 @@
   <input type="time" id="horaVentaPersonalizada" />
 </div>
 
-  <!-- Contado -->
   <div id="opcionesContado" style="display: none;">
     <label>Método:</label>
     <select id="metodoContado">
@@ -118,12 +113,10 @@
     </select>
   </div>
 
-  <!-- Crédito -->
   <div id="opcionesCredito" style="display: none;">
     <label>Fecha Vencimiento:</label>
     <input type="date" id="fechaVencimiento" />
-    
-    <!-- Añadir el campo para método de pago en ventas a crédito -->
+
     <label>Método de Pago:</label>
     <select id="metodoCredito">
       <option value="">No especificado</option>
@@ -133,11 +126,11 @@
     </select>
   </div>
 
-  <div class="form-group acciones-form"> <!-- ¡NUEVO DIV PARA AGRUPAR BOTONES! -->
+  <div class="form-group acciones-form">
     <button type="submit" id="btnRegistrarVenta" class="btn-primary" onclick="registrarVenta()">
         🧾 Guardar Venta
     </button>
-    <button type="button" id="btnCancelarEdicion" class="btn-secondary" style="display: none;"> <!-- ¡MUY IMPORTANTE: ESTA LÍNEA! -->
+    <button type="button" id="btnCancelarEdicion" class="btn-secondary" style="display: none;">
         ❌ Cancelar
     </button>
   </div>
@@ -179,7 +172,6 @@
       <div id="listaVentas" class="mt-4 space-y-4"></div>
     </section>
 
-    <!-- Ayuda contextual para Ventas -->
   <section id="ayuda">
     <div class="h2title"> 
       <h2>🧾 Módulo Ventas</h2> 
@@ -207,7 +199,6 @@
     <button id="cerrarAyuda">Cerrar Ayuda</button>
   </section>
 
-    <!-- Mini menú lateral con botón de flechita -->
  <div id="miniMenuLateral" class="expandido">
   <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
   <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
@@ -248,7 +239,6 @@
   }
  </script>
 
-  <!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
  <script>
   function mostrarAyuda() {
     const ayuda = document.getElementById("ayuda");
