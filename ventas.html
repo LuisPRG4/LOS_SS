@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css" />
   <link rel="stylesheet" href="css/tablaVentas.css" />
+  <link rel="stylesheet" href="css/recibo-venta.css" />
   <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
 
 </head>
@@ -42,19 +43,19 @@
       <li><a href="finanzas.html">💰 Finanzas</a></li>
       <li><a href="novedades.html">🐶 Novedades</a></li>
        <li><a href="pedidos.html">📦 Pedidos</a></li>
-       <li><a href="datos.html">💾 Datos</a></li>
     </ul>
   </nav>
 
   <main>
-    <section id="formularioVenta" class="golden-decorated-form">
+    <section id="formularioVenta" class="golden-decorated-form"> <!-- ¡NUEVA CLASE AÑADIDA AQUÍ! -->
   <h2>➕ Registrar Venta Multiproducto</h2>
 
   <label for="clienteVenta">Cliente:</label>
     <input list="clientesLista" id="clienteVenta" name="clienteVenta" placeholder="Escribe o selecciona cliente..." autocomplete="off" />
     <datalist id="clientesLista">
-   
+    <!-- Se llenará dinámicamente -->
   </datalist>
+
 
   <label>Producto:</label>
   <select id="productoVenta">
@@ -66,7 +67,8 @@
 
   <button onclick="agregarProductoAVenta()">➕ Agregar Producto</button>
 
-  <table class="productos-venta-table">
+  <!--TABLA-->
+  <table class="productos-venta-table"> <!-- ¡NUEVA CLASE AQUI! -->
     <thead>
         <tr>
             <th>Producto</th>
@@ -77,7 +79,7 @@
         </tr>
     </thead>
     <tbody id="tablaProductosVenta">
-      
+        <!-- Las filas se llenarán dinámicamente con JS -->
     </tbody>
 </table>
 
@@ -90,11 +92,13 @@
     <option value="credito">Crédito</option>
   </select>
 
+<!-- Checkbox para activar la fecha manual -->
 <label style="margin-top: 10px; display: block;">
   <input type="checkbox" id="activarFechaManual" onchange="toggleFechaManual()" />
   Usar fecha personalizada
 </label>
 
+<!-- Campos de fecha y hora -->
 <div id="opcionFechaManual" style="display: none; margin-top: 10px;">
   <label for="fechaVentaPersonalizada">Fecha personalizada:</label>
   <input type="date" id="fechaVentaPersonalizada" />
@@ -103,6 +107,7 @@
   <input type="time" id="horaVentaPersonalizada" />
 </div>
 
+  <!-- Contado -->
   <div id="opcionesContado" style="display: none;">
     <label>Método:</label>
     <select id="metodoContado">
@@ -113,10 +118,12 @@
     </select>
   </div>
 
+  <!-- Crédito -->
   <div id="opcionesCredito" style="display: none;">
     <label>Fecha Vencimiento:</label>
     <input type="date" id="fechaVencimiento" />
-
+    
+    <!-- Añadir el campo para método de pago en ventas a crédito -->
     <label>Método de Pago:</label>
     <select id="metodoCredito">
       <option value="">No especificado</option>
@@ -126,11 +133,11 @@
     </select>
   </div>
 
-  <div class="form-group acciones-form">
+  <div class="form-group acciones-form"> <!-- ¡NUEVO DIV PARA AGRUPAR BOTONES! -->
     <button type="submit" id="btnRegistrarVenta" class="btn-primary" onclick="registrarVenta()">
         🧾 Guardar Venta
     </button>
-    <button type="button" id="btnCancelarEdicion" class="btn-secondary" style="display: none;">
+    <button type="button" id="btnCancelarEdicion" class="btn-secondary" style="display: none;"> <!-- ¡MUY IMPORTANTE: ESTA LÍNEA! -->
         ❌ Cancelar
     </button>
   </div>
@@ -172,6 +179,7 @@
       <div id="listaVentas" class="mt-4 space-y-4"></div>
     </section>
 
+    <!-- Ayuda contextual para Ventas -->
   <section id="ayuda">
     <div class="h2title"> 
       <h2>🧾 Módulo Ventas</h2> 
@@ -199,6 +207,7 @@
     <button id="cerrarAyuda">Cerrar Ayuda</button>
   </section>
 
+    <!-- Mini menú lateral con botón de flechita -->
  <div id="miniMenuLateral" class="expandido">
   <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
   <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
@@ -239,6 +248,7 @@
   }
  </script>
 
+  <!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
  <script>
   function mostrarAyuda() {
     const ayuda = document.getElementById("ayuda");
@@ -294,6 +304,72 @@
  </div>
 
  <div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50"></div>
+
+ <!-- MODAL PARA EL RECIBO DE VENTA -->
+<div id="modalRecibo" style="display: none;">
+    <div class="modal-recibo-contenido">
+        <div class="recibo-header">
+            <h2>🧾 Recibo de Venta</h2>
+            <button class="cerrar-recibo" onclick="cerrarModalRecibo()">×</button>
+        </div>
+        <div class="recibo-contenido">
+            <div class="recibo-empresa">
+                <h3>Los SS</h3>
+                <p>Sistema de Gestión</p>
+                <p>Fecha de impresión: <span id="recibo-fecha-actual"></span></p>
+            </div>
+            
+            <div class="recibo-cliente-info">
+                <p><span>Cliente:</span> <span id="recibo-cliente"></span></p>
+                <p><span>Fecha de venta:</span> <span id="recibo-fecha-venta"></span></p>
+                <p><span>No. de venta:</span> <span id="recibo-num-venta"></span></p>
+            </div>
+            
+            <div class="recibo-detalles">
+                <p><span>Condición de pago:</span> <span id="recibo-tipo-pago"></span></p>
+                <p><span>Método de pago:</span> <span id="recibo-metodo-pago"></span></p>
+                <p id="recibo-vencimiento-container" style="display: none;"><span>Fecha de vencimiento:</span> <span id="recibo-fecha-vencimiento"></span></p>
+            </div>
+            
+            <table class="recibo-productos">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unit.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody id="recibo-productos-lista">
+                    <!-- Se llenará dinámicamente -->
+                </tbody>
+            </table>
+            
+            <div class="recibo-totales">
+                <p><span>Total:</span> <span id="recibo-total">$0.00</span></p>
+                <p id="recibo-monto-pendiente-container" style="display: none;"><span>Monto pendiente:</span> <span id="recibo-monto-pendiente">$0.00</span></p>
+                <p class="total-final"><span>TOTAL A PAGAR:</span> <span id="recibo-total-final">$0.00</span></p>
+            </div>
+            
+            <div class="recibo-footer">
+                <p>¡Gracias por tu compra!</p>
+                <p>Los SS - Sistema de Gestión</p>
+            </div>
+        </div>
+        
+        <div class="recibo-acciones">
+            <button class="recibo-btn recibo-btn-imprimir" onclick="imprimirRecibo()">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button class="recibo-btn recibo-btn-guardar" onclick="guardarReciboPDF()">
+                <i class="fas fa-file-pdf"></i> Guardar PDF
+            </button>
+            <button class="recibo-btn recibo-btn-cerrar" onclick="cerrarModalRecibo()">
+                <i class="fas fa-times"></i> Cerrar
+            </button>
+        </div>
+    </div>
+</div>
 
  </body>
  </html>
