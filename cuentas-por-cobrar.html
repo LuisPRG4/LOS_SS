@@ -94,7 +94,6 @@
             <ul id="listaRankingMorosos"></ul>
         </section>
 
-
         <section class="kpi-box">
             <h2>📈 Resumen de Cuentas</h2>
             <div class="kpis">
@@ -157,9 +156,8 @@
     </ul>
     <button id="cerrarAyuda">Cerrar Ayuda</button>
     </section>
-
         
-   <!-- Mini menú lateral con botón de flechita -->
+   <!-- Mini menú lateral con botón de flecha -->
     <div id="miniMenuLateral" class="expandido">
         <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
         <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
@@ -236,7 +234,6 @@
             document.getElementById("navMenu").classList.toggle("open");
         }
 
-        // Redirección si la sesión no está iniciada (se mantiene aquí para seguridad)
         if (sessionStorage.getItem("sesionIniciada") !== "true") {
             window.location.href = "login.html";
         }
