@@ -1,4 +1,5 @@
 // js/ventas.js (CÓDIGO CORREGIDO Y RECOMENDADO)
+
 let clientes = [];
 let ventas = [];
 let productos = []; // Ahora 'productos' globalmente contendrá la unidad de medida
@@ -495,8 +496,9 @@ function crearCardVenta(venta, id) {
             <button onclick="cargarVenta(${id})" class="btn-editar">✏️ Editar</button>
             <button onclick="revertirVenta(${id})" class="btn-revertir">↩️ Revertir</button>
             <button onclick="eliminarVentaPermanente(${id})" class="btn-eliminar">🗑 Eliminar</button>
-            ${venta.tipoPago === 'credito' && venta.montoPendiente > 0
+            ${venta.tipoPago === 'credito' && venta.estadoPago !== 'Pagado Total' 
                 ? `<button onclick="abrirModalAbono(${id})" class="btn-abonar">💰 Abonar</button>` : ''}
+            <button onclick="mostrarRecibo(${id})" class="btn-recibo">🧾 Recibo</button>
         </div>
     `;
 
@@ -1464,6 +1466,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // ====== NUEVAS FUNCIONES PARA EXPORTAR, IMPORTAR Y PLANTILLA JSON ======
+
 /**
  * Exporta todas las ventas a un archivo JSON.
  */
@@ -1680,5 +1683,277 @@ function formatearFecha(fechaStr) {
     } catch (e) {
         console.error("Error al formatear fecha:", e);
         return fechaStr; // En caso de error, devolver el string original
+    }
+}
+
+// Nuevas funciones para el recibo de venta
+async function mostrarRecibo(id) {
+    try {
+        // Obtener la venta por su ID
+        const venta = await obtenerVentaPorId(id);
+        
+        if (!venta) {
+            mostrarToast("❌ No se encontró la venta", "error");
+            return;
+        }
+        
+        // Formatear fecha actual para el recibo
+        const fechaActual = new Date().toLocaleDateString('es-ES', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        document.getElementById('recibo-fecha-actual').textContent = fechaActual;
+        
+        // Formatear fecha de venta
+        let fechaVenta;
+        try {
+            const fechaObj = new Date(venta.fecha);
+            fechaVenta = fechaObj.toLocaleDateString('es-ES', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            });
+        } catch (e) {
+            fechaVenta = venta.fecha || "Fecha no disponible";
+        }
+        
+        // Datos básicos de la venta
+        document.getElementById('recibo-cliente').textContent = venta.cliente;
+        document.getElementById('recibo-fecha-venta').textContent = fechaVenta;
+        document.getElementById('recibo-num-venta').textContent = id;
+        document.getElementById('recibo-tipo-pago').textContent = venta.tipoPago === 'contado' ? 'Contado' : 'Crédito';
+        document.getElementById('recibo-metodo-pago').textContent = venta.detallePago?.metodo || 'No especificado';
+        
+        // Fecha de vencimiento (solo para crédito)
+        const vencimientoContainer = document.getElementById('recibo-vencimiento-container');
+        if (venta.tipoPago === 'credito' && venta.detallePago?.fechaVencimiento) {
+            document.getElementById('recibo-fecha-vencimiento').textContent = venta.detallePago.fechaVencimiento;
+            vencimientoContainer.style.display = 'flex';
+        } else {
+            vencimientoContainer.style.display = 'none';
+        }
+        
+        // Procesar productos
+        const tablaProductos = document.getElementById('recibo-productos-lista');
+        tablaProductos.innerHTML = '';
+        
+        let productosArray;
+        try {
+            if (Array.isArray(venta.productos)) {
+                productosArray = venta.productos;
+            } else if (typeof venta.productos === 'string') {
+                productosArray = JSON.parse(venta.productos || '[]');
+            } else {
+                productosArray = [];
+            }
+            
+            productosArray.forEach(producto => {
+                const fila = document.createElement('tr');
+                const precio = parseFloat(producto.precio) || 0;
+                const cantidad = parseInt(producto.cantidad) || 0;
+                const subtotal = precio * cantidad;
+                
+                fila.innerHTML = `
+                    <td>${producto.nombre}</td>
+                    <td>${cantidad} ${producto.unidadMedida || 'unid.'}</td>
+                    <td>$${precio.toFixed(2)}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                `;
+                
+                tablaProductos.appendChild(fila);
+            });
+        } catch (e) {
+            console.error("Error al procesar productos para recibo:", e);
+            
+            // Si hay error, mostrar mensaje en tabla
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td colspan="4" style="text-align: center;">Error al cargar los productos</td>
+            `;
+            tablaProductos.appendChild(fila);
+        }
+        
+        // Mostrar totales
+        const total = typeof venta.ingreso === 'number' ? venta.ingreso : parseFloat(venta.ingreso) || 0;
+        document.getElementById('recibo-total').textContent = `$${total.toFixed(2)}`;
+        
+        const montoPendienteContainer = document.getElementById('recibo-monto-pendiente-container');
+        if (venta.tipoPago === 'credito' && venta.montoPendiente > 0) {
+            const montoPendiente = typeof venta.montoPendiente === 'number' ? venta.montoPendiente : parseFloat(venta.montoPendiente) || 0;
+            document.getElementById('recibo-monto-pendiente').textContent = `$${montoPendiente.toFixed(2)}`;
+            montoPendienteContainer.style.display = 'flex';
+            
+            // Total a pagar (depende del estado)
+            const totalFinal = venta.estadoPago === 'Pagado Total' ? 0 : montoPendiente;
+            document.getElementById('recibo-total-final').textContent = `$${totalFinal.toFixed(2)}`;
+        } else {
+            montoPendienteContainer.style.display = 'none';
+            // Si es contado o ya está pagado, el total final es el mismo total
+            document.getElementById('recibo-total-final').textContent = `$${total.toFixed(2)}`;
+        }
+        
+        // Mostrar el modal
+        document.getElementById('modalRecibo').style.display = 'flex';
+        
+    } catch (error) {
+        console.error("Error al mostrar recibo:", error);
+        mostrarToast("❌ Error al generar el recibo", "error");
+    }
+}
+
+function cerrarModalRecibo() {
+    document.getElementById('modalRecibo').style.display = 'none';
+}
+
+function imprimirRecibo() {
+    const recibo = document.querySelector('.recibo-contenido').innerHTML;
+    const ventanaImpresion = window.open('', '_blank');
+    
+    ventanaImpresion.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Recibo de Venta - Los SS</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    color: #333;
+                }
+                .recibo-empresa {
+                    text-align: center;
+                    margin-bottom: 15px;
+                    border-bottom: 1px dashed #ccc;
+                    padding-bottom: 10px;
+                }
+                .recibo-empresa h3 {
+                    font-size: 1.4em;
+                    color: #5b2d90;
+                    margin: 0 0 5px;
+                }
+                .recibo-productos {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }
+                .recibo-productos th {
+                    background-color: #f0e68c;
+                    padding: 10px 5px;
+                    text-align: left;
+                    border-bottom: 1px solid #ccc;
+                }
+                .recibo-productos td {
+                    padding: 8px 5px;
+                    border-bottom: 1px solid #eee;
+                }
+                .recibo-cliente-info p, .recibo-detalles p {
+                    margin: 5px 0;
+                    display: flex;
+                    justify-content: space-between;
+                }
+                .recibo-totales {
+                    margin-top: 15px;
+                    border-top: 1px dashed #ccc;
+                    padding-top: 10px;
+                }
+                .recibo-totales p {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 5px 0;
+                    font-weight: bold;
+                }
+                .recibo-totales .total-final {
+                    font-size: 1.2em;
+                    border-top: 1px double #ccc;
+                    margin-top: 10px;
+                    padding-top: 10px;
+                }
+                .recibo-footer {
+                    text-align: center;
+                    font-size: 0.9em;
+                    color: #666;
+                    margin-top: 15px;
+                    border-top: 1px dashed #ccc;
+                    padding-top: 15px;
+                }
+                @media print {
+                    body { margin: 0; }
+                    button { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            ${recibo}
+            <script>
+                window.onload = function() { window.print(); }
+            </script>
+        </body>
+        </html>
+    `);
+    
+    ventanaImpresion.document.close();
+}
+
+function guardarReciboPDF() {
+    try {
+        // Utilizamos las librerías jsPDF y html2canvas ya cargadas
+        if (typeof jspdf === 'undefined' || typeof html2canvas === 'undefined') {
+            mostrarToast("❌ Se requieren las librerías jsPDF y html2canvas", "error");
+            
+            // Cargar las librerías si no están disponibles
+            const scriptJsPDF = document.createElement('script');
+            scriptJsPDF.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+            document.body.appendChild(scriptJsPDF);
+            
+            const scriptHtml2Canvas = document.createElement('script');
+            scriptHtml2Canvas.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            document.body.appendChild(scriptHtml2Canvas);
+            
+            // Volver a intentar después de cargar las librerías
+            setTimeout(() => {
+                guardarReciboPDF();
+            }, 2000);
+            
+            return;
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const recibo = document.querySelector('.recibo-contenido');
+        const clienteNombre = document.getElementById('recibo-cliente').textContent;
+        const ventaID = document.getElementById('recibo-num-venta').textContent;
+        const fechaActual = new Date().toISOString().slice(0, 10);
+        
+        const nombreArchivo = `Recibo_${clienteNombre}_${ventaID}_${fechaActual}.pdf`;
+        
+        // Mostrar mensaje de carga
+        mostrarToast("⏳ Generando PDF...", "info");
+        
+        html2canvas(recibo).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+            const imgX = (pdfWidth - imgWidth * ratio) / 2;
+            const imgY = 30;
+            
+            // Agregar logo o título
+            pdf.setFontSize(20);
+            pdf.setTextColor(91, 45, 144);
+            pdf.text('Los SS - Recibo de Venta', pdfWidth / 2, 20, { align: 'center' });
+            
+            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+            pdf.save(nombreArchivo);
+            
+            mostrarToast("✅ PDF generado correctamente", "success");
+        }).catch(error => {
+            console.error("Error al generar PDF:", error);
+            mostrarToast("❌ Error al generar el PDF", "error");
+        });
+        
+    } catch (error) {
+        console.error("Error al guardar recibo como PDF:", error);
+        mostrarToast("❌ Error al guardar el recibo", "error");
     }
 }
