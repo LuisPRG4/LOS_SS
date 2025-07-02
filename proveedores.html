@@ -6,11 +6,11 @@
   <title>Los SS - Proveedores</title>
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
-  <link rel="stylesheet" href="css/style.css"/> <!--REFERENCIA A STYLE.CSS-->
+  <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/ayuda.css"/> 
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
-  <link rel="stylesheet" href="css/form-decoration.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
-  <link rel="stylesheet" href="css/cards-general.css"> <!-- ¡NUEVA LÍNEA CLAVE! -->
+  <link rel="stylesheet" href="css/form-decoration.css">
+  <link rel="stylesheet" href="css/cards-general.css">
   <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
 
 </head>
@@ -46,7 +46,7 @@
   </nav>
 
   <main>
-    <section class="golden-decorated-form"> <!-- ¡NUEVA CLASE AÑADIDA AQUÍ! -->
+    <section class="golden-decorated-form">
       <h2>➕ Agregar Proveedor</h2>
         <label>Ingresa el nombre del proveedor:</label>
       <input type="text" id="nombreProveedor" placeholder="Nombre del proveedor" />
@@ -85,7 +85,6 @@
           <div id="listaProveedores" class="proveedores-grid"></div>
         </section>
 
-    <!-- Ayuda contextual para Proveedores -->
   <section id="ayuda">
     <div class="h2title"> 
       <h2>🚚 Módulo Proveedores</h2> 
@@ -108,7 +107,6 @@
     <button id="cerrarAyuda">Cerrar Ayuda</button>
   </section>
 
-    <!-- Mini menú lateral con botón de flechita -->
 <div id="miniMenuLateral" class="expandido">
   <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
   <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
@@ -147,7 +145,6 @@
   }
 </script>
 
-<!--SCRIPT PARA EL BOTÓN FLOTANTE DE AYUDA-->
 <script>
   function mostrarAyuda() {
     const ayuda = document.getElementById("ayuda");
