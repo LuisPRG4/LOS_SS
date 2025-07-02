@@ -100,7 +100,6 @@
       document.getElementById("navMenu").classList.toggle("open");
     }
 
-    // Esta parte es importante si tu login.html y manejo de sesión están activos
     if (sessionStorage.getItem("sesionIniciada") !== "true") {
       window.location.href = "login.html";
     }
