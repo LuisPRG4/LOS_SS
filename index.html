@@ -70,11 +70,9 @@
       <ul id="alertasStock"></ul>
     </section>
 
-    <!-- NUEVA SECCIÓN: PANEL DE CONTROL -->
     <section class="dashboard-section golden-decorated-form">
       <h2 class="dashboard-title">✨ Panel de Control</h2>
-      
-      <!-- Accesos Rápidos -->
+
       <div class="quick-access">
         <h3>⚡ Accesos Rápidos</h3>
         <div class="quick-buttons">
@@ -105,7 +103,6 @@
         </div>
       </div>
       
-      <!-- Consejos del Día -->
       <div class="daily-tip">
         <h3>💡 Consejo del Día</h3>
         <div class="tip-content" id="dailyTip">
@@ -114,7 +111,6 @@
         <button id="newTipBtn" class="btn-tip">Mostrar otro consejo</button>
       </div>
       
-      <!-- Actividad Reciente -->
       <div class="recent-activity">
         <h3>🔔 Actividad Reciente</h3>
         <div class="activity-timeline" id="activityTimeline">
@@ -122,7 +118,6 @@
         </div>
       </div>
 
-       <!-- Notas Rápidas y Recordatorios -->
       <div class="quick-notes">
         <h3>📝 Recordatorios</h3>
         <div class="notes-container">
@@ -151,7 +146,6 @@
       document.getElementById("navMenu").classList.toggle("open");
     }
 
-    // Esta parte es importante si tu login.html y manejo de sesión están activos
     if (sessionStorage.getItem("sesionIniciada") !== "true") {
       window.location.href = "login.html";
     }
@@ -162,7 +156,6 @@
     }
   </script>
 
-    <!-- FORZAR ACTUALIZACIÓN DEL SERVICE-WORKER-->
     <button id="update-app-button">Actualizar Aplicación</button>
 
   <div id="button" class="button-sesion">
