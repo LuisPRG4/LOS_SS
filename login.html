@@ -7,13 +7,12 @@
   <link rel="icon" href="fav/los ss.png" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/login.css" />
-
 </head>
 <body>
   <main>
     <h1 class="titulo">LOS SS</h1>
     <h2 class="subtitulo">Bienvenido</h2>
-    
+
     <label for="usuario">👤 Usuario</label>
     <input type="text" id="usuario" placeholder="Ingresa tu usuario" />
 
@@ -21,12 +20,19 @@
     <input type="password" id="contrasena" placeholder="Ingresa tu contraseña" />
 
     <button onclick="iniciarSesion()">🔑 Entrar</button>
-    
+
+    <hr>
+
+    <button onclick="loginConBiometria()">🧬 Acceder con biometría</button>
+
+    <label for="pinInput">🔢 Acceder con PIN</label>
+    <input type="password" id="pinInput" placeholder="PIN">
+    <button onclick="loginConPIN()">Entrar con PIN</button>
+
     <p id="error"></p>
   </main>
 
   <script src="js/login.js"></script>
   <script src="js/sw-register.js"></script>
-
 </body>
 </html>
