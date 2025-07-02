@@ -1,18 +1,17 @@
-const CACHE_NAME = "los-ss-cache-v11";
+const CACHE_NAME = "los-ss-cache-v4";
 const APP_VERSION = "1.0.4";
 const REPO_PREFIX = '/Los_SS/';
 
 const CRITICAL_FILES = [
-`${REPO_PREFIX}js/cuentas-por-cobrar.js`,
-`${REPO_PREFIX}css/ventas-pagadas.css`,
-`${REPO_PREFIX}cuentas-por-cobrar.html`
+    `${REPO_PREFIX}js/cuentas-por-cobrar.js`,
+    `${REPO_PREFIX}css/ventas-pagadas.css`,
+    `${REPO_PREFIX}cuentas-por-cobrar.html`
 ];
 
 const urlsToCache = [
-  `${REPO_PREFIX}`, 
+  `${REPO_PREFIX}`, // La raíz de tu aplicación en GitHub Pages
   `${REPO_PREFIX}clientes.html`,
   `${REPO_PREFIX}cuentas-por-cobrar.html`,
-  `${REPO_PREFIX}datos.html`,
   `${REPO_PREFIX}finanzas.html`,
   `${REPO_PREFIX}index.html`,
   `${REPO_PREFIX}inventario.html`,
@@ -32,7 +31,7 @@ const urlsToCache = [
   `${REPO_PREFIX}css/calendar.css`,
   `${REPO_PREFIX}css/cards-general.css`,
   `${REPO_PREFIX}css/chatbot-ayuda.css`,
-  `${REPO_PREFIX}css/datos.css`,
+  `${REPO_PREFIX}css/exportData.css`,
   `${REPO_PREFIX}css/form-decoration.css`,
   `${REPO_PREFIX}css/index.css`,
   `${REPO_PREFIX}css/inventario.css`,
@@ -46,7 +45,7 @@ const urlsToCache = [
   `${REPO_PREFIX}css/ventas.css`,
   `${REPO_PREFIX}css/whatsapp.css`,
   `${REPO_PREFIX}css/update-button.css`,
-  `${REPO_PREFIX}css/reportes.css`,
+  `${REPO_PREFIX}css/recibo-venta.css`,
 
   // JS:
   `${REPO_PREFIX}js/calendar.js`,
@@ -54,9 +53,8 @@ const urlsToCache = [
   `${REPO_PREFIX}js/chatbot-ayuda.js`,
   `${REPO_PREFIX}js/clientes.js`,
   `${REPO_PREFIX}js/cuentas-por-cobrar.js`,
-  `${REPO_PREFIX}js/dashboard.js`,
-  `${REPO_PREFIX}js/datos.js`,
   `${REPO_PREFIX}js/db.js`,
+  `${REPO_PREFIX}js/exportAll.js`,
   `${REPO_PREFIX}js/finanzas.js`,
   `${REPO_PREFIX}js/inventario.js`,
   `${REPO_PREFIX}js/login.js`,
@@ -70,17 +68,17 @@ const urlsToCache = [
   `${REPO_PREFIX}js/ventas.js`,
   `${REPO_PREFIX}js/sw-register.js`,
 
+  // Archivos externos (siempre y cuando GitHub Pages pueda acceder a ellos)
   `https://unpkg.com/xlsx/dist/xlsx.full.min.js`,
   `https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js`,
   `https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js`,
+  `https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js`, // Añadido para el recibo
 
   // fav:
   `${REPO_PREFIX}fav/los ss.png`,
 
- // Fonts:
-  `${REPO_PREFIX}fonts/Handlee-Regular.ttf`, 
-  `${REPO_PREFIX}fonts/Montserrat-Italic.ttf`,
-  `${REPO_PREFIX}fonts/Playfair.ttf`,
+  // Fonts:
+  `${REPO_PREFIX}fonts/Handlee-Regular.ttf`,
 
   // Icons:
   `${REPO_PREFIX}icons/1.EXCEL.png`,
@@ -97,7 +95,7 @@ const urlsToCache = [
   `${REPO_PREFIX}logo/Yogurt.png`,
 
   // Resources:
-  `${REPO_PREFIX}resources/ORO.jpg`,
+  `${REPO_PREFIX}resources/GPT.png`,
   `${REPO_PREFIX}resources/ICONO BOLSITA.png`,
 ];
 
@@ -105,6 +103,7 @@ function isCriticalFile(url) {
     return CRITICAL_FILES.some(file => url.includes(file));
 }
 
+// Función para limpiar cachés antiguas
 async function deleteOldCaches() {
     const cacheNames = await caches.keys();
     await Promise.all(
@@ -125,7 +124,7 @@ self.addEventListener('install', event => {
                 console.log('[Service Worker] Cacheando archivos');
                 return cache.addAll(urlsToCache);
             }),
-            self.skipWaiting()
+            self.skipWaiting() // Fuerza la activación inmediata
         ])
     );
 });
@@ -135,7 +134,7 @@ self.addEventListener('activate', event => {
     event.waitUntil(
         Promise.all([
             deleteOldCaches(),
-            self.clients.claim()
+            self.clients.claim() // Toma el control inmediatamente
         ])
     );
 });
@@ -173,7 +172,7 @@ self.addEventListener('fetch', event => {
                 if (cachedResponse) {
                     return cachedResponse;
                 }
-         
+      
                 if (event.request.mode === 'navigate') {
                     return caches.match(`${REPO_PREFIX}offline.html`);
                 }
