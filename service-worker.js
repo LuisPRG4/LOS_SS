@@ -1,11 +1,7 @@
-// Archivo: service-worker.js
-
-// Incrementamos la versión y agregamos timestamp para forzar actualización
 const CACHE_NAME = "los-ss-cache-v11";
-const APP_VERSION = "1.0.4"; // Incrementa esto cuando hagas cambios importantes
+const APP_VERSION = "1.0.4";
 const REPO_PREFIX = '/Los_SS/';
 
-// Archivos críticos que siempre deben actualizarse
 const CRITICAL_FILES = [
 `${REPO_PREFIX}js/cuentas-por-cobrar.js`,
 `${REPO_PREFIX}css/ventas-pagadas.css`,
@@ -13,7 +9,7 @@ const CRITICAL_FILES = [
 ];
 
 const urlsToCache = [
-  `${REPO_PREFIX}`, // La raíz de tu aplicación en GitHub Pages
+  `${REPO_PREFIX}`, 
   `${REPO_PREFIX}clientes.html`,
   `${REPO_PREFIX}cuentas-por-cobrar.html`,
   `${REPO_PREFIX}datos.html`,
@@ -49,7 +45,7 @@ const urlsToCache = [
   `${REPO_PREFIX}css/tailwind.min.css`,
   `${REPO_PREFIX}css/ventas.css`,
   `${REPO_PREFIX}css/whatsapp.css`,
-  `${REPO_PREFIX}css/update-button.css`, // ¡Asegúrate de incluir este nuevo CSS!
+  `${REPO_PREFIX}css/update-button.css`,
   `${REPO_PREFIX}css/reportes.css`,
 
   // JS:
@@ -72,9 +68,8 @@ const urlsToCache = [
   `${REPO_PREFIX}js/reportes.js`,
   `${REPO_PREFIX}js/script.js`,
   `${REPO_PREFIX}js/ventas.js`,
-  `${REPO_PREFIX}js/sw-register.js`, // ¡Asegúrate de incluir este JS!
+  `${REPO_PREFIX}js/sw-register.js`,
 
-  // Archivos externos (siempre y cuando GitHub Pages pueda acceder a ellos)
   `https://unpkg.com/xlsx/dist/xlsx.full.min.js`,
   `https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js`,
   `https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js`,
@@ -106,12 +101,10 @@ const urlsToCache = [
   `${REPO_PREFIX}resources/ICONO BOLSITA.png`,
 ];
 
-// Función para verificar si un archivo es crítico
 function isCriticalFile(url) {
     return CRITICAL_FILES.some(file => url.includes(file));
 }
 
-// Función para limpiar cachés antiguas
 async function deleteOldCaches() {
     const cacheNames = await caches.keys();
     await Promise.all(
@@ -124,7 +117,6 @@ async function deleteOldCaches() {
     );
 }
 
-// Instalación del Service Worker
 self.addEventListener('install', event => {
     console.log('[Service Worker] Instalando nueva versión:', APP_VERSION);
     event.waitUntil(
@@ -133,23 +125,21 @@ self.addEventListener('install', event => {
                 console.log('[Service Worker] Cacheando archivos');
                 return cache.addAll(urlsToCache);
             }),
-            self.skipWaiting() // Fuerza la activación inmediata
+            self.skipWaiting()
         ])
     );
 });
 
-// Activación del Service Worker
 self.addEventListener('activate', event => {
     console.log('[Service Worker] Activando nueva versión:', APP_VERSION);
     event.waitUntil(
         Promise.all([
             deleteOldCaches(),
-            self.clients.claim() // Toma el control inmediatamente
+            self.clients.claim()
         ])
     );
 });
 
-// Interceptación de peticiones
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
 
@@ -157,7 +147,6 @@ self.addEventListener('fetch', event => {
         (async () => {
             const url = event.request.url;
             
-            // Para archivos críticos, siempre intentar obtener la última versión
             if (isCriticalFile(url)) {
                 try {
                     console.log('[Service Worker] Obteniendo archivo crítico de la red:', url);
@@ -172,7 +161,6 @@ self.addEventListener('fetch', event => {
                 }
             }
 
-            // Para otros archivos, intentar red primero, caché como respaldo
             try {
                 const networkResponse = await fetch(event.request);
                 if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
@@ -185,8 +173,7 @@ self.addEventListener('fetch', event => {
                 if (cachedResponse) {
                     return cachedResponse;
                 }
-                
-                // Si es una navegación y no hay caché, mostrar página offline
+         
                 if (event.request.mode === 'navigate') {
                     return caches.match(`${REPO_PREFIX}offline.html`);
                 }
@@ -197,7 +184,6 @@ self.addEventListener('fetch', event => {
     );
 });
 
-// Manejo de mensajes
 self.addEventListener('message', event => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         console.log('[Service Worker] Forzando activación inmediata');
