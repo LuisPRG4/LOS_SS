@@ -7,13 +7,15 @@
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/ventas.css"/>
+  <link rel="stylesheet" href="css/ventas.css"/> <!-- ¡NUEVA LÍNEA AQUÍ! -->
   <link rel="stylesheet" href="css/ayuda.css">
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css" />
   <link rel="stylesheet" href="css/tablaVentas.css" />
-  <link rel="stylesheet" href="css/recibo-venta.css" />
+  <link rel="stylesheet" href="css/recibo-venta.css" /> <!-- NUEVO CSS PARA RECIBO -->
   <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
+  <!-- Librería JsBarcode para códigos de barras -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 </head>
 <body>
@@ -310,7 +312,7 @@
     <div class="modal-recibo-contenido">
         <div class="recibo-header">
             <h2>🧾 Recibo de Venta</h2>
-            <button class="cerrar-recibo" onclick="cerrarModalRecibo()">×</button>
+            <!-- <button class="cerrar-recibo" onclick="cerrarModalRecibo()">×</button> -->
         </div>
         <div class="recibo-contenido">
             <div class="recibo-empresa">
@@ -349,6 +351,11 @@
                 <p><span>Total:</span> <span id="recibo-total">$0.00</span></p>
                 <p id="recibo-monto-pendiente-container" style="display: none;"><span>Monto pendiente:</span> <span id="recibo-monto-pendiente">$0.00</span></p>
                 <p class="total-final"><span>TOTAL A PAGAR:</span> <span id="recibo-total-final">$0.00</span></p>
+            </div>
+            
+            <div class="recibo-codigo-barras">
+                <p>CODIGO DE BARRAS</p>
+                <svg id="codigo-barras"></svg>
             </div>
             
             <div class="recibo-footer">
