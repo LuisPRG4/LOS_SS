@@ -71,6 +71,8 @@ async function cargarDashboard() {
     // --- Lógica para Alertas de Stock ---
     // Verificar si el elemento existe
     const alertaStockContainer = document.getElementById("alertasStock"); // Este es el ID del contenedor en tu HTML
+    const btnRestaurarStock = document.getElementById("btnRestaurarStock");
+    
     if (alertaStockContainer) { // Solo ejecuta si el elemento existe
         alertaStockContainer.innerHTML = ""; // Limpiar contenido anterior para evitar duplicados
 
@@ -103,9 +105,20 @@ async function cargarDashboard() {
                 ul.appendChild(li);
             });
             alertaStockContainer.appendChild(ul);
+            
+            // Mostrar el botón de restaurar stock
+            if (btnRestaurarStock) {
+                btnRestaurarStock.style.display = "block";
+                btnRestaurarStock.onclick = () => abrirModalRestaurarStock(productosBajoStock);
+            }
         } else {
             // Si no hay productos con stock bajo, mostramos un mensaje positivo
             alertaStockContainer.innerHTML = `<p class="text-green-600">✅ ¡Excelente! No hay productos con stock bajo.</p>`;
+            
+            // Ocultar el botón de restaurar stock
+            if (btnRestaurarStock) {
+                btnRestaurarStock.style.display = "none";
+            }
         }
     }
 
@@ -146,6 +159,152 @@ function irAInventario(productoId = null) {
     window.location.href = "inventario.html";
 }
 
+/**
+ * Abre el modal para restaurar stock de productos seleccionados
+ * @param {Array} productosBajoStock - Lista de productos con stock bajo
+ */
+function abrirModalRestaurarStock(productosBajoStock) {
+    const modal = document.getElementById("modalRestaurarStock");
+    const span = modal.querySelector(".close-modal");
+    const listaProductos = document.getElementById("listaProductosStock");
+    const btnCancelar = document.getElementById("btnCancelarRestauracion");
+    const btnConfirmar = document.getElementById("btnConfirmarRestauracion");
+    
+    // Limpiar la lista anterior
+    listaProductos.innerHTML = "";
+    
+    // Llenar la lista con los productos de stock bajo y sus checkboxes
+    productosBajoStock.forEach(producto => {
+        const li = document.createElement("li");
+        const umbral = (producto.stockMin !== undefined && producto.stockMin !== null) ? producto.stockMin : STOCK_BAJO_UMBRAL;
+        
+        li.innerHTML = `
+            <label class="checkbox-producto">
+                <input type="checkbox" data-id="${producto.id}" data-nombre="${producto.nombre}">
+                <span class="checkmark"></span>
+                ${producto.nombre} - Stock actual: ${producto.stock} ${producto.unidadMedida || 'unidad(es)'} (Mínimo: ${umbral})
+            </label>
+        `;
+        
+        listaProductos.appendChild(li);
+    });
+    
+    // Mostrar el modal
+    modal.style.display = "block";
+    
+    // Eventos para cerrar el modal
+    span.onclick = cerrarModalRestaurarStock;
+    btnCancelar.onclick = cerrarModalRestaurarStock;
+    
+    // Evento para confirmar la actualización
+    btnConfirmar.onclick = async () => {
+        await restaurarStockProductos();
+    };
+    
+    // Cerrar modal al hacer clic fuera de su contenido
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            cerrarModalRestaurarStock();
+        }
+    };
+}
+
+/**
+ * Cierra el modal de restauración de stock
+ */
+function cerrarModalRestaurarStock() {
+    const modal = document.getElementById("modalRestaurarStock");
+    modal.style.display = "none";
+}
+
+/**
+ * Función auxiliar para agregar un movimiento (registro de cambio de stock)
+ * @param {Object} movimiento - Objeto con los datos del movimiento
+ * @returns {Promise} - Promesa que se resuelve cuando se ha agregado el movimiento
+ */
+async function agregarMovimiento(movimiento) {
+    // Si existe la función agregarMovimientoDB, la usamos
+    if (typeof agregarMovimientoDB === 'function') {
+        return agregarMovimientoDB(movimiento);
+    } 
+    // Si no existe, usamos la función genérica agregarItem con el store 'movimientos'
+    else if (typeof agregarItem === 'function') {
+        return agregarItem('movimientos', movimiento);
+    } 
+    // Si nada existe, devolvemos una promesa rechazada
+    else {
+        console.error("No se encontró ninguna función para agregar movimientos");
+        return Promise.reject(new Error("No se encontró ninguna función para agregar movimientos"));
+    }
+}
+
+/**
+ * Restaura el stock de los productos seleccionados
+ */
+async function restaurarStockProductos() {
+    const checkboxes = document.querySelectorAll("#listaProductosStock input[type='checkbox']:checked");
+    const nuevoStock = parseInt(document.getElementById("nuevoStock").value);
+    
+    if (checkboxes.length === 0) {
+        mostrarToast("Selecciona al menos un producto para actualizar. ⚠️", "warning");
+        return;
+    }
+    
+    if (isNaN(nuevoStock) || nuevoStock < 1) {
+        mostrarToast("Ingresa un valor válido para el nuevo stock. ⚠️", "warning");
+        return;
+    }
+    
+    try {
+        // Obtener los productos actualizados de la base de datos
+        const productosActuales = await obtenerTodosLosProductos();
+        let contadorActualizados = 0;
+        
+        // Para cada checkbox seleccionado, actualizar el stock correspondiente
+        for (const checkbox of checkboxes) {
+            const productoId = checkbox.dataset.id;
+            const productoNombre = checkbox.dataset.nombre;
+            
+            // Encontrar el producto completo en la base de datos
+            const producto = productosActuales.find(p => p.id == productoId);
+            
+            if (producto) {
+                // Crear un registro de movimiento para este cambio de stock
+                const movimientoStock = {
+                    fecha: new Date().toISOString(),
+                    tipo: "ajuste",
+                    producto: productoNombre,
+                    cantidad: nuevoStock - producto.stock, // Positivo para incremento, negativo para decremento
+                    stockAnterior: producto.stock,
+                    stockNuevo: nuevoStock,
+                    motivo: "Restauración de stock desde panel de control"
+                };
+                
+                // Guardar el movimiento en la base de datos
+                await agregarMovimiento(movimientoStock);
+                
+                // Actualizar el stock del producto
+                producto.stock = nuevoStock;
+                await actualizarProducto(productoId, producto);
+                contadorActualizados++;
+            }
+        }
+        
+        // Mostrar mensaje de éxito
+        mostrarToast(`${contadorActualizados} producto(s) actualizados correctamente. ✅`, "success");
+        
+        // Cerrar el modal
+        cerrarModalRestaurarStock();
+        
+        // Recargar el dashboard para reflejar los cambios
+        await cargarDashboard();
+        
+    } catch (error) {
+        console.error("Error al restaurar stock:", error);
+        mostrarToast("Error al actualizar los productos. ❌", "error");
+    }
+}
+
 // --- Funciones Globales de Navegación y Sesión ---
 
 // Función para alternar el menú de navegación (movida aquí para ser global)
@@ -157,3 +316,5 @@ function toggleMenu() {
 // (DOMContentLoaded) o cuando se regrese a ella desde la caché del navegador (pageshow).
 window.addEventListener("pageshow", cargarDashboard);
 document.addEventListener("DOMContentLoaded", cargarDashboard);
+
+//---------------------------------------------------------------------------------------------------------
