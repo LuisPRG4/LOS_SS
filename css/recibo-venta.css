@@ -1,8 +1,3 @@
-/* 
-* Estilos específicos para el modal de recibo de venta
-* Complementa los estilos existentes en ventas.css
-*/
-
 /* Contenedor principal del modal */
 #modalRecibo {
     position: fixed;
@@ -83,7 +78,7 @@
 
 .recibo-empresa h3 {
     font-size: 1.4em;
-    color: #5b2d90;
+    color: #000000;
     margin: 0 0 5px;
 }
 
@@ -145,7 +140,7 @@
 
 .recibo-totales .total-final {
     font-size: 1.2em;
-    color: #5b2d90;
+    color: #000000;
     border-top: 1px double #d4af37;
     margin-top: 10px;
     padding-top: 10px;
