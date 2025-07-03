@@ -1296,3 +1296,106 @@ section button {
     display: block;
     margin-top: 4px;
 }
+
+/* KPI MODERNOS - GLASSMORPHISM */
+.kpi-box {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    padding: 28px 10px 18px 10px;
+    margin: 0 auto 30px auto;
+    max-width: 700px;
+    text-align: center;
+}
+.kpi-box h2 {
+    color: #3a3a3a;
+    font-size: 2rem;
+    margin-bottom: 18px;
+    letter-spacing: 1px;
+    font-family: 'Handlee', cursive;
+}
+.kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: center;
+}
+.kpi {
+    background: linear-gradient(135deg, rgba(255,255,255,0.55) 60%, rgba(173,216,230,0.25) 100%);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.10);
+    padding: 22px 18px 16px 18px;
+    min-width: 160px;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    position: relative;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    cursor: pointer;
+    /* Eliminar cualquier decorado superior */
+    overflow: hidden;
+}
+.kpi:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+    background: linear-gradient(135deg, rgba(255,255,255,0.75) 60%, rgba(173,216,230,0.35) 100%);
+}
+.kpi strong {
+    font-size: 1.08em;
+    color: #2d2d2d;
+    margin-bottom: 6px;
+    font-family: 'Handlee', cursive;
+}
+.kpi span {
+    font-size: 2em;
+    font-weight: bold;
+    color: #27ae60;
+    margin-top: 2px;
+    letter-spacing: 1px;
+    font-family: 'Segoe UI', sans-serif;
+}
+.kpi .kpi-icon {
+    font-size: 2.3em;
+    margin-bottom: 8px;
+    color: #6ec1e4;
+    filter: drop-shadow(0 2px 6px #b2ebf2);
+}
+.kpi .kpi-icon.ventas {
+    color: #6ec1e4;
+}
+.kpi .kpi-icon.semana {
+    color: #a58b36;
+}
+.kpi .kpi-icon.top {
+    color: #e67e22;
+}
+.kpi-pernos-adicionales {
+    display: none !important;
+}
+@media (max-width: 700px) {
+    .kpis {
+        flex-direction: column;
+        gap: 14px;
+    }
+    .kpi {
+        min-width: 0;
+        width: 100%;
+        padding: 16px 8px 12px 8px;
+        min-height: 80px;
+    }
+    .kpi .kpi-icon {
+        font-size: 2em;
+        margin-bottom: 6px;
+    }
+    .kpi strong {
+        font-size: 1em;
+    }
+    .kpi span {
+        font-size: 1.5em;
+    }
+}
