@@ -1,3 +1,8 @@
+/* 
+* Estilos específicos para el modal de recibo de venta
+* Complementa los estilos existentes en ventas.css
+*/
+
 /* Contenedor principal del modal */
 #modalRecibo {
     position: fixed;
@@ -239,4 +244,23 @@
         width: 100%;
         justify-content: center;
     }
-} 
+}
+
+/* Código de barras */
+.recibo-codigo-barras {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px 0;
+    border-top: 1px dashed #ccc;
+}
+
+.recibo-codigo-barras p {
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.recibo-codigo-barras svg {
+    width: 100%;
+    max-height: 60px;
+}
