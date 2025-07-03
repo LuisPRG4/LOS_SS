@@ -296,4 +296,47 @@
     width: 60%;
     margin: 0 auto 0 auto;
     height: 32px;
+}
+
+/* Observaciones/Notas en el recibo */
+.recibo-observaciones {
+    background: #fffbe6;
+    border-left: 4px solid #d4af37;
+    margin: 18px 0 10px 0;
+    padding: 10px 18px;
+    font-size: 0.98em;
+    color: #4b3500;
+    border-radius: 8px;
+    font-style: italic;
+}
+
+.recibo-folio-estado {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0 0 0;
+    font-size: 1.05em;
+    color: #5b2d90;
+}
+
+.recibo-folio-estado p {
+    margin: 0 10px 0 0;
+}
+
+.recibo-resumen-abonos {
+    background: #f0f8ff;
+    border-left: 4px solid #2196F3;
+    margin: 12px 0 0 0;
+    padding: 8px 16px;
+    font-size: 0.97em;
+    color: #1a237e;
+    border-radius: 8px;
+}
+
+.recibo-mensaje {
+    color: #27ae60;
+    font-size: 1.08em;
+    font-weight: bold;
+    margin-bottom: 6px;
+    margin-top: 8px;
+    text-align: center;
 } 
