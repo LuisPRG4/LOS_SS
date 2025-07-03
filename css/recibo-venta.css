@@ -272,9 +272,28 @@
     font-size: 0.8em;
     color: #666;
     margin-bottom: 5px;
+    font-weight: bold;
 }
 
 .recibo-codigo-barras svg {
     width: 100%;
     max-height: 60px;
+}
+
+/* Bloque de firma para ventas a crédito */
+.recibo-firma {
+    margin: 30px 0 10px 0;
+    text-align: center;
+}
+.firma-label {
+    color: #4b3500;
+    font-size: 0.95em;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+.firma-linea {
+    border-bottom: 2px solid #a58b36;
+    width: 60%;
+    margin: 0 auto 0 auto;
+    height: 32px;
 } 
