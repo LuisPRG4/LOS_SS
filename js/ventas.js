@@ -1813,6 +1813,14 @@ async function mostrarRecibo(id) {
             console.error("Error al generar código de barras:", barcodeError);
         }
         
+        // Mostrar espacio de firma solo si es venta a crédito
+        const firmaDiv = document.getElementById('recibo-firma');
+        if (venta.tipoPago === 'credito') {
+            firmaDiv.style.display = 'block';
+        } else {
+            firmaDiv.style.display = 'none';
+        }
+        
         // Mostrar el modal
         document.getElementById('modalRecibo').style.display = 'flex';
         
@@ -1948,6 +1956,8 @@ function imprimirRecibo() {
                     } catch (e) {
                         console.error("Error al recrear código de barras:", e);
                     }
+                    
+                    // Imprimir el recibo
                     window.print();
                 }
             </script>
@@ -1958,7 +1968,7 @@ function imprimirRecibo() {
     ventanaImpresion.document.close();
 }
 
-function guardarReciboPDF() {
+async function guardarReciboPDF() {
     try {
         // Utilizamos las librerías jsPDF y html2canvas ya cargadas
         if (typeof jspdf === 'undefined' || typeof html2canvas === 'undefined') {
@@ -2011,6 +2021,8 @@ function guardarReciboPDF() {
         } catch (e) {
             console.error("Error al regenerar código de barras para PDF:", e);
         }
+        
+
         
         html2canvas(recibo).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
