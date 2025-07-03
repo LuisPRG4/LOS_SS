@@ -1791,6 +1791,28 @@ async function mostrarRecibo(id) {
             document.getElementById('recibo-total-final').textContent = `$${total.toFixed(2)}`;
         }
         
+        // Generar código de barras
+        try {
+            // Crear un identificador único para el código de barras usando ID de venta y fecha
+            const codigoVenta = "SS" + id + new Date().getTime().toString().slice(-6);
+            
+            // Guardar el valor del código de barras como atributo data
+            document.getElementById("codigo-barras").setAttribute("data-value", codigoVenta);
+            
+            // Generar el código de barras
+            JsBarcode("#codigo-barras", codigoVenta, {
+                format: "CODE128",
+                lineColor: "#000",
+                width: 2,
+                height: 50,
+                displayValue: true,
+                fontSize: 16,
+                margin: 5
+            });
+        } catch (barcodeError) {
+            console.error("Error al generar código de barras:", barcodeError);
+        }
+        
         // Mostrar el modal
         document.getElementById('modalRecibo').style.display = 'flex';
         
@@ -1879,12 +1901,44 @@ function imprimirRecibo() {
                     body { margin: 0; }
                     button { display: none; }
                 }
+                .recibo-codigo-barras {
+                    text-align: center;
+                    margin-top: 15px;
+                    padding: 10px 0;
+                    border-top: 1px dashed #ccc;
+                }
+                .recibo-codigo-barras svg {
+                    width: 100%;
+                    max-height: 60px;
+                }
             </style>
+            <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
         </head>
         <body>
             ${recibo}
             <script>
-                window.onload = function() { window.print(); }
+                window.onload = function() {
+                    // Recrear el código de barras en la ventana de impresión
+                    try {
+                        const codigoBarras = document.querySelector("#codigo-barras");
+                        if (codigoBarras) {
+                            const codigoValor = codigoBarras.getAttribute("data-value") || 
+                                              "SS" + new Date().getTime().toString().slice(-8);
+                            JsBarcode(codigoBarras, codigoValor, {
+                                format: "CODE128",
+                                lineColor: "#000",
+                                width: 2,
+                                height: 50,
+                                displayValue: true,
+                                fontSize: 16,
+                                margin: 5
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error al recrear código de barras:", e);
+                    }
+                    window.print();
+                }
             </script>
         </body>
         </html>
@@ -1926,6 +1980,26 @@ function guardarReciboPDF() {
         
         // Mostrar mensaje de carga
         mostrarToast("⏳ Generando PDF...", "info");
+        
+        // Asegurarse de que el código de barras está visible para la captura
+        try {
+            const codigoBarras = document.getElementById("codigo-barras");
+            if (codigoBarras && !codigoBarras.innerHTML.trim()) {
+                const codigoValor = codigoBarras.getAttribute("data-value") || 
+                                  "SS" + new Date().getTime().toString().slice(-8);
+                JsBarcode("#codigo-barras", codigoValor, {
+                    format: "CODE128",
+                    lineColor: "#000",
+                    width: 2,
+                    height: 50,
+                    displayValue: true,
+                    fontSize: 16,
+                    margin: 5
+                });
+            }
+        } catch (e) {
+            console.error("Error al regenerar código de barras para PDF:", e);
+        }
         
         html2canvas(recibo).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
