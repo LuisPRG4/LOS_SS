@@ -190,7 +190,8 @@ async function registrarVenta() {
         ganancia,
         fecha: obtenerFechaVenta(),
         montoPendiente: montoPendiente,
-        estadoPago: estadoPago
+        estadoPago: estadoPago,
+        observaciones: document.getElementById('observacionesVenta').value.trim()
     };
 
     try {
@@ -1721,7 +1722,26 @@ async function mostrarRecibo(id) {
         document.getElementById('recibo-fecha-venta').textContent = fechaVenta;
         document.getElementById('recibo-num-venta').textContent = id;
         document.getElementById('recibo-tipo-pago').textContent = venta.tipoPago === 'contado' ? 'Contado' : 'Crédito';
-        document.getElementById('recibo-metodo-pago').textContent = venta.detallePago?.metodo || 'No especificado';
+        // Método de pago destacado y lógica de visibilidad
+        const metodoPago = venta.detallePago?.metodo || 'No especificado';
+        document.getElementById('recibo-metodo-pago').textContent = metodoPago;
+        const metodoDetallado = venta.detallePago?.metodo || '';
+        const metodoDetalladoRow = document.getElementById('recibo-metodo-detallado-row');
+        const metodoDetalladoSpan = document.getElementById('recibo-metodo-pago-detalle');
+        if (venta.tipoPago === 'contado') {
+            // Solo mostrar método de pago, ocultar el detallado
+            metodoDetalladoRow.style.display = 'none';
+        } else if (venta.tipoPago === 'credito') {
+            // Mostrar ambos solo si son diferentes y ambos tienen valor
+            if (metodoDetallado && metodoDetallado !== metodoPago) {
+                metodoDetalladoSpan.textContent = metodoDetallado;
+                metodoDetalladoRow.style.display = 'block';
+            } else {
+                metodoDetalladoRow.style.display = 'none';
+            }
+        } else {
+            metodoDetalladoRow.style.display = 'none';
+        }
         
         // Fecha de vencimiento (solo para crédito)
         const vencimientoContainer = document.getElementById('recibo-vencimiento-container');
@@ -1823,6 +1843,55 @@ async function mostrarRecibo(id) {
         
         // Mostrar el modal
         document.getElementById('modalRecibo').style.display = 'flex';
+        
+        // Mostrar observaciones en el recibo
+        const obsDiv = document.getElementById('recibo-observaciones');
+        if (obsDiv) {
+            if (venta.observaciones && venta.observaciones.trim() !== "") {
+                obsDiv.textContent = venta.observaciones;
+                obsDiv.style.display = 'block';
+            } else {
+                obsDiv.style.display = 'none';
+            }
+        }
+
+        // Teléfono de contacto del negocio (ejemplo)
+        document.getElementById('recibo-telefono').textContent = '+58 424-0000000';
+
+        // Estado de la venta
+        document.getElementById('recibo-estado').textContent = venta.estadoPago;
+
+        // Método de pago destacado
+        document.getElementById('recibo-metodo-pago-detalle').textContent = venta.detallePago?.metodo || 'No especificado';
+
+        // Mensaje personalizado
+        document.getElementById('recibo-mensaje').textContent = '¡Gracias por tu compra y preferencia!';
+
+        // Código de venta/folio destacado
+        document.getElementById('recibo-folio').textContent = id;
+
+        // Mini resumen de abonos (solo para crédito)
+        const resumenAbonosDiv = document.getElementById('recibo-resumen-abonos');
+        if (venta.tipoPago === 'credito') {
+            try {
+                const abonos = await obtenerAbonosPorPedidoId(id);
+                if (abonos && abonos.length > 0) {
+                    let html = '<strong>Abonos realizados:</strong><ul style="margin:0; padding-left:18px;">';
+                    abonos.forEach(a => {
+                        html += `<li>${a.fechaAbono || ''}: $${a.montoAbonado.toFixed(2)} (${a.formaPago || ''})</li>`;
+                    });
+                    html += '</ul>';
+                    resumenAbonosDiv.innerHTML = html;
+                    resumenAbonosDiv.style.display = 'block';
+                } else {
+                    resumenAbonosDiv.style.display = 'none';
+                }
+            } catch (e) {
+                resumenAbonosDiv.style.display = 'none';
+            }
+        } else {
+            resumenAbonosDiv.style.display = 'none';
+        }
         
     } catch (error) {
         console.error("Error al mostrar recibo:", error);
