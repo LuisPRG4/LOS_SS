@@ -68,11 +68,37 @@
     <section class="alertas">
       <h2>⚠️ Alertas de Stock Bajo</h2>
       <ul id="alertasStock"></ul>
+      <button id="btnRestaurarStock" class="btn-restaurar-stock" style="display: none;">Restaurar Stock de Productos Seleccionados</button>
     </section>
 
-    <section class="dashboard-section golden-decorated-form">
-      <h2 class="dashboard-title">✨ Panel de Control</h2>
+    <!-- Modal para restaurar stock -->
+    <div id="modalRestaurarStock" class="modal-stock">
+      <div class="modal-content golden-decorated-form">
+        <span class="close-modal">&times;</span>
+        <h2>🔄 Restaurar Stock de Productos</h2>
+        <p>Selecciona los productos que deseas actualizar:</p>
+        
+        <div class="productos-lista-stock">
+          <ul id="listaProductosStock"></ul>
+        </div>
+        
+        <div class="form-group">
+          <label for="nuevoStock">Nuevo valor de stock:</label>
+          <input type="number" id="nuevoStock" min="1" value="10" class="form-control">
+        </div>
+        
+        <div class="modal-actions">
+          <button id="btnCancelarRestauracion" class="btn-cancelar">Cancelar</button>
+          <button id="btnConfirmarRestauracion" class="btn-confirmar">Actualizar Stock</button>
+        </div>
+      </div>
+    </div>
 
+    <!-- NUEVA SECCIÓN: PANEL DE CONTROL -->
+    <section class="dashboard-section golden-decorated-form">
+      <h2 class="dashboard-title">⚙️ Panel de Control</h2>
+      
+      <!-- Accesos Rápidos -->
       <div class="quick-access">
         <h3>⚡ Accesos Rápidos</h3>
         <div class="quick-buttons">
@@ -97,12 +123,17 @@
             <span>Actualizaciones</span>
           </a>
           <a href="datos.html" class="quick-button">
-            <div class="quick-icon">💾</div> 
+            <div class="quick-icon">💾</div>
             <span>Respaldar Datos</span>
+          </a>
+          <a href="cuentas-por-cobrar.html" class="quick-button">
+            <div class="quick-icon">💸</div>
+            <span>Cuentas</span>
           </a>
         </div>
       </div>
       
+      <!-- Consejos del Día -->
       <div class="daily-tip">
         <h3>💡 Consejo del Día</h3>
         <div class="tip-content" id="dailyTip">
@@ -111,6 +142,7 @@
         <button id="newTipBtn" class="btn-tip">Mostrar otro consejo</button>
       </div>
       
+      <!-- Actividad Reciente -->
       <div class="recent-activity">
         <h3>🔔 Actividad Reciente</h3>
         <div class="activity-timeline" id="activityTimeline">
@@ -118,6 +150,7 @@
         </div>
       </div>
 
+       <!-- Notas Rápidas y Recordatorios -->
       <div class="quick-notes">
         <h3>📝 Recordatorios</h3>
         <div class="notes-container">
@@ -146,6 +179,7 @@
       document.getElementById("navMenu").classList.toggle("open");
     }
 
+    // Esta parte es importante si tu login.html y manejo de sesión están activos
     if (sessionStorage.getItem("sesionIniciada") !== "true") {
       window.location.href = "login.html";
     }
@@ -156,6 +190,7 @@
     }
   </script>
 
+    <!-- FORZAR ACTUALIZACIÓN DEL SERVICE-WORKER-->
     <button id="update-app-button">Actualizar Aplicación</button>
 
   <div id="button" class="button-sesion">
