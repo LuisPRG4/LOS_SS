@@ -39,7 +39,7 @@
 
 .modern-card .card-header h3 {
     font-size: 1.5em; /* Título principal más grande */
-    color: #5b2d90; /* Tu color púrpura principal */
+    color: #000000; /* Tu color púrpura principal */
     margin: 0;
     flex-grow: 1; /* Permite que el título crezca */
 }
