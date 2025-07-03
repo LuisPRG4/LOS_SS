@@ -87,6 +87,9 @@
 
   <p><strong>Total:</strong> $<span id="totalVenta">0.00</span></p>
 
+  <label for="observacionesVenta">Observaciones / Notas:</label>
+  <textarea id="observacionesVenta" rows="3" placeholder="Escribe aquí cualquier comentario, condición especial o nota para el cliente..."></textarea>
+
   <label>Condición de Pago:</label>
   <select id="tipoPago" onchange="mostrarOpcionesPago()">
     <option value="">Condición</option>
@@ -321,9 +324,14 @@
                 </div>
                 <h3>Salazar</h3>
                 <p>Management System</p>
+                <p><strong>Teléfono:</strong> <span id="recibo-telefono"></span></p>
                 <p>Fecha de impresión: <span id="recibo-fecha-actual"></span></p>
             </div>
             
+            <div class="recibo-folio-estado">
+                <p><strong>Folio:</strong> <span id="recibo-folio"></span></p>
+                <p><strong>Estado:</strong> <span id="recibo-estado"></span></p>
+            </div>
             <div class="recibo-cliente-info">
                 <p><span>Cliente:</span> <span id="recibo-cliente"></span></p>
                 <p><span>Fecha de venta:</span> <span id="recibo-fecha-venta"></span></p>
@@ -333,8 +341,11 @@
             <div class="recibo-detalles">
                 <p><span>Condición de pago:</span> <span id="recibo-tipo-pago"></span></p>
                 <p><span>Método de pago:</span> <span id="recibo-metodo-pago"></span></p>
+                <p id="recibo-metodo-detallado-row"><span>Método detallado:</span> <span id="recibo-metodo-pago-detalle"></span></p>
                 <p id="recibo-vencimiento-container" style="display: none;"><span>Fecha de vencimiento:</span> <span id="recibo-fecha-vencimiento"></span></p>
             </div>
+            
+            <div class="recibo-observaciones" id="recibo-observaciones" style="display:none;"></div>
             
             <table class="recibo-productos">
                 <thead>
@@ -354,6 +365,7 @@
                 <p><span>Total:</span> <span id="recibo-total">$0.00</span></p>
                 <p id="recibo-monto-pendiente-container" style="display: none;"><span>Monto pendiente:</span> <span id="recibo-monto-pendiente">$0.00</span></p>
                 <p class="total-final"><span>TOTAL A PAGAR:</span> <span id="recibo-total-final">$0.00</span></p>
+                <div class="recibo-resumen-abonos" id="recibo-resumen-abonos" style="display:none;"></div>
             </div>
             
             <div class="recibo-codigo-barras">
@@ -367,8 +379,9 @@
             </div>
             
             <div class="recibo-footer">
-                <p>¡Gracias por tu compra!</p>
-                <p>Salazar - Management System</p>
+                <div class="recibo-mensaje" id="recibo-mensaje"></div>
+                <!-- <p>¡Gracias por tu compra!</p> -->
+                <p>Salazar - Management System</p> 
             </div>
         </div>
         
