@@ -1834,7 +1834,7 @@ function imprimirRecibo() {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Recibo de Venta - Los SS</title>
+            <title>Recibo de Venta - Salazar</title>
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -1847,10 +1847,21 @@ function imprimirRecibo() {
                     border-bottom: 1px dashed #ccc;
                     padding-bottom: 10px;
                 }
+                .recibo-logo {
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 10px;
+                }
+                .logo-recibo {
+                    max-width: 180px;
+                    height: auto;
+                    margin: 0 auto 8px;
+                }
                 .recibo-empresa h3 {
                     font-size: 1.4em;
-                    color: #5b2d90;
+                    color: #d4af37;
                     margin: 0 0 5px;
+                    font-weight: bold;
                 }
                 .recibo-productos {
                     width: 100%;
@@ -2014,8 +2025,8 @@ function guardarReciboPDF() {
             
             // Agregar logo o título
             pdf.setFontSize(20);
-            pdf.setTextColor(91, 45, 144);
-            pdf.text('Los SS - Recibo de Venta', pdfWidth / 2, 20, { align: 'center' });
+            pdf.setTextColor(212, 175, 55); // Color dorado para combinar con el logo
+            pdf.text('Salazar - Recibo de Venta', pdfWidth / 2, 20, { align: 'center' });
             
             pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
             pdf.save(nombreArchivo);
