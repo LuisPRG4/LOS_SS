@@ -2,6 +2,8 @@
 
 let clientes = []; // Ahora se inicializa vacío, los datos se cargarán desde IndexedDB
 let editClienteId = null; // Cambiamos de index a ID para edición
+let ultimoClienteHistorialId = null;
+let ultimoBotonHistorial = null;
 
 // La función mostrarToast ya está definida en db.js y se hace global (window.mostrarToast)
 // así que puedes eliminar esta definición local si quieres, o dejarla si prefieres una versión específica para clientes.
@@ -37,7 +39,7 @@ function renderizarClientes(listaClientes) {
         card.innerHTML = `
             <div class="card-header">
                 <h3 title="${cliente.nombre}">${cliente.nombre}</h3>
-                </div>
+            </div>
             <div class="card-content">
                 <p><strong>Dirección:</strong> ${cliente.direccion || "No especificada"}</p>
                 <p><strong>Teléfono:</strong> ${cliente.telefono || "No especificado"}</p>
@@ -45,6 +47,7 @@ function renderizarClientes(listaClientes) {
                 ${cliente.nota ? `<p class="nota-cliente">📝 <strong>Nota:</strong> ${cliente.nota}</p>` : ''}
             </div>
             <div class="card-actions">
+                <button onclick="mostrarHistorialCompras(${cliente.id}, '${cliente.nombre.replace(/'/g, "\\'")}', this)" class="btn btn-utility">🛒 Historial</button>
                 <button onclick="editarCliente(${cliente.id})" class="btn-edit">✏️ Editar</button>
                 <button onclick="eliminarClienteDesdeUI(${cliente.id})" class="btn-delete">🗑️ Eliminar</button>
             </div>
@@ -52,7 +55,6 @@ function renderizarClientes(listaClientes) {
         lista.appendChild(card);
     });
 }
-
 
 async function manejarGuardarCliente() {
     const nombre = document.getElementById("nombreCliente").value.trim();
@@ -410,4 +412,75 @@ document.getElementById("cerrarAyuda").addEventListener("click", () => {
 // Este bloque de redirección debería ir al inicio del script o en un archivo dedicado a la seguridad
 if (sessionStorage.getItem("sesionIniciada") !== "true") {
     window.location.href = "login.html";
+}
+
+// Nueva función para mostrar el historial de compras de un cliente
+window.mostrarHistorialCompras = async function(clienteId, clienteNombre, boton) {
+    const section = document.getElementById('historialComprasSection');
+    const nombreSpan = document.getElementById('nombreClienteHistorial');
+    const tablaBody = document.querySelector('#tablaHistorialCompras tbody');
+
+    // Si ya está abierto para este cliente, ocultar y hacer scroll al botón
+    if (section.style.display !== 'none' && ultimoClienteHistorialId === clienteId) {
+        section.style.display = 'none';
+        ultimoClienteHistorialId = null;
+        if (boton) {
+            setTimeout(() => {
+                boton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+        return;
+    }
+    // Mostrar para el nuevo cliente
+    ultimoClienteHistorialId = clienteId;
+    ultimoBotonHistorial = boton;
+    nombreSpan.textContent = clienteNombre;
+    tablaBody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+    section.style.display = 'block';
+
+    setTimeout(() => {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+
+    let ventas = [];
+    if (window.obtenerTodasLasVentas) {
+        ventas = await window.obtenerTodasLasVentas();
+    }
+    const ventasCliente = ventas.filter(v => v.cliente && v.cliente.toLowerCase() === clienteNombre.toLowerCase());
+    tablaBody.innerHTML = '';
+    if (ventasCliente.length === 0) {
+        tablaBody.innerHTML = '<tr><td colspan="4">No hay compras registradas para este cliente.</td></tr>';
+        return;
+    }
+    ventasCliente.forEach(venta => {
+        const fila = document.createElement('tr');
+        fila.className = 'historial-row';
+        // Formatear fecha a 12 horas
+        let fecha = '';
+        if (venta.fecha) {
+            const d = new Date(venta.fecha);
+            let horas = d.getHours();
+            const minutos = d.getMinutes().toString().padStart(2, '0');
+            const ampm = horas >= 12 ? 'pm' : 'am';
+            horas = horas % 12;
+            horas = horas ? horas : 12;
+            const dia = d.getDate().toString().padStart(2, '0');
+            const mes = (d.getMonth() + 1).toString().padStart(2, '0');
+            const anio = d.getFullYear();
+            fecha = `${dia}/${mes}/${anio} ${horas}:${minutos}${ampm}`;
+        }
+        // Productos en lista
+        const productos = (venta.productos || []).map(p => `<li>${p.nombre} x${p.cantidad}</li>`).join('');
+        // Total como moneda
+        const total = venta.ingreso != null ? `$${venta.ingreso.toFixed(2)}` : '';
+        // Tipo de pago como badge
+        const tipoPago = venta.tipoPago ? `<span class="badge-tipo-pago">${venta.tipoPago.charAt(0).toUpperCase() + venta.tipoPago.slice(1)}</span>` : '';
+        fila.innerHTML = `
+            <td class="col-fecha">${fecha}</td>
+            <td class="col-productos"><ul class="productos-lista">${productos}</ul></td>
+            <td class="col-total">${total}</td>
+            <td class="col-tipopago">${tipoPago}</td>
+        `;
+        tablaBody.appendChild(fila);
+    });
 }
