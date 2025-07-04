@@ -206,23 +206,24 @@
 
 /* --- Estilos base para los botones de utilidad (re-definiendo .btn-utility) --- */
 .btn-utility {
-    flex: 1 1 auto;
-    min-width: 250px;
-    max-width: 300px;
-    padding: 16px 24px; /* Ajuste el padding para la nueva forma */
-    font-size: 1.05em; /* Un poco más pequeño para el nuevo look */
-    font-weight: 600; /* Más peso para el texto */
-    border: none; /* Quitamos el borde por defecto */
-    border-radius: 25px; /* ¡Forma ovalada/pill! */
+    flex: 0 0 auto;
+    min-width: 120px;
+    max-width: 220px;
+    width: auto;
+    padding: 16px 24px;
+    font-size: 1.05em;
+    font-weight: 600;
+    border: none;
+    border-radius: 25px;
     cursor: pointer;
-    transition: all 0.3s ease-in-out; /* Transición más moderna */
+    transition: all 0.3s ease-in-out;
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    color: #333; /* Color de texto oscuro por defecto para los nuevos botones */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-    white-space: nowrap; /* Evita saltos de línea inesperados */
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
 }
 
 /* Iconos dentro de los botones */
@@ -310,7 +311,7 @@
         flex-direction: column;
         align-items: center;
     }
-    .btn-utility { /* Asegúrate de que este selector sea correcto para tus botones */
+    .btn-utility {
         width: 80%;
         max-width: 90%;
     }
@@ -319,5 +320,122 @@
     }
     .inventory-utilities h2 {
         font-size: 1.7em;
+    }
+}
+
+/* === HISTORIAL DE COMPRAS === */
+#historialComprasSection {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    background: #fffbe7;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(212, 175, 55, 0.10);
+    padding: 32px 18px 24px 18px;
+    border: 2px solid #ffe066;
+}
+
+#historialComprasSection h2 {
+    color: #b48a00;
+    font-size: 1.6em;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.07);
+    margin-bottom: 0;
+}
+.styled-table th, .styled-table td {
+    padding: 12px 10px;
+    text-align: left;
+    font-size: 1em;
+}
+.styled-table th {
+    background: #ffe066;
+    color: #7c5a00;
+    font-weight: 700;
+    border-bottom: 2px solid #ffe066;
+}
+.styled-table td {
+    border-bottom: 1px solid #f5e6b0;
+    vertical-align: top;
+}
+.styled-table tr:last-child td {
+    border-bottom: none;
+}
+
+.historial-row:hover {
+    background: #fff9d6;
+    transition: background 0.2s;
+}
+
+.col-fecha {
+    min-width: 120px;
+    max-width: 140px;
+    color: #7c5a00;
+    font-weight: 500;
+    text-align: left;
+}
+.col-productos {
+    min-width: 160px;
+    max-width: 220px;
+}
+.productos-lista {
+    margin: 0;
+    padding-left: 18px;
+    list-style: disc;
+    color: #444;
+    font-size: 0.98em;
+}
+.col-total {
+    min-width: 90px;
+    text-align: right;
+    font-weight: 600;
+    color: #1a7f37;
+    vertical-align: middle;
+}
+.col-tipopago {
+    min-width: 90px;
+    text-align: center;
+    vertical-align: middle;
+}
+.badge-tipo-pago {
+    display: inline-block;
+    background: #ffe066;
+    color: #7c5a00;
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-size: 0.95em;
+    font-weight: 600;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    box-shadow: 0 1px 3px rgba(212, 175, 55, 0.08);
+}
+.col-vacia {
+    width: 1px;
+    padding: 0;
+    border: none;
+}
+
+@media (max-width: 600px) {
+    #historialComprasSection {
+        padding: 12px 2px 10px 2px;
+        max-width: 99vw;
+    }
+    .styled-table th, .styled-table td {
+        padding: 7px 4px;
+        font-size: 0.97em;
+    }
+    .col-fecha, .col-productos, .col-total {
+        min-width: unset;
+        max-width: unset;
+        font-size: 0.97em;
     }
 }
