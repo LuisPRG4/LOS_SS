@@ -93,6 +93,8 @@ const urlsToCache = [
   `${REPO_PREFIX}logo/DiaDelPadre.png`,
   `${REPO_PREFIX}logo/LOS SS.png`,
   `${REPO_PREFIX}logo/Yogurt.png`,
+  `${REPO_PREFIX}logo/EMPRESA.png`,
+  `${REPO_PREFIX}logo/LOGIN.png`,
 
   // Resources:
   `${REPO_PREFIX}resources/GPT.png`,
