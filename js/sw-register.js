@@ -3,6 +3,17 @@
 let newWorker;
 let refreshing = false;
 
+// Función para determinar la ruta base según el entorno (local o GitHub Pages)
+function getBasePath() {
+    // Verificar si estamos en GitHub Pages o en local
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    if (isGitHubPages) {
+        return '/Los_SS/';
+    } else {
+        return '/';
+    }
+}
+
 // Función para forzar la actualización del Service Worker
 async function forceUpdate() {
     if ('serviceWorker' in navigator) {
@@ -41,7 +52,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if ('serviceWorker' in navigator) {
         try {
-            const registration = await navigator.serviceWorker.register('/Los_SS/service-worker.js');
+            const basePath = getBasePath();
+            const registration = await navigator.serviceWorker.register(basePath + 'service-worker.js');
             console.log('Service Worker registrado:', registration);
 
             // Verificar actualizaciones inmediatamente
