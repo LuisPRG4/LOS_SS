@@ -1856,7 +1856,7 @@ async function mostrarRecibo(id) {
         }
 
         // Teléfono de contacto del negocio (ejemplo)
-        document.getElementById('recibo-telefono').textContent = '+58 424-0000000';
+        document.getElementById('recibo-telefono').textContent = '+58 416-6963821';
 
         // Estado de la venta
         document.getElementById('recibo-estado').textContent = venta.estadoPago;
@@ -2090,8 +2090,6 @@ async function guardarReciboPDF() {
         } catch (e) {
             console.error("Error al regenerar código de barras para PDF:", e);
         }
-        
-
         
         html2canvas(recibo).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
