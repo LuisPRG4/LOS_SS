@@ -21,7 +21,7 @@ body {
   align-items: center;
   height: 100vh;
   /* Fondo con tu imagen local: ¡RUTA CORREGIDA AQUÍ! */
-  background: url('../resources/ORO.jpg') no-repeat center center fixed;
+  background: url('../resources/ORO PURO Y PLATA.jpg') no-repeat center center fixed;
   background-size: cover;
   animation: brillo 10s ease-in-out infinite alternate;
 }
@@ -358,4 +358,20 @@ main * {
     background: linear-gradient(180deg, #FFC107, #FFEB3B);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Estilos para el logo */
+.logo {
+    display: block; /* Para que ocupe una línea completa y podamos centrarlo */
+    max-width: 200px; /* Ajusta el tamaño máximo según necesites */
+    height: auto; /* Para mantener la proporción */
+    margin: 0 auto 20px auto; /* Centrar horizontalmente y añadir un poco de margen inferior */
+}
+
+/* Estilos para el texto del sistema */
+#texto-sistema {
+    font-size: 0.8em;
+    color: #666; /* Un color gris claro */
+    text-align: center;
+    margin-top: 20px;
 }
