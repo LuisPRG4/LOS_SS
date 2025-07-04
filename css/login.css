@@ -21,7 +21,7 @@ body {
   align-items: center;
   height: 100vh;
   /* Fondo con tu imagen local: ¡RUTA CORREGIDA AQUÍ! */
-  background: url('../resources/ORO.jpg') no-repeat center center fixed;
+  background: url('../resources/ORO PURO Y PLATA.jpg') no-repeat center center fixed;
   background-size: cover;
   animation: brillo 10s ease-in-out infinite alternate;
 }
@@ -197,9 +197,11 @@ button:active {
   main {
     margin: 1rem;
     padding: 1.5rem;
+    font-family: 'Playfair Display';
   }
   .titulo {
     font-size: 2rem;
+    font-family: 'Playfair Display';
   }
 }
 
@@ -242,4 +244,118 @@ main * {
 @keyframes deslizarBrillo {
   0% { transform: translate(0, 0); }
   100% { transform: translate(50%, 50%); }
+}
+
+/* --- Estilos para la Confirmación Personalizada --- */
+.custom-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Un poco más oscuro para que el oro resalte */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+
+.custom-confirm-overlay.show {
+    opacity: 1;
+}
+
+.custom-confirm-box {
+    /* Aquí el toque de oro y metal */
+    background: linear-gradient(145deg, #FFD700, #DAA520, #B8860B); /* Gradiente de oro */
+    color: #4B4A48; /* Texto oscuro que contraste con el oro, un gris metálico */
+    padding: 30px;
+    border-radius: 15px; /* Un poco más redondeado para un look premium */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), /* Sombra más pronunciada */
+                inset 0 2px 5px rgba(255, 255, 255, 0.5), /* Brillo superior */
+                inset 0 -2px 5px rgba(0, 0, 0, 0.3); /* Sombra inferior para profundidad */
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s ease-in-out;
+    border: 1px solid rgba(255, 215, 0, 0.5); /* Borde sutil de oro */
+}
+
+.custom-confirm-overlay.show .custom-confirm-box {
+    transform: scale(1);
+}
+
+.custom-confirm-box h3 {
+    margin-top: 0;
+    font-size: 1.6rem; /* Un poco más grande */
+    color: #FFFFFF; /* Título blanco para resaltar sobre el oro */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Sombra para el texto del título */
+    margin-bottom: 20px;
+}
+
+.custom-confirm-box p {
+    font-size: 1.15rem; /* Un poco más grande para mejor lectura */
+    margin-bottom: 30px;
+    line-height: 1.6;
+    color: #363636; /* Color de texto más oscuro para el cuerpo del mensaje */
+}
+
+.custom-confirm-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+/*Confimación mejorada */
+.custom-confirm-buttons button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease; /* Transición para todos los cambios al pasar el ratón */
+    flex: 1;
+    text-transform: uppercase; /* Mayúsculas para un toque elegante */
+    letter-spacing: 0.5px;
+    font-weight: bold;
+}
+
+.custom-confirm-buttons button.confirm-yes {
+    background-color: #4CAF50; /* Verde brillante para confirmar */
+    color: white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.custom-confirm-buttons button.confirm-yes:hover {
+    background-color: #45a049;
+    transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.custom-confirm-buttons button.confirm-no {
+    background-color: #f44336; /* Rojo para cancelar */
+    color: white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.custom-confirm-buttons button.confirm-no:hover {
+    background-color: #da190b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.custom-confirm-buttons button {
+    background: linear-gradient(180deg, #FFEB3B, #FFC107);
+    color: #4B4A48;
+    border: 1px solid #FFD700;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 1px 3px rgba(255,255,255,0.4);
+}
+
+.custom-confirm-buttons button:hover {
+    background: linear-gradient(180deg, #FFC107, #FFEB3B);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
