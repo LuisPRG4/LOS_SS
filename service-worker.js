@@ -1,4 +1,4 @@
-const CACHE_NAME = "los-ss-cache-v4";
+const CACHE_NAME = "los-ss-cache-v5";
 const APP_VERSION = "1.0.4";
 const REPO_PREFIX = '/Los_SS/';
 
