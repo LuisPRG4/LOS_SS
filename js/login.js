@@ -1,5 +1,3 @@
-// js/login.js
-
 // ------------------ ENCRIPTAR CONTRASEÑA ------------------
 async function hash(texto) {
   const encoder = new TextEncoder();
@@ -159,8 +157,10 @@ async function intentarLoginORegistroBiometrico() {
 
         if (!credencialesGuardadas || !credencialesGuardadas.credId) {
             // Solo ofrecer registro si no hay credenciales guardadas previamente
-            const confirmarRegistro = confirm("No se encontró biometría registrada. ¿Deseas registrarla ahora para futuros inicios de sesión?");
-            if (confirmarRegistro) {
+            const confirmarRegistro = await mostrarConfirmacion(
+              "No se encontró biometría registrada. ¿Deseas registrarla ahora para futuros inicios de sesión?",
+              "Registro de Biometría" // Título del cuadro de confirmación
+);            if (confirmarRegistro) {
                 await registrarBiometria(); // Intentar registrar
                 // Después de registrar, podríamos intentar autenticar de nuevo si es deseado
                 // o simplemente esperar a que el usuario haga clic de nuevo.
@@ -171,6 +171,57 @@ async function intentarLoginORegistroBiometrico() {
         }
     }
     // Si la autenticación fue exitosa, autenticarBiometria ya redirigió
+}
+
+// ------------------ FUNCIÓN PARA MOSTRAR CONFIRMACIÓN PERSONALIZADA ------------------
+function mostrarConfirmacion(mensaje, titulo = "¿Estás seguro?") {
+    return new Promise((resolve) => {
+        const overlay = document.createElement("div");
+        overlay.className = "custom-confirm-overlay";
+
+        const confirmBox = document.createElement("div");
+        confirmBox.className = "custom-confirm-box";
+
+        confirmBox.innerHTML = `
+            <h3>${titulo}</h3>
+            <p>${mensaje}</p>
+            <div class="custom-confirm-buttons">
+                <button class="confirm-yes">Sí</button>
+                <button class="confirm-no">No</button>
+            </div>
+        `;
+
+        overlay.appendChild(confirmBox);
+        document.body.appendChild(overlay);
+
+        // Forzar reflow para que la transición de opacidad y escala funcione
+        void overlay.offsetWidth;
+        overlay.classList.add("show");
+
+        const btnYes = confirmBox.querySelector(".confirm-yes");
+        const btnNo = confirmBox.querySelector(".confirm-no");
+
+        btnYes.addEventListener("click", () => {
+            overlay.classList.remove("show");
+            overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
+            resolve(true); // Resuelve la promesa con 'true' si el usuario confirma
+        });
+
+        btnNo.addEventListener("click", () => {
+            overlay.classList.remove("show");
+            overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
+            resolve(false); // Resuelve la promesa con 'false' si el usuario cancela
+        });
+
+        // Permitir cerrar si se hace clic fuera del cuadro (opcional, pero mejora UX)
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove("show");
+                overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
+                resolve(false); // Considerar como "No" si hace clic fuera
+            }
+        });
+    });
 }
 
 //Función Mostrar Toast
