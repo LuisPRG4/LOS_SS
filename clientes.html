@@ -42,7 +42,6 @@
       <li><a href="finanzas.html">💰 Finanzas</a></li>
       <li><a href="novedades.html">🐶 Novedades</a></li>
       <li><a href="pedidos.html">📦 Pedidos</a></li>
-      <li><a href="datos.html">💾 Datos</a></li>
     </ul>
   </nav>
 
@@ -72,14 +71,14 @@
     <h2>Herramientas de Clientes</h2>
     <div class="utility-buttons">
         <button id="exportarClientesBtn" class="btn btn-utility">
-            <i class="fas fa-file-export"></i> Exportar Clientes (JSON)
+            <i class="fas fa-file-export"></i> Exportar Clientes
         </button>
         <label for="importarClientesInput" class="btn btn-utility file-upload-label">
-            <i class="fas fa-file-import"></i> Importar Clientes (JSON)
+            <i class="fas fa-file-import"></i> Importar Clientes
             <input type="file" id="importarClientesInput" accept=".json" style="display: none;">
         </label>
         <button id="descargarPlantillaClientesBtn" class="btn btn-utility">
-            <i class="fas fa-download"></i> Descargar Plantilla (JSON)
+            <i class="fas fa-download"></i> Descargar Plantilla
         </button>
     </div>
 </section>
@@ -106,7 +105,26 @@
   </div>
 
   <!-- Lista de clientes -->
+  <!-- Cambiado de <ul> a <div> y añadida clase para layout de cuadrícula -->
   <div id="listaClientes" class="clientes-grid"></div>
+</section>
+
+<!-- Sección de historial de compras del cliente seleccionado -->
+<section id="historialComprasSection" class="golden-decorated-form" style="display:none; margin-top: 30px;">
+  <h2>🧾 Historial de Compras de <span id="nombreClienteHistorial"></span></h2>
+  <table id="tablaHistorialCompras" class="styled-table">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Productos</th>
+        <th>Total</th>
+        <th>Tipo de Pago</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Aquí se llenarán las compras del cliente -->
+    </tbody>
+  </table>
 </section>
 
     <!-- Ayuda contextual para Clientes -->
@@ -131,12 +149,13 @@
     <button id="cerrarAyuda">Cerrar Ayuda</button>
   </section>
 
-  <!-- Mini menú lateral con botón de flecha -->
+  <!-- Mini menú lateral con botón de flechita -->
 <div id="miniMenuLateral" class="expandido">
   <button id="btnAyudaFlotante" class="miniBoton dorado" title="Ayuda">❔</button>
   <button id="btnChatbot" class="miniBoton dorado" title="Chatbot">💬</button>
   <button id="toggleMiniMenu" class="miniBoton dorado toggleArrow" title="Ocultar menú">➡️</button>
 </div>
+
 
   <div id="panelChatbot">
   <button class="cerrarBtn" id="cerrarChatbot">×</button>
