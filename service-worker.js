@@ -99,6 +99,7 @@ const urlsToCache = [
   // Resources:
   `${REPO_PREFIX}resources/GPT.png`,
   `${REPO_PREFIX}resources/ICONO BOLSITA.png`,
+  `${REPO_PREFIX}resources/ORO.png`,
 ];
 
 function isCriticalFile(url) {
