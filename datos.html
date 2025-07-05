@@ -9,8 +9,7 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/datos.css" />
-  <link rel="stylesheet" href="css/form-decoration.css" />
+  <link rel="stylesheet" href="css/tailwind.min.css" />
   <link rel="stylesheet" href="css/update-button.css" />
   
 </head>
@@ -47,42 +46,54 @@
 
   <main>
     <!-- EXPORTAR LOS DATOS-->
-    <section class="export-all-section golden-decorated-form">
-      <h2 class="export-all-title">🗄️ Exportar Todos los Datos 💎</h2>
-      <p class="export-all-description">Elige el formato para descargar una copia completa de tu información.</p>
-      <div class="export-options">
+    <section class="bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8 md:p-12 rounded-3xl shadow-2xl border-4 border-yellow-600 max-w-5xl mx-auto mt-10 text-white backdrop-blur-sm">
+  <h2 class="text-3xl md:text-4xl font-extrabold text-yellow-400 text-center mb-6 drop-shadow-lg">
+    🗄️ Exportar Todos los Datos 💎
+  </h2>
+  <p class="text-lg text-gray-200 mb-8 text-center">
+    Elige el formato para descargar una copia completa de tu información.
+  </p>
 
-        <button id="btnExportarExcel" class="btn-export">
-            <img src="icons/1.EXCEL.png" alt="Excel" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a Excel
-        </button>
-        <button id="btnExportarCSV" class="btn-export">
-            <img src="icons/2. CSV.png" alt="CSV" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a CSV
-        </button>
-        <button id="btnExportarJSON" class="btn-export">
-            <img src="icons/3. JSON.png" alt="JSON" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a JSON
-        </button>
-        <button id="btnExportarPDF" class="btn-export">
-            <img src="icons/4. PDF.png" alt="PDF" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Exportar a PDF
-        </button>
+  <div class="flex flex-wrap justify-center gap-4">
+    <button id="btnExportarExcel" class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition-all">
+      <img src="icons/1.EXCEL.png" alt="Excel" class="w-5 h-5 inline mr-2"> Exportar a Excel
+    </button>
+    <button id="btnExportarCSV" class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition-all">
+      <img src="icons/2. CSV.png" alt="CSV" class="w-5 h-5 inline mr-2"> Exportar a CSV
+    </button>
+    <button id="btnExportarJSON" class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition-all">
+      <img src="icons/3. JSON.png" alt="JSON" class="w-5 h-5 inline mr-2"> Exportar a JSON
+    </button>
+    <button id="btnExportarPDF" class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition-all">
+      <img src="icons/4. PDF.png" alt="PDF" class="w-5 h-5 inline mr-2"> Exportar a PDF
+    </button>
+    <button id="btnToggleImport" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all">
+      <img src="icons/5. SUBIR.png" alt="Importar" class="w-5 h-5 inline mr-2"> Importar Datos
+    </button>
+  </div>
 
-        <button id="btnToggleImport" class="btn-export btn-import-toggle">
-            <img src="icons/5. SUBIR.png" alt="Importar" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Importar Datos
-        </button>
-      </div>
+  <div id="importOptionsContainer" class="hidden mt-10 bg-gray-800 bg-opacity-60 backdrop-blur-md border border-yellow-500 p-6 rounded-2xl transition-all duration-300">
+    <h3 class="text-xl font-semibold text-yellow-400 text-center mb-2">
+      📂 Selecciona el archivo JSON para importar:
+    </h3>
+    <p class="text-sm text-red-400 text-center mb-4">
+      ¡Cuidado! Esto reemplazará tus datos actuales. Asegúrate de tener una copia de seguridad.
+    </p>
 
-      <div id="importOptionsContainer" class="import-options-container">
-        <h3>📂 Selecciona el archivo JSON para importar:</h3>
-        <p class="import-description">¡Cuidado! Esto reemplazará tus datos actuales. Asegúrate de tener una copia de seguridad.</p>
-        
-        <label for="jsonFileInput" class="custom-file-upload">
-            <input type="file" id="jsonFileInput" accept=".json" style="display: none;"> <span id="fileNameDisplay" class="file-name-display">Seleccionar archivo...</span>
-            <button type="button" class="btn-browse-file">Examinar</button>
-        </label>
-        <button id="btnImportarJSON" class="btn-import btn-primary">
-            <img src="icons/6. CARGAR Y REEMPLAZAR.png" alt="Importar" style="width: 20px; height: 20px; margin-right: 5px; vertical-align: middle;"> Cargar y Reemplazar Datos
-        </button>
-      </div>
-    </section>
+    <label for="jsonFileInput" class="flex items-center justify-between flex-wrap gap-4 bg-gray-900 border border-gray-600 rounded-xl p-4 cursor-pointer text-white">
+      <input type="file" id="jsonFileInput" accept=".json" class="hidden">
+      <span id="fileNameDisplay" class="truncate w-full text-left">Seleccionar archivo...</span>
+      <button type="button" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-bold">
+        Examinar
+      </button>
+    </label>
+
+    <button id="btnImportarJSON" class="mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition-all">
+      <img src="icons/6. CARGAR Y REEMPLAZAR.png" alt="Importar" class="w-5 h-5 inline mr-2"> Cargar y Reemplazar Datos
+    </button>
+  </div>
+</section>
+
   </main>
 
   <script src="js/db.js"></script>
@@ -100,22 +111,39 @@
       document.getElementById("navMenu").classList.toggle("open");
     }
 
+    // Esta parte es importante si tu login.html y manejo de sesión están activos
     if (sessionStorage.getItem("sesionIniciada") !== "true") {
       window.location.href = "login.html";
     }
 
-    function cerrarSesion() {
-      sessionStorage.removeItem("sesionIniciada");
-      window.location.href = "login.html";
-    }
   </script>
 
   <!-- FORZAR ACTUALIZACIÓN DEL SERVICE-WORKER-->
   <button id="update-app-button">Actualizar Aplicación</button>
 
-  <div id="button" class="button-sesion">
-    <button onclick="cerrarSesion()">Cerrar sesión</button>
-  </div>
+  <script>
+  const toggleBtn = document.getElementById("btnToggleImport");
+  const container = document.getElementById("importOptionsContainer");
+
+  toggleBtn.addEventListener("click", () => {
+    const isHidden = container.classList.contains("hidden");
+
+    container.classList.toggle("hidden");
+
+    if (isHidden) {
+      // Esperamos un pequeño tiempo para que el contenido se muestre antes de hacer scroll
+      setTimeout(() => {
+        container.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 200);
+    } else {
+      // Hacemos scroll hacia el inicio de la sección principal (por ejemplo, el título)
+      const sectionTop = document.querySelector(".vault-data-section");
+      if (sectionTop) {
+        sectionTop.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  });
+</script>
 
 </body>
 </html>
