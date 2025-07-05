@@ -7,12 +7,12 @@
   <link rel="icon" type="image/png" href="fav/los ss.png">
 
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/ventas.css"/> <!-- ¡NUEVA LÍNEA AQUÍ! -->
+  <link rel="stylesheet" href="css/ventas.css"/> 
   <link rel="stylesheet" href="css/ayuda.css">
   <link rel="stylesheet" href="css/chatbot-ayuda.css" />
   <link rel="stylesheet" href="css/form-decoration.css" />
   <link rel="stylesheet" href="css/tablaVentas.css" />
-  <link rel="stylesheet" href="css/recibo-venta.css" /> <!-- NUEVO CSS PARA RECIBO -->
+  <link rel="stylesheet" href="css/recibo-venta.css" /> 
   <link rel="stylesheet" href="css/fontawesome web/css/all.min.css">
   <!-- Librería JsBarcode para códigos de barras -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -49,7 +49,7 @@
   </nav>
 
   <main>
-    <section id="formularioVenta" class="golden-decorated-form"> <!-- ¡NUEVA CLASE AÑADIDA AQUÍ! -->
+    <section id="formularioVenta" class="golden-decorated-form"> 
   <h2>➕ Registrar Venta Multiproducto</h2>
 
   <label for="clienteVenta">Cliente:</label>
@@ -70,7 +70,7 @@
   <button onclick="agregarProductoAVenta()">➕ Agregar Producto</button>
 
   <!--TABLA-->
-  <table class="productos-venta-table"> <!-- ¡NUEVA CLASE AQUI! -->
+  <table class="productos-venta-table"> 
     <thead>
         <tr>
             <th>Producto</th>
@@ -155,14 +155,14 @@
     <h2>Herramientas de Ventas</h2>
     <div class="utility-buttons">
         <button id="exportarVentasBtn" class="btn btn-utility" onclick="exportarJSON()">
-            <i class="fas fa-file-export"></i> Exportar Ventas (JSON)
+            <i class="fas fa-file-export"></i> Exportar Ventas
         </button>
         <label for="importarVentasInput" class="btn btn-utility file-upload-label">
-            <i class="fas fa-file-import"></i> Importar Ventas (JSON)
+            <i class="fas fa-file-import"></i> Importar Ventas
             <input type="file" id="importarVentasInput" accept=".json" style="display: none;" onchange="importarJSONConArchivo(event)">
         </label>
         <button id="descargarPlantillaVentasBtn" class="btn btn-utility" onclick="descargarPlantillaJSON()">
-            <i class="fas fa-download"></i> Descargar Plantilla (JSON)
+            <i class="fas fa-download"></i> Descargar Plantilla
         </button>
     </div>
 </section>
