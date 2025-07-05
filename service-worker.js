@@ -1,7 +1,7 @@
 // Archivo: service-worker.js
 
 // Incrementamos la versión y agregamos timestamp para forzar actualización
-const CACHE_NAME = "los-ss-cache-v5";
+const CACHE_NAME = "los-ss-cache-v9";
 const APP_VERSION = "1.0.5"; // Incrementa esto cuando hagas cambios importantes
 
 // Función para determinar la ruta base según el entorno
