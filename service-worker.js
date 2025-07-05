@@ -1,7 +1,7 @@
 // Archivo: service-worker.js
 
 // Incrementamos la versión y agregamos timestamp para forzar actualización
-const CACHE_NAME = "los-ss-cache-v9";
+const CACHE_NAME = "los-ss-cache-v10";
 const APP_VERSION = "1.0.5"; // Incrementa esto cuando hagas cambios importantes
 
 // Función para determinar la ruta base según el entorno
@@ -87,6 +87,7 @@ const urlsToCache = [
 
   // fav:
   `${REPO_PREFIX}fav/los ss.png`,
+  `${REPO_PREFIX}fav/SALAZAR.png`,
 
   // Fonts:
   `${REPO_PREFIX}fonts/Handlee-Regular.ttf`,
@@ -105,8 +106,10 @@ const urlsToCache = [
   // Logo:
   `${REPO_PREFIX}logo/DiaDelPadre.png`,
   `${REPO_PREFIX}logo/LOS SS.png`,
-  `${REPO_PREFIX}logo/Yogurt.png`,
-  `${REPO_PREFIX}logo/LOGIN.png`, // Añadido logo de login
+  `${REPO_PREFIX}logo/Yogurt.png`, 
+  `${REPO_PREFIX}logo/BIOMÉTRICA.png`,
+  `${REPO_PREFIX}logo/EMPRESA.png`,
+  `${REPO_PREFIX}logo/LOGIN.png`,
 
   // Resources:
   `${REPO_PREFIX}resources/GPT.png`,
